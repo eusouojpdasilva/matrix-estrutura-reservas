@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sua Agência | Curadoria de Viagens Boutique</title>
+  <link rel="icon" href="/assets/logo.png">
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Montserrat','sans-serif'],
+            serif: ['Playfair Display','serif'],
+          },
+          colors: {
+            brand: { orange:'#F29F05', offwhite:'#FAFAFA', dark:'#1A1A1A' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { background:#FAFAFA; color:#1A1A1A; font-family:'Montserrat',sans-serif; }
+    h1,h2,h3,h4 { font-family:'Playfair Display',serif; }
+    ::-webkit-scrollbar{width:8px} ::-webkit-scrollbar-track{background:#FAFAFA} ::-webkit-scrollbar-thumb{background:#F29F05;border-radius:4px}
+
+    @keyframes kenBurns { 0%{transform:scale(1)} 100%{transform:scale(1.12)} }
+    .ken-burns { animation: kenBurns 20s ease-out forwards; }
+
+    @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+    .hero-content { animation: fadeUp .9s ease-out both; }
+
+    .reveal { opacity:0; transform:translateY(20px); transition:opacity .7s ease, transform .7s ease; }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+
+    .form-step { display:none; }
+    .form-step.active { display:block; }
+
+    .faq-answer { max-height:0; overflow:hidden; transition:max-height .35s ease; }
+
+    .blog-card {
+      display:flex; flex-direction:column; background:#fff;
+      border:1px solid #ebebeb; border-radius:2px; overflow:hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06), 0 0 1px rgba(0,0,0,.04);
+      text-decoration:none; transition:box-shadow .3s ease, transform .3s ease;
+    }
+    .blog-card:hover {
+      box-shadow: 0 8px 28px rgba(0,0,0,.11), 0 0 1px rgba(0,0,0,.06);
+      transform: translateY(-3px);
+    }
+  </style>
+</head>
+<body class="antialiased overflow-x-hidden">
+
+<!-- GTM noscript -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<!-- ═══════════════════════════ NAV ═══════════════════════════ -->
+<nav id="nav" class="fixed w-full z-50 transition-all duration-300 py-6">
+  <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
+    <a href="#" onclick="window.scrollTo(0,0);return false;">
+      <img id="nav-logo" src="/assets/logo.png" alt="Sua Agência" class="h-12 w-auto object-contain brightness-0 invert transition-all duration-300">
+    </a>
+
+    <div class="hidden md:flex items-center gap-8">
+      <a href="/loja/blog"     class="nav-lnk text-sm font-semibold uppercase tracking-wider text-white hover:text-[#F29F05] transition-colors">Blog</a>
+      <a href="#sobre"         class="nav-lnk text-sm font-semibold uppercase tracking-wider text-white hover:text-[#F29F05] transition-colors">Sobre</a>
+      <a href="#como-funciona" class="nav-lnk text-sm font-semibold uppercase tracking-wider text-white hover:text-[#F29F05] transition-colors">Como Funciona</a>
+      <a href="#faq"           class="nav-lnk text-sm font-semibold uppercase tracking-wider text-white hover:text-[#F29F05] transition-colors">FAQ</a>
+      <a href="#formulario" id="nav-cta" class="border-2 border-white text-white text-xs font-bold tracking-wider uppercase px-6 py-3 rounded-lg hover:bg-white hover:text-[#F29F05] transition-all">Consultoria</a>
+    </div>
+
+    <button id="menu-btn" class="md:hidden text-white z-50" onclick="toggleMenu()">
+      <svg id="ico-menu" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      <svg id="ico-close" class="w-7 h-7 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div id="mobile-menu" style="display:none" class="fixed inset-0 bg-white z-40 flex flex-col items-center justify-center gap-8">
+  <a href="/loja/blog"     onclick="closeMenu()" class="text-2xl font-serif font-bold text-[#1A1A1A] hover:text-[#F29F05]">Blog</a>
+  <a href="#sobre"         onclick="closeMenu()" class="text-2xl font-serif font-bold text-[#1A1A1A] hover:text-[#F29F05]">Sobre</a>
+  <a href="#como-funciona" onclick="closeMenu()" class="text-2xl font-serif font-bold text-[#1A1A1A] hover:text-[#F29F05]">Como Funciona</a>
+  <a href="#faq"           onclick="closeMenu()" class="text-2xl font-serif font-bold text-[#1A1A1A] hover:text-[#F29F05]">FAQ</a>
+  <a href="#formulario"    onclick="closeMenu()" class="bg-[#F29F05] text-white font-bold tracking-wider uppercase px-8 py-4 rounded-lg hover:bg-orange-600 transition-colors">Agendar Conversa</a>
+</div>
+
+<!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+<section class="relative h-screen min-h-[700px] flex items-center justify-center text-white overflow-hidden">
+  <!-- Slider -->
+  <div class="absolute inset-0 bg-[#1A1A1A]">
+    <div class="swiper hero-swiper w-full h-full">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide relative overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1592906209472-a36b1f3782ef?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Leste Europeu" class="w-full h-full object-cover ken-burns">
+          <div class="absolute inset-0 bg-black/60"></div>
+        </div>
+        <div class="swiper-slide relative overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1572942560575-2e3142767543?q=80&w=1169&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Leste Europeu" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-black/60"></div>
+        </div>
+        <div class="swiper-slide relative overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1551867633-194f125bddfa?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Leste Europeu" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-black/60"></div>
+        </div>
+        <div class="swiper-slide relative overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1555990794-6d00be0d6f95?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Leste Europeu" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-black/60"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="relative z-10 max-w-4xl mx-auto px-5 md:px-6 text-center hero-content">
+    <div class="inline-block px-4 py-2 border border-white/40 rounded-full bg-black/30 backdrop-blur-sm mb-5 md:mb-6">
+      <span class="text-xs font-bold tracking-[0.2em] text-[#F29F05] uppercase">Boutique Travel Agency</span>
+    </div>
+    <h1 class="text-3xl sm:text-4xl md:text-7xl font-serif font-medium leading-tight mb-4 md:mb-8">
+      Você vai para o Leste Europeu com um roteiro completo nas mãos
+    </h1>
+    <p class="text-sm sm:text-base md:text-xl text-gray-100 font-light max-w-2xl mx-auto mb-6 md:mb-10 leading-relaxed">
+      Curadoria personalizada pra quem quer descobrir a região do jeito certo, sem passar semanas pesquisando um destino que a maioria das agências nem conhece.
+    </p>
+    <a href="#formulario" class="block sm:inline-block w-full sm:w-auto bg-[#F29F05] text-white font-bold tracking-wider uppercase px-8 py-4 md:px-10 md:py-5 rounded-lg hover:bg-orange-600 shadow-lg shadow-orange-500/30 transition-all hover:-translate-y-1 text-base md:text-lg">
+      Quero meu roteiro
+    </a>
+    <p class="mt-4 text-xs tracking-widest uppercase opacity-70">Atendimento exclusivo com vagas limitadas</p>
+  </div>
+
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce opacity-60 hidden md:block">
+    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PROBLEM ═══════════════════════════ -->
+<section id="sobre" class="py-24 md:py-32 px-6 md:px-16 bg-[#FAFAFA]">
+  <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+    <div class="reveal">
+      <div class="relative pb-20 md:pb-10">
+        <img src="/assets/logo.png"
+             alt="Viajante em Paris" class="rounded-sm shadow-2xl w-full object-cover object-top aspect-[4/5]" style="filter:grayscale(20%)">
+        <div class="absolute -bottom-4 right-0 md:-bottom-10 md:-right-12 bg-white p-4 md:p-8 shadow-xl border-l-4 border-[#F29F05] max-w-[220px] md:max-w-xs">
+          <p class="font-serif italic text-sm md:text-xl text-[#1A1A1A]">"O maior luxo de uma viagem é a tranquilidade."</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-8 mt-12 md:mt-0">
+      <div class="reveal">
+        <h2 class="text-3xl md:text-5xl font-serif text-[#1A1A1A] leading-tight">
+          Planejar uma viagem pro Leste Europeu deveria ser <span class="text-[#F29F05]">prazeroso</span>, não um trabalho.
+        </h2>
+      </div>
+      <div class="reveal">
+        <p class="text-lg text-[#1A1A1A] leading-relaxed">
+          Você sabe que quer ir, mas trava na hora de montar a logística? O problema não é falta de vontade. É falta de informação de qualidade sobre uma região que ninguém cobre direito.
+        </p>
+      </div>
+      <div class="space-y-6 pt-4">
+        <div class="reveal flex items-start gap-4">
+          <svg class="w-6 h-6 text-[#F29F05] mt-1 flex-shrink-0" fill="none" stroke="#F29F05" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6" stroke-linecap="round"/></svg>
+          <div><h3 class="text-xl font-serif font-bold">Overdose de Informação</h3><p class="text-gray-600 mt-1">Conteúdo em inglês, blogs genéricos e reviews contraditórios que não foram feitos pro viajante brasileiro.</p></div>
+        </div>
+        <div class="reveal flex items-start gap-4">
+          <svg class="w-6 h-6 text-[#F29F05] mt-1 flex-shrink-0" fill="none" stroke="#F29F05" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6" stroke-linecap="round"/></svg>
+          <div><h3 class="text-xl font-serif font-bold">Risco de Errar</h3><p class="text-gray-600 mt-1">O medo de investir alto numa viagem longa e descobrir os erros só quando já estiver lá.</p></div>
+        </div>
+        <div class="reveal flex items-start gap-4">
+          <svg class="w-6 h-6 text-[#F29F05] mt-1 flex-shrink-0" fill="none" stroke="#F29F05" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6" stroke-linecap="round"/></svg>
+          <div><h3 class="text-xl font-serif font-bold">Tempo é Dinheiro</h3><p class="text-gray-600 mt-1">Sua rotina não permite passar semanas pesquisando um destino que as grandes agências mal conhecem.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ FILTER ═══════════════════════════ -->
+<section class="py-24 md:py-32 px-6 md:px-16 bg-white border-y border-gray-100">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-16 reveal">
+      <span class="text-[#F29F05] font-bold uppercase tracking-widest text-xs">Transparência Radical</span>
+      <h2 class="text-4xl font-serif text-[#1A1A1A] mt-2">Para quem é a Curadoria de Destino?</h2>
+    </div>
+    <div class="grid md:grid-cols-2 gap-10">
+      <div class="reveal bg-[#FAFAFA] p-10 rounded-xl shadow-lg border-t-4 border-[#F29F05] hover:shadow-xl transition-shadow">
+        <div class="flex items-center gap-3 mb-6">
+          <svg class="w-8 h-8" fill="none" stroke="#F29F05" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <h3 class="text-2xl font-serif font-bold">É para você se...</h3>
+        </div>
+        <ul class="space-y-4 text-[#1A1A1A]">
+          <li class="flex items-start gap-3"><span class="w-1.5 h-1.5 rounded-full bg-[#F29F05] mt-2 flex-shrink-0"></span><span>Quer descobrir o Leste Europeu com segurança e clareza.</span></li>
+          <li class="flex items-start gap-3"><span class="w-1.5 h-1.5 rounded-full bg-[#F29F05] mt-2 flex-shrink-0"></span><span>Valoriza conforto, experiências autênticas e escolhas bem feitas.</span></li>
+          <li class="flex items-start gap-3"><span class="w-1.5 h-1.5 rounded-full bg-[#F29F05] mt-2 flex-shrink-0"></span><span>Quer otimizar seu tempo e ter alguém que já fez o mapeamento por você.</span></li>
+          <li class="flex items-start gap-3"><span class="w-1.5 h-1.5 rounded-full bg-[#F29F05] mt-2 flex-shrink-0"></span><span>Já tem uma previsão de data para viajar.</span></li>
+        </ul>
+      </div>
+      <div class="reveal bg-white p-10 rounded-xl shadow-md border border-gray-100" style="opacity:.85">
+        <div class="flex items-center gap-3 mb-6">
+          <svg class="w-8 h-8" fill="none" stroke="#9CA3AF" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <h3 class="text-2xl font-serif font-bold text-gray-500">Não é para você se...</h3>
+        </div>
+        <ul class="space-y-4 text-gray-500">
+          <li class="flex items-start gap-3"><span class="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2 flex-shrink-0"></span><span>Busca apenas o menor preço possível a qualquer custo.</span></li>
+          <li class="flex items-start gap-3"><span class="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2 flex-shrink-0"></span><span>Quer pesquisar e montar tudo sozinha.</span></li>
+          <li class="flex items-start gap-3"><span class="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2 flex-shrink-0"></span><span>Ainda não decidiu se realmente vai viajar este ano.</span></li>
+          <li class="flex items-start gap-3"><span class="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2 flex-shrink-0"></span><span>Prefere pacotes prontos de grandes operadoras.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ PROCESS ═══════════════════════════ -->
+<section id="como-funciona" class="py-24 md:py-32 px-6 md:px-16 bg-[#1A1A1A] text-white">
+  <div class="max-w-6xl mx-auto">
+    <div class="grid md:grid-cols-12 gap-12 items-start">
+      <div class="md:col-span-4 md:sticky top-24">
+        <span class="text-[#F29F05] font-bold uppercase tracking-widest text-xs">O Processo</span>
+        <h2 class="text-4xl md:text-5xl font-serif mt-4 mb-6 leading-tight">Simples.<br>Claro.<br>Eficiente.</h2>
+        <p class="text-gray-400 leading-relaxed mb-8 text-lg">Do primeiro contato à entrega do roteiro, cada etapa foi pensada pra você chegar no destino com tudo no lugar.</p>
+        <a href="#formulario" class="inline-block bg-[#F29F05] text-white font-bold tracking-wider uppercase px-8 py-4 rounded-lg hover:bg-orange-600 transition-all hover:-translate-y-1">Iniciar Processo</a>
+      </div>
+      <div class="md:col-span-8 grid gap-6">
+        <div class="reveal flex flex-col md:flex-row gap-4 md:gap-6 p-5 md:p-8 rounded-xl bg-white/5 border border-white/10 hover:border-[#F29F05]/50 transition-colors">
+          <div class="text-5xl font-serif text-[#F29F05] opacity-50 font-bold leading-none">01</div>
+          <div><h3 class="text-xl font-bold mb-3">Preencha a aplicação</h3><p class="text-gray-400 leading-relaxed">Responda algumas perguntas rápidas no formulário abaixo sobre seu destino e perfil de viagem. Leva menos de 2 minutos.</p></div>
+        </div>
+        <div class="reveal flex flex-col md:flex-row gap-4 md:gap-6 p-5 md:p-8 rounded-xl bg-white/5 border border-white/10 hover:border-[#F29F05]/50 transition-colors">
+          <div class="text-5xl font-serif text-[#F29F05] opacity-50 font-bold leading-none">02</div>
+          <div><h3 class="text-xl font-bold mb-3">Me chama no WhatsApp</h3><p class="text-gray-400 leading-relaxed">Depois de preencher, você cai direto no meu WhatsApp. A gente conversa, acerta os detalhes e agenda a primeira reunião.</p></div>
+        </div>
+        <div class="reveal flex flex-col md:flex-row gap-4 md:gap-6 p-5 md:p-8 rounded-xl bg-white/5 border border-white/10 hover:border-[#F29F05]/50 transition-colors">
+          <div class="text-5xl font-serif text-[#F29F05] opacity-50 font-bold leading-none">03</div>
+          <div><h3 class="text-xl font-bold mb-3">Primeira reunião</h3><p class="text-gray-400 leading-relaxed">Uma conversa pra entender a fundo a experiência de viagem que você quer ter: os destinos, o ritmo e o que você quer sentir em cada cidade.</p></div>
+        </div>
+        <div class="reveal flex flex-col md:flex-row gap-4 md:gap-6 p-5 md:p-8 rounded-xl bg-white/5 border border-white/10 hover:border-[#F29F05]/50 transition-colors">
+          <div class="text-5xl font-serif text-[#F29F05] opacity-50 font-bold leading-none">04</div>
+          <div><h3 class="text-xl font-bold mb-3">Entrega do roteiro</h3><p class="text-gray-400 leading-relaxed">Em até 7 dias, a gente se encontra de novo e eu apresento o roteiro completo. Você sai pronto pra fazer as reservas com segurança.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ ABOUT ═══════════════════════════ -->
+<section class="py-24 md:py-32 px-6 md:px-16 bg-white">
+  <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+    <div class="order-2 md:order-1 space-y-8">
+      <div class="reveal">
+        <span class="text-[#F29F05] font-bold uppercase tracking-widest text-xs">O Consultor</span>
+        <h2 class="text-4xl md:text-5xl font-serif text-[#1A1A1A] mt-2">JP | Sua Agência</h2>
+      </div>
+      <div class="reveal space-y-6 text-lg text-[#1A1A1A] leading-relaxed font-light">
+        <p>"Pesquiso o Leste Europeu de forma profunda e contínua pra entregar o que nenhuma agência tradicional entrega: um roteiro feito pra você, pra um destino que poucos conhecem de verdade."</p>
+        <p>Meu trabalho na agência é transformar semanas de pesquisa em um roteiro claro e personalizado. Você chega no destino sabendo exatamente o que vai viver em cada cidade.</p>
+      </div>
+      <div class="reveal grid grid-cols-2 gap-6 pt-6 border-t border-gray-200">
+        <div><div class="text-4xl font-serif font-bold text-[#F29F05]">10+</div><div class="text-xs text-gray-500 uppercase tracking-wide mt-1">Países Vividos</div></div>
+        <div><div class="text-4xl font-serif font-bold text-[#F29F05]">100%</div><div class="text-xs text-gray-500 uppercase tracking-wide mt-1">Personalizado</div></div>
+      </div>
+    </div>
+    <div class="order-1 md:order-2">
+      <div class="reveal relative group overflow-hidden md:overflow-visible">
+        <div class="absolute inset-0 bg-[#F29F05] translate-x-2 translate-y-2 md:translate-x-4 md:translate-y-4 rounded-sm transition-transform duration-500 group-hover:translate-x-1 group-hover:translate-y-1 md:group-hover:translate-x-2 md:group-hover:translate-y-2"></div>
+        <img src="/assets/logo.png" alt="JP Sua Agência" class="relative z-10 w-full rounded-sm shadow-xl aspect-[3/4] object-cover transition-all duration-700">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ BLOG ═══════════════════════════ -->
+<section id="blog-preview" class="py-24 md:py-32 px-6 md:px-16 bg-white" style="display:none">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-16 reveal">
+      <span class="text-[#F29F05] font-bold uppercase tracking-widest text-xs">Do Diário de Viagens</span>
+      <h2 class="text-4xl md:text-5xl font-serif text-[#1A1A1A] mt-3">Antes de partir, leia isso</h2>
+      <p class="mt-4 text-gray-500 font-light max-w-xl mx-auto">Artigos escritos por quem conhece o Leste Europeu de dentro — não de guia turístico.</p>
+    </div>
+    <div id="blog-grid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+    <div class="text-center mt-12 reveal">
+      <a href="/loja" class="inline-flex items-center gap-2 text-[#1A1A1A] font-semibold border-b-2 border-[#F29F05] pb-0.5 hover:text-[#F29F05] transition-colors text-sm uppercase tracking-widest">Ver todos os artigos <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    </div>
+  </div>
+</section>
+<script>
+(function() {
+  fetch('/loja/api/articles?limit=4')
+    .then(function(r) { return r.ok ? r.json() : []; })
+    .then(function(articles) {
+      if (!Array.isArray(articles) || !articles.length) return;
+      var grid = document.getElementById('blog-grid');
+      var section = document.getElementById('blog-preview');
+      grid.innerHTML = articles.map(function(a) {
+        var date = a.published_at ? new Date(a.published_at).toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' }) : '';
+        var cover = a.cover_image || '/assets/logo.png';
+        var excerpt = a.excerpt ? (a.excerpt.length > 90 ? a.excerpt.slice(0, 90) + '…' : a.excerpt) : '';
+        var guide = a.guide_title ? '<span style="display:inline-block;background:rgba(242,159,5,.1);color:#F29F05;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:2px 8px;border-radius:2px;margin-bottom:10px">' + a.guide_title + '</span>' : '';
+        return '<a href="/loja/blog/' + a.slug + '" class="blog-card">'
+          + '<div style="position:relative;overflow:hidden;aspect-ratio:4/3">'
+          + '<img src="' + cover + '" alt="" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">'
+          + '</div>'
+          + '<div style="display:flex;flex-direction:column;flex:1;padding:20px">'
+          + guide
+          + '<h3 style="font-family:\'Playfair Display\',serif;color:#1A1A1A;font-size:18px;line-height:1.3;margin:0 0 8px">' + a.title + '</h3>'
+          + (excerpt ? '<p style="color:#6b7280;font-size:13px;font-weight:300;line-height:1.6;margin:0 0 16px;flex:1">' + excerpt + '</p>' : '<div style="flex:1"></div>')
+          + '<div style="display:flex;justify-content:space-between;padding-top:12px;border-top:1px solid #f3f4f6;margin-top:auto">'
+          + '<span style="font-size:11px;color:#9ca3af">' + date + '</span>'
+          + (a.read_time_min ? '<span style="font-size:11px;color:#9ca3af">' + a.read_time_min + ' min</span>' : '')
+          + '</div>'
+          + '</div>'
+          + '</a>';
+      }).join('');
+      section.style.display = '';
+    })
+    .catch(function() {});
+})();
+</script>
+
+<!-- ═══════════════════════════ FORM ═══════════════════════════ -->
+<section id="formulario" class="relative py-24 md:py-32 px-6 bg-[#1A1A1A] text-white overflow-hidden">
+  <div class="absolute inset-0 z-0 opacity-25">
+    <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=2000&q=80" class="w-full h-full object-cover brightness-50">
+  </div>
+  <div class="absolute inset-0 bg-gradient-to-t from-[#1A1A1A] via-transparent to-[#1A1A1A] z-0"></div>
+
+  <div class="relative z-10 max-w-4xl mx-auto text-center mb-12">
+    <h2 class="text-3xl md:text-5xl font-serif mb-4 leading-tight">Comece agora.</h2>
+    <p class="text-lg text-gray-300 max-w-2xl mx-auto font-light">Responda algumas perguntas rápidas e caia direto no meu WhatsApp.</p>
+  </div>
+
+  <div class="relative z-20 max-w-2xl mx-auto">
+    <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+      <!-- Progress -->
+      <div class="w-full bg-gray-100 h-2">
+        <div id="progress-bar" class="bg-[#F29F05] h-2 transition-all duration-500" style="width:25%"></div>
+      </div>
+
+      <div class="p-5 md:p-12 min-h-[380px] flex flex-col justify-center">
+
+        <!-- Step 1 -->
+        <div class="form-step active" data-step="1">
+          <span class="text-[#F29F05] text-xs font-bold tracking-widest uppercase mb-4 block">Passo 1 de 4</span>
+          <h3 class="text-2xl md:text-3xl font-serif font-bold text-[#1A1A1A] mb-8 leading-tight">Para qual destino do Leste Europeu você está pensando em viajar?</h3>
+          <div class="grid gap-3">
+            <button class="opt text-left p-4 border border-gray-200 rounded-lg hover:border-[#F29F05] hover:bg-orange-50 transition-all flex justify-between items-center group" data-field="destiny" data-value="República Checa e Polônia">
+              <span class="text-gray-700 font-medium group-hover:text-[#F29F05]">República Checa e Polônia</span>
+              <svg class="w-4 h-4 text-gray-300 group-hover:text-[#F29F05] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <button class="opt text-left p-4 border border-gray-200 rounded-lg hover:border-[#F29F05] hover:bg-orange-50 transition-all flex justify-between items-center group" data-field="destiny" data-value="Países Bálticos">
+              <span class="text-gray-700 font-medium group-hover:text-[#F29F05]">Países Bálticos</span>
+              <svg class="w-4 h-4 text-gray-300 group-hover:text-[#F29F05] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <button class="opt text-left p-4 border border-gray-200 rounded-lg hover:border-[#F29F05] hover:bg-orange-50 transition-all flex justify-between items-center group" data-field="destiny" data-value="Hungria e Romênia">
+              <span class="text-gray-700 font-medium group-hover:text-[#F29F05]">Hungria e Romênia</span>
+              <svg class="w-4 h-4 text-gray-300 group-hover:text-[#F29F05] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <button class="opt text-left p-4 border border-gray-200 rounded-lg hover:border-[#F29F05] hover:bg-orange-50 transition-all flex justify-between items-center group" data-field="destiny" data-value="Croácia e Bálcãs">
+              <span class="text-gray-700 font-medium group-hover:text-[#F29F05]">Croácia e Bálcãs</span>
+              <svg class="w-4 h-4 text-gray-300 group-hover:text-[#F29F05] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <button class="opt text-left p-4 border border-gray-200 rounded-lg hover:border-[#F29F05] hover:bg-orange-50 transition-all flex justify-between items-center group" data-field="destiny" data-value="Ainda estou decidindo">
+              <span class="text-gray-700 font-medium group-hover:text-[#F29F05]">Ainda estou decidindo</span>
+              <svg class="w-4 h-4 text-gray-300 group-hover:text-[#F29F05] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="form-step" data-step="2">
+          <span class="text-[#F29F05] text-xs font-bold tracking-widest uppercase mb-4 block">Passo 2 de 4</span>
+          <h3 class="text-2xl md:text-3xl font-serif font-bold text-[#1A1A1A] mb-8 leading-tight">Quando você pretende viajar?</h3>
+          <div class="grid gap-3">
+            <button class="opt text-left p-4 border border-gray-200 rounded-lg hover:border-[#F29F05] hover:bg-orange-50 transition-all flex justify-between items-center group" data-field="timing" data-value="Próximos 3 meses"><span class="text-gray-700 font-medium group-hover:text-[#F29F05]">Próximos 3 meses</span><svg class="w-4 h-4 text-gray-300 group-hover:text-[#F29F05]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+            <button class="opt text-left p-4 border border-gray-200 rounded-lg hover:border-[#F29F05] hover:bg-orange-50 transition-all flex justify-between items-center group" data-field="timing" data-value="3 a 6 meses"><span class="text-gray-700 font-medium group-hover:text-[#F29F05]">3 a 6 meses</span><svg class="w-4 h-4 text-gray-300 group-hover:text-[#F29F05]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+            <button class="opt text-left p-4 border border-gray-200 rounded-lg hover:border-[#F29F05] hover:bg-orange-50 transition-all flex justify-between items-center group" data-field="timing" data-value="Mais de 6 meses"><span class="text-gray-700 font-medium group-hover:text-[#F29F05]">Mais de 6 meses</span><svg class="w-4 h-4 text-gray-300 group-hover:text-[#F29F05]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="form-step" data-step="3">
+          <span class="text-[#F29F05] text-xs font-bold tracking-widest uppercase mb-4 block">Passo 3 de 4</span>
+          <h3 class="text-2xl md:text-3xl font-serif font-bold text-[#1A1A1A] mb-8 leading-tight">Você já tem passagem comprada?</h3>
+          <div class="grid gap-3">
+            <button class="opt text-left p-4 border border-gray-200 rounded-lg hover:border-[#F29F05] hover:bg-orange-50 transition-all flex justify-between items-center group" data-field="passagem" data-value="Sim, já comprei"><span class="text-gray-700 font-medium group-hover:text-[#F29F05]">Sim, já comprei</span><svg class="w-4 h-4 text-gray-300 group-hover:text-[#F29F05]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+            <button class="opt text-left p-4 border border-gray-200 rounded-lg hover:border-[#F29F05] hover:bg-orange-50 transition-all flex justify-between items-center group" data-field="passagem" data-value="Ainda não comprei"><span class="text-gray-700 font-medium group-hover:text-[#F29F05]">Ainda não comprei</span><svg class="w-4 h-4 text-gray-300 group-hover:text-[#F29F05]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+            <button class="opt text-left p-4 border border-gray-200 rounded-lg hover:border-[#F29F05] hover:bg-orange-50 transition-all flex justify-between items-center group" data-field="passagem" data-value="Ainda não decidi"><span class="text-gray-700 font-medium group-hover:text-[#F29F05]">Ainda não decidi</span><svg class="w-4 h-4 text-gray-300 group-hover:text-[#F29F05]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="form-step" data-step="4">
+          <span class="text-[#F29F05] text-xs font-bold tracking-widest uppercase mb-4 block">Passo Final</span>
+          <h3 class="text-2xl md:text-3xl font-serif font-bold text-[#1A1A1A] mb-8">Como podemos te chamar?</h3>
+          <div class="space-y-6 mb-8">
+            <div>
+              <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Seu Nome</label>
+              <input id="f-name" type="text" placeholder="Ex: João Silva" class="w-full border-b-2 border-gray-200 py-3 text-xl text-[#1A1A1A] focus:border-[#F29F05] focus:outline-none transition-colors bg-transparent placeholder-gray-300">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Seu WhatsApp</label>
+              <input id="f-whatsapp" type="tel" placeholder="Ex: 41 99999-9999" class="w-full border-b-2 border-gray-200 py-3 text-xl text-[#1A1A1A] focus:border-[#F29F05] focus:outline-none transition-colors bg-transparent placeholder-gray-300">
+            </div>
+          </div>
+          <button id="submit-btn" onclick="submitForm()" class="w-full bg-[#F29F05] text-white font-bold tracking-wider uppercase px-8 py-4 rounded-lg hover:bg-orange-600 transition-all hover:-translate-y-1 flex items-center justify-center gap-2">
+            <span id="btn-label">Quero meu roteiro</span>
+            <svg id="btn-send" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            <svg id="btn-spin" class="w-5 h-5 hidden animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          </button>
+        </div>
+
+        <!-- Success -->
+        <div class="form-step text-center py-8" data-step="success">
+          <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10 text-[#F29F05]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          </div>
+          <h3 class="text-2xl md:text-3xl font-serif font-bold text-[#1A1A1A] mb-4">Suas informações ainda não foram armazenadas!</h3>
+          <p id="success-msg" class="text-gray-600 text-lg leading-relaxed mb-6">O próximo passo é uma conversa no WhatsApp. Clique no botão abaixo para garantir seu atendimento.</p>
+          <a id="wa-btn" href="#" target="_blank" class="flex items-center justify-center gap-3 w-full bg-[#25D366] text-white font-bold tracking-wider uppercase px-8 py-4 rounded-lg hover:bg-green-600 transition-all hover:-translate-y-1 mb-4 text-base">
+            <svg class="w-6 h-6 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+            Falar no WhatsApp
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ FAQ ═══════════════════════════ -->
+<section id="faq" class="py-24 md:py-32 px-6 md:px-16 bg-[#FAFAFA]">
+  <div class="max-w-3xl mx-auto">
+    <div class="text-center mb-16 reveal">
+      <h2 class="text-4xl font-serif text-[#1A1A1A]">Dúvidas Frequentes</h2>
+    </div>
+    <div>
+      <div class="faq-item border-b border-gray-200">
+        <button class="faq-trigger w-full flex justify-between items-center py-6 text-left group" onclick="toggleFaq(this)">
+          <span class="text-lg font-bold font-serif text-[#1A1A1A] group-hover:text-[#F29F05] transition-colors">A Curadoria de Destino é pra qualquer destino?</span>
+          <svg class="faq-chevron w-5 h-5 text-gray-400 flex-shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer"><p class="text-gray-600 leading-relaxed pb-6">O foco da Sua Agência é o Leste Europeu. República Checa, Polônia, Hungria, Países Bálticos, Romênia, Croácia e países do Cáucaso como a Geórgia. Se o seu destino está nessa região, estou no lugar certo pra te ajudar.</p></div>
+      </div>
+      <div class="faq-item border-b border-gray-200">
+        <button class="faq-trigger w-full flex justify-between items-center py-6 text-left group" onclick="toggleFaq(this)">
+          <span class="text-lg font-bold font-serif text-[#1A1A1A] group-hover:text-[#F29F05] transition-colors">Como funciona depois que eu preencho o formulário?</span>
+          <svg class="faq-chevron w-5 h-5 text-gray-400 flex-shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer"><p class="text-gray-600 leading-relaxed pb-6">Você cai direto no meu WhatsApp. A gente conversa sobre a sua viagem, agenda a primeira reunião e dá início ao processo. Em até 7 dias depois da reunião eu entrego o roteiro completo.</p></div>
+      </div>
+      <div class="faq-item border-b border-gray-200">
+        <button class="faq-trigger w-full flex justify-between items-center py-6 text-left group" onclick="toggleFaq(this)">
+          <span class="text-lg font-bold font-serif text-[#1A1A1A] group-hover:text-[#F29F05] transition-colors">Tem garantia?</span>
+          <svg class="faq-chevron w-5 h-5 text-gray-400 flex-shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer"><p class="text-gray-600 leading-relaxed pb-6">Sim. Se ao final você sentir que não entreguei uma boa experiência, devolvo o valor pago integralmente. Sem burocracia.</p></div>
+      </div>
+      <div class="faq-item border-b border-gray-200">
+        <button class="faq-trigger w-full flex justify-between items-center py-6 text-left group" onclick="toggleFaq(this)">
+          <span class="text-lg font-bold font-serif text-[#1A1A1A] group-hover:text-[#F29F05] transition-colors">Vocês fazem reservas e emissão de passagens?</span>
+          <svg class="faq-chevron w-5 h-5 text-gray-400 flex-shrink-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="faq-answer"><p class="text-gray-600 leading-relaxed pb-6">A Curadoria de Destino foca no roteiro e na orientação. Emissão de passagens, reservas de hotel e seguro viagem ficam por conta do cliente.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
+<footer class="bg-black text-gray-500 py-16 px-6 border-t border-gray-900">
+  <div class="max-w-6xl mx-auto flex flex-col items-center gap-6 text-sm">
+    <img src="/assets/logo.png" alt="Sua Agência" class="h-16 w-auto opacity-90 hover:opacity-100 transition-opacity">
+    <p>&copy; <span id="year"></span> Sua Agência. Todos os direitos reservados.</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+  // Year
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // ── NAV SCROLL ──
+  var nav = document.getElementById('nav');
+  var navLogo = document.getElementById('nav-logo');
+  var navLinks = document.querySelectorAll('.nav-lnk');
+  var navCta = document.getElementById('nav-cta');
+
+  function updateNav() {
+    var scrolled = window.scrollY > 50;
+    nav.style.background = scrolled ? '#fff' : '';
+    nav.style.boxShadow = scrolled ? '0 1px 8px rgba(0,0,0,.08)' : '';
+    nav.style.paddingTop = scrolled ? '.75rem' : '1.5rem';
+    nav.style.paddingBottom = scrolled ? '.75rem' : '1.5rem';
+    navLogo.style.filter = scrolled ? '' : 'brightness(0) invert(1)';
+    navLinks.forEach(function(l) { l.style.color = scrolled ? '#1A1A1A' : '#fff'; });
+    navCta.style.borderColor = scrolled ? '#F29F05' : '#fff';
+    navCta.style.color = scrolled ? '#F29F05' : '#fff';
+  }
+  window.addEventListener('scroll', updateNav);
+  updateNav();
+
+  // ── MOBILE MENU ──
+  var mobileMenu = document.getElementById('mobile-menu');
+  var menuOpen = false;
+  function toggleMenu() {
+    menuOpen = !menuOpen;
+    mobileMenu.style.display = menuOpen ? 'flex' : 'none';
+    document.getElementById('ico-menu').classList.toggle('hidden', menuOpen);
+    document.getElementById('ico-close').classList.toggle('hidden', !menuOpen);
+  }
+  function closeMenu() {
+    menuOpen = false;
+    mobileMenu.style.display = 'none';
+    document.getElementById('ico-menu').classList.remove('hidden');
+    document.getElementById('ico-close').classList.add('hidden');
+  }
+
+  // ── SCROLL REVEAL ──
+  var reveals = document.querySelectorAll('.reveal');
+  var revObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) { e.target.classList.add('visible'); revObs.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(function(el) { revObs.observe(el); });
+
+  // ── SWIPERS ──
+  new Swiper('.hero-swiper', {
+    loop: true, effect: 'fade', fadeEffect: { crossFade: true },
+    autoplay: { delay: 5000, disableOnInteraction: false },
+    on: {
+      slideChangeTransitionStart: function() {
+        var img = this.slides[this.activeIndex].querySelector('img');
+        if (img) { img.classList.remove('ken-burns'); void img.offsetWidth; img.classList.add('ken-burns'); }
+      }
+    }
+  });
+
+  // ── FAQ ──
+  function toggleFaq(btn) {
+    var item = btn.closest('.faq-item');
+    var ans = item.querySelector('.faq-answer');
+    var chev = item.querySelector('.faq-chevron');
+    var isOpen = ans.style.maxHeight && ans.style.maxHeight !== '0px';
+    document.querySelectorAll('.faq-answer').forEach(function(a) { a.style.maxHeight = '0px'; });
+    document.querySelectorAll('.faq-chevron').forEach(function(c) { c.style.transform = ''; c.style.color = '#9CA3AF'; });
+    if (!isOpen) { ans.style.maxHeight = ans.scrollHeight + 'px'; chev.style.transform = 'rotate(180deg)'; chev.style.color = '#F29F05'; }
+  }
+
+  // ── MULTI-STEP FORM ──
+  var step = 1;
+  var fd = { destiny:'', timing:'', passagem:'', name:'', whatsapp:'' };
+  var WEBHOOK = 'https://n8n.vpsbr-15266828.vpshostgator.com.br/webhook/c4653748-2389-4bb1-a0b3-bb07fe09a62e';
+
+  function goStep(s) {
+    document.querySelectorAll('.form-step').forEach(function(el) { el.classList.remove('active'); });
+    var sel = s === 'success' ? '[data-step="success"]' : '[data-step="' + s + '"]';
+    var el = document.querySelector(sel);
+    if (el) el.classList.add('active');
+    var pct = s === 'success' ? 100 : (s / 4) * 100;
+    document.getElementById('progress-bar').style.width = pct + '%';
+  }
+
+  document.querySelectorAll('.opt').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      fd[btn.dataset.field] = btn.dataset.value;
+      setTimeout(function() { step++; goStep(step); }, 180);
+    });
+  });
+
+  async function submitForm() {
+    var name = document.getElementById('f-name').value.trim();
+    var wa   = document.getElementById('f-whatsapp').value.trim();
+    if (!name || !wa) { alert('Por favor preencha seu nome e WhatsApp.'); return; }
+    fd.name = name; fd.whatsapp = wa;
+
+    var sBtn = document.getElementById('submit-btn');
+    sBtn.disabled = true;
+    document.getElementById('btn-label').textContent = 'Enviando...';
+    document.getElementById('btn-send').classList.add('hidden');
+    document.getElementById('btn-spin').classList.remove('hidden');
+
+    var parts = name.split(/\s+/);
+    var fn = parts[0].toLowerCase();
+    var ln = parts.slice(1).join(' ').toLowerCase();
+    var ph = wa.replace(/\D/g,'');
+
+    var msg = 'Curadoria de Viagem\n\nOlá, acabei de preencher meu perfil para solicitar uma curadoria de destino.\n\n*Meus dados:*\n*Nome:* '+name+'\n*Destino:* '+fd.destiny+'\n*Quando:* '+fd.timing+'\n*Passagem:* '+fd.passagem;
+
+    var eid = crypto.randomUUID();
+    if (typeof fbq !== 'undefined') fbq('track', 'Lead', {}, { eventID: eid });
+
+    await Promise.allSettled([
+      fetch('/tracker', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ event_name:'Lead', event_id: eid, user_data:{ fn: fn, ln: ln||undefined, ph: ph }, custom_data:{ destino: fd.destiny, passagem: fd.passagem } })
+      }),
+      fetch(WEBHOOK, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ nome: name, whatsapp: wa, destino: fd.destiny, datas: fd.timing, passagem: fd.passagem })
+      }),
+      fetch('/api/crm/lead-capture', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ nome: name, whatsapp: wa, destino: fd.destiny, datas: fd.timing, observacoes: fd.passagem ? 'Passagem: ' + fd.passagem : null, origem: 'Consultoria' })
+      })
+    ]);
+
+    var waUrl = 'https://wa.me/5500000000000?text=' + encodeURIComponent(msg);
+    document.getElementById('wa-btn').href = waUrl;
+    goStep('success');
+  }
+
+  function resetForm() {
+    step = 1;
+    Object.keys(fd).forEach(function(k){ fd[k]=''; });
+    document.getElementById('f-name').value = '';
+    document.getElementById('f-whatsapp').value = '';
+    document.getElementById('btn-label').textContent = 'Quero meu roteiro';
+    document.getElementById('btn-send').classList.remove('hidden');
+    document.getElementById('btn-spin').classList.add('hidden');
+    document.getElementById('submit-btn').disabled = false;
+    goStep(1);
+  }
+</script>
+</body>
+</html>

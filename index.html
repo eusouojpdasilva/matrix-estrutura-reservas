@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Sua Agência — Links</title>
+  <meta name="description" content="Consultoria de viagens personalizada, guias práticos e roteiros para destinos que poucos brasileiros conhecem de verdade.">
+  <link rel="canonical" href="https://SEUDOMINIO.com.br">
+  <meta property="og:title" content="Sua Agência">
+  <meta property="og:description" content="Viaje com clareza e sem improvisação.">
+  <meta property="og:image" content="/assets/logo.png">
+  <link rel="icon" href="/assets/logo.png">
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --amber:#F29F05;
+      --amber-dim:rgba(242,159,5,.18);
+      --amber-border:rgba(242,159,5,.28);
+      --dark:#0e0c09;
+      --btn-bg:rgba(22,17,8,.90);
+      --btn-hover:rgba(30,23,10,.95);
+      --text:#ffffff;
+      --muted:rgba(255,255,255,.68);
+      --subtle:rgba(255,255,255,.38);
+    }
+
+    html,body{height:100%;background:var(--dark);font-family:'Montserrat',sans-serif;color:var(--text)}
+
+    /* ─── HERO FULL-SCREEN ─── */
+    .hero{
+      position:relative;
+      width:100%;min-height:100vh;
+      overflow:hidden;
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      animation:fadeScene .95s cubic-bezier(0,0,.2,1) both;
+    }
+
+    .hero-bg{
+      position:absolute;inset:0;
+      background-image:url('https://images.unsplash.com/photo-1564511287568-54483b52a35e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+      background-size:cover;
+      background-position:center 55%;
+      filter:brightness(.48);
+      animation:kenBurns 20s ease-out forwards;
+    }
+
+    /* vignette forte — preserva só o centro da ponte */
+    .hero-gradient{
+      position:absolute;inset:0;
+      background:
+        linear-gradient(to bottom,
+          rgba(14,12,9,.72)  0%,
+          rgba(14,12,9,.28) 20%,
+          rgba(14,12,9,.12) 48%,
+          rgba(14,12,9,.55) 75%,
+          rgba(14,12,9,.97) 100%
+        );
+    }
+
+    /* ─── CONTENT ─── */
+    .content{
+      position:relative;z-index:1;
+      width:100%;max-width:430px;
+      padding:3rem 1.5rem 3.5rem;
+      display:flex;flex-direction:column;align-items:center;
+      text-align:center;
+    }
+
+    /* ─── AVATAR ─── */
+    .avatar-wrap{
+      position:relative;display:inline-block;
+      margin-bottom:1.5rem;
+      animation:fadeUp .65s cubic-bezier(0,0,.2,1) .18s both;
+    }
+    .avatar{
+      width:104px;height:104px;border-radius:50%;
+      object-fit:cover;display:block;
+      border:2.5px solid rgba(242,159,5,.55);
+      box-shadow:
+        0 0 0 5px rgba(14,12,9,.7),
+        0 0 28px rgba(242,159,5,.22),
+        0 12px 40px rgba(0,0,0,.55);
+    }
+    .avatar-ring{
+      position:absolute;inset:-10px;border-radius:50%;
+      border:1.5px solid rgba(242,159,5,.2);
+      animation:pulse 3.2s ease-in-out infinite;
+    }
+
+    /* ─── IDENTITY ─── */
+    .name{
+      font-family:'Playfair Display',serif;
+      font-size:2.1rem;font-weight:700;
+      letter-spacing:-.02em;line-height:1.15;
+      color:#fff;
+      text-shadow:0 2px 24px rgba(0,0,0,.7),0 1px 4px rgba(0,0,0,.5);
+      margin-bottom:.4rem;
+      animation:fadeUp .6s cubic-bezier(0,0,.2,1) .32s both;
+    }
+    .handle{
+      font-size:.7rem;font-weight:600;
+      letter-spacing:.2em;text-transform:uppercase;
+      color:var(--amber);margin-bottom:1rem;
+      animation:fadeUp .6s cubic-bezier(0,0,.2,1) .44s both;
+    }
+    .bio{
+      font-size:1.12rem;font-weight:300;
+      color:var(--muted);line-height:1.85;
+      max-width:290px;margin:0 auto 0;
+      text-shadow:0 1px 8px rgba(0,0,0,.5);
+      animation:fadeUp .6s cubic-bezier(0,0,.2,1) .56s both;
+    }
+    .bio strong{color:#fff;font-weight:500}
+
+    /* ─── DIVISOR ─── */
+    .divider{
+      width:100%;display:flex;align-items:center;gap:1rem;
+      margin:1.75rem 0 1.4rem;
+      animation:fadeUp .6s cubic-bezier(0,0,.2,1) .66s both;
+    }
+    .divider::before,.divider::after{
+      content:'';flex:1;height:1px;
+      background:linear-gradient(to right,transparent,rgba(242,159,5,.35),transparent);
+    }
+    .divider-icon{color:var(--amber);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+
+    /* ─── LINKS ─── */
+    .links{display:flex;flex-direction:column;gap:.6rem;width:100%;margin-bottom:2.25rem}
+
+    .link-btn{
+      display:flex;align-items:center;gap:1rem;
+      background:var(--btn-bg);
+      border:1px solid var(--amber-border);
+      border-radius:1rem;
+      padding:.95rem 1.25rem;
+      text-align:left;cursor:pointer;
+      text-decoration:none;color:var(--text);
+      transition:border-color .22s,background .22s,transform .16s,box-shadow .22s;
+      box-shadow:0 4px 20px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    .link-btn:hover{
+      border-color:rgba(242,159,5,.65);
+      background:var(--btn-hover);
+      transform:translateY(-2px);
+      box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.07);
+    }
+    .link-btn:active{transform:translateY(0)}
+
+    .links .link-btn:nth-child(1){animation:fadeUp .6s cubic-bezier(0,0,.2,1) .76s both}
+    .links .link-btn:nth-child(2){animation:fadeUp .6s cubic-bezier(0,0,.2,1) .91s both}
+    .links .link-btn:nth-child(3){animation:fadeUp .6s cubic-bezier(0,0,.2,1) 1.06s both}
+
+    .link-icon{
+      width:40px;height:40px;flex-shrink:0;border-radius:.625rem;
+      display:flex;align-items:center;justify-content:center;
+      background:var(--amber-dim);
+      border:1px solid var(--amber-border);
+    }
+    .link-text{flex:1;min-width:0}
+    .link-label{
+      font-size:.65rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+      color:var(--subtle);display:block;margin-bottom:.18rem;
+    }
+    .link-title{
+      font-size:.92rem;font-weight:600;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      color:#fff;
+    }
+    .link-arrow{
+      color:rgba(242,159,5,.45);flex-shrink:0;font-size:.875rem;
+      transition:color .2s,transform .2s;
+    }
+    .link-btn:hover .link-arrow{color:var(--amber);transform:translateX(3px)}
+
+    /* ─── FOOTER ─── */
+    .footer-copy{
+      font-size:.6rem;font-weight:400;letter-spacing:.1em;text-transform:uppercase;
+      color:rgba(255,255,255,.25);
+      animation:fadeUp .6s cubic-bezier(0,0,.2,1) 1.2s both;
+    }
+
+    /* ─── KEYFRAMES ─── */
+    @keyframes fadeScene{from{opacity:0}to{opacity:1}}
+    @keyframes fadeUp{
+      from{opacity:0;transform:translateY(22px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+    @keyframes kenBurns{
+      from{transform:scale(1) translateZ(0)}
+      to{transform:scale(1.1) translateZ(0)}
+    }
+    @keyframes pulse{
+      0%,100%{opacity:.45;transform:scale(1)}
+      50%{opacity:.12;transform:scale(1.07)}
+    }
+  </style>
+</head>
+<body>
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+  <!-- ── COMPASS SVG SYMBOL ── -->
+  <svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <symbol id="ic" viewBox="0 0 100 100">
+        <!-- Outer ring -->
+        <circle cx="50" cy="50" r="45" stroke="#F29F05" stroke-width="3.5" fill="none"/>
+        <!-- N arm -->
+        <polygon points="50,8 53.5,36 50,39 46.5,36" fill="#F29F05"/>
+        <!-- E arm -->
+        <polygon points="92,50 63,46.5 61,50 63,53.5" fill="#F29F05"/>
+        <!-- W arm -->
+        <polygon points="8,50 37,46.5 39,50 37,53.5" fill="#F29F05"/>
+        <!-- NE diagonal -->
+        <polygon points="74,26 59,41 56,44 60,40" fill="#F29F05"/>
+        <!-- NW diagonal -->
+        <polygon points="26,26 41,41 44,44 40,40" fill="#F29F05"/>
+        <!-- SE diagonal -->
+        <polygon points="74,74 59,59 56,56 60,60" fill="#F29F05"/>
+        <!-- SW diagonal -->
+        <polygon points="26,74 41,59 44,56 40,60" fill="#F29F05"/>
+        <!-- Pin head donut (evenodd = transparent hole) -->
+        <path fill="#F29F05" fill-rule="evenodd" d="M50 33 A11 11 0 1 0 50 55 A11 11 0 1 0 50 33 Z M50 38.5 A5.5 5.5 0 1 0 50 49.5 A5.5 5.5 0 1 0 50 38.5 Z"/>
+        <!-- Pin needle + S arm -->
+        <polygon points="45.5,52 50,79 54.5,52 50,48" fill="#F29F05"/>
+        <!-- Tick marks (2 between each arm pair, 16 total) -->
+        <g stroke="#F29F05" stroke-width="2.4" stroke-linecap="round">
+          <line x1="50" y1="13" x2="50" y2="20" transform="rotate(15 50 50)"/>
+          <line x1="50" y1="13" x2="50" y2="20" transform="rotate(30 50 50)"/>
+          <line x1="50" y1="13" x2="50" y2="20" transform="rotate(60 50 50)"/>
+          <line x1="50" y1="13" x2="50" y2="20" transform="rotate(75 50 50)"/>
+          <line x1="50" y1="13" x2="50" y2="20" transform="rotate(105 50 50)"/>
+          <line x1="50" y1="13" x2="50" y2="20" transform="rotate(120 50 50)"/>
+          <line x1="50" y1="13" x2="50" y2="20" transform="rotate(150 50 50)"/>
+          <line x1="50" y1="13" x2="50" y2="20" transform="rotate(165 50 50)"/>
+          <line x1="50" y1="13" x2="50" y2="20" transform="rotate(195 50 50)"/>
+          <line x1="50" y1="13" x2="50" y2="20" transform="rotate(210 50 50)"/>
+          <line x1="50" y1="13" x2="50" y2="20" transform="rotate(240 50 50)"/>
+          <line x1="50" y1="13" x2="50" y2="20" transform="rotate(255 50 50)"/>
+          <line x1="50" y1="13" x2="50" y2="20" transform="rotate(285 50 50)"/>
+          <line x1="50" y1="13" x2="50" y2="20" transform="rotate(300 50 50)"/>
+          <line x1="50" y1="13" x2="50" y2="20" transform="rotate(330 50 50)"/>
+          <line x1="50" y1="13" x2="50" y2="20" transform="rotate(345 50 50)"/>
+        </g>
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-gradient"></div>
+
+    <div class="content">
+
+      <!-- AVATAR -->
+      <div class="avatar-wrap">
+        <div class="avatar-ring"></div>
+        <img class="avatar"
+          src="/assets/logo.png"
+          alt="Sua Agência">
+      </div>
+
+      <!-- IDENTITY -->
+      <div class="name">Nome do Consultor</div>
+      <div class="handle">Sua Agência</div>
+      <p class="bio">
+        Consultor de viagens especializado em destinos que
+        <strong>poucos brasileiros conhecem de verdade</strong><br>
+        Países Bálticos · Polônia · Hungria · Romênia · Geórgia, Turquia e muito mais
+      </p>
+
+      <!-- DIVIDER -->
+      <div class="divider">
+        <span class="divider-icon">Escolha seu caminho</span>
+      </div>
+
+      <!-- LINKS -->
+      <nav class="links" aria-label="Links principais">
+
+        <a class="link-btn" href="/consultoria" onclick="track('consultoria_click')">
+          <div class="link-icon">
+            <svg width="22" height="22"><use href="#ic"/></svg>
+          </div>
+          <div class="link-text">
+            <span class="link-label">Serviço principal</span>
+            <span class="link-title">Consultoria Personalizada</span>
+          </div>
+          <span class="link-arrow">→</span>
+        </a>
+
+        <a class="link-btn" href="/loja" onclick="track('loja_click')">
+          <div class="link-icon">
+            <svg width="22" height="22"><use href="#ic"/></svg>
+          </div>
+          <div class="link-text">
+            <span class="link-label">Digital</span>
+            <span class="link-title">Guias de Viagem</span>
+          </div>
+          <span class="link-arrow">→</span>
+        </a>
+
+        <a class="link-btn" href="/loja/blog" onclick="track('blog_click')">
+          <div class="link-icon">
+            <svg width="22" height="22"><use href="#ic"/></svg>
+          </div>
+          <div class="link-text">
+            <span class="link-label">Conteúdo gratuito</span>
+            <span class="link-title">Blog — Roteiros e Dicas</span>
+          </div>
+          <span class="link-arrow">→</span>
+        </a>
+
+      </nav>
+
+      <!-- FOOTER -->
+      <p class="footer-copy">Sua Agência · Consultoria de Viagens</p>
+
+    </div>
+  </div>
+
+  <script>
+    function track(label) {
+      fetch('/tracker', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_name: 'ViewContent',
+          event_id: crypto.randomUUID(),
+          custom_data: { content_type: 'link_click', content_name: label }
+        })
+      }).catch(() => {});
+    }
+    fetch('/tracker', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event_name: 'PageView', event_id: crypto.randomUUID() })
+    }).catch(() => {});
+  </script>
+</body>
+</html>
