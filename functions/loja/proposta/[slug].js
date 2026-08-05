@@ -279,7 +279,7 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>${esc(p.title)} · Sua Agência</title>
+  <title>${esc(p.title)} · Scandia Travel</title>
   <meta name="robots" content="noindex,nofollow">
   <link rel="icon" href="/assets/logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -287,7 +287,7 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--amber:#F29F05;--dark:#0D0D0D;--surface:#161616;--surface2:#1E1E1E;--border:#2A2A2A;--text:#F0F0F0;--muted:#888}
+    :root{--amber:#E3522A;--dark:#0A1520;--surface:#12233A;--surface2:#182E4A;--border:#223652;--text:#E8EEF4;--muted:#7A90A8}
     html{scroll-behavior:smooth}
     body{font-family:'Montserrat',sans-serif;background:var(--dark);color:var(--text);line-height:1.6}
     a{color:inherit;text-decoration:none}
@@ -305,7 +305,7 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
     .hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.9) 0%,rgba(0,0,0,.4) 50%,rgba(0,0,0,.2) 100%)}
     .hero-content{position:relative;z-index:1;padding:3rem 1.5rem 4rem;width:100%;max-width:900px;margin:0 auto}
     .dest-chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.25rem}
-    .dest-chip{font-size:.6rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;background:rgba(242,159,5,.15);border:1px solid rgba(242,159,5,.4);color:var(--amber);padding:.3rem .875rem;border-radius:2rem}
+    .dest-chip{font-size:.6rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;background:rgba(227,82,42,.15);border:1px solid rgba(227,82,42,.4);color:var(--amber);padding:.3rem .875rem;border-radius:2rem}
     .hero-title{font-family:'Playfair Display',serif;font-size:clamp(1.75rem,5vw,3.25rem);font-weight:700;color:#fff;line-height:1.2;margin-bottom:1rem}
     .hero-meta{display:flex;flex-wrap:wrap;gap:1rem;font-size:.8rem;color:rgba(255,255,255,.65)}
     .hero-meta span{display:flex;align-items:center;gap:.375rem}
@@ -341,7 +341,7 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
     /* HOTELS */
     .hotels-grid{display:flex;flex-direction:column;gap:1rem}
     .h-card{position:relative;display:grid;grid-template-columns:160px 1fr;border:1px solid var(--border);border-radius:.75rem;overflow:hidden;background:var(--surface2)}
-    .h-featured{border-color:var(--amber);box-shadow:0 0 24px rgba(242,159,5,.12)}
+    .h-featured{border-color:var(--amber);box-shadow:0 0 24px rgba(227,82,42,.12)}
     .h-badge{position:absolute;top:10px;right:10px;z-index:2;background:var(--amber);color:#000;font-size:.56rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:.3rem .65rem;border-radius:2rem}
     .h-details{list-style:none;font-size:.75rem;color:var(--muted);margin-top:.6rem;display:flex;flex-direction:column;gap:.25rem}
     .h-details strong{color:var(--text);font-weight:600}
@@ -411,7 +411,7 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
     .cta-row{display:flex;gap:.875rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.25rem}
     .cta-btn{display:inline-flex;align-items:center;justify-content:center;font-family:inherit;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.875rem 2rem;border-radius:.5rem;cursor:pointer;transition:all .2s;min-width:160px}
     .cta-primary{background:var(--amber);color:#fff;border:none}
-    .cta-primary:hover{background:#d98a00;transform:translateY(-2px)}
+    .cta-primary:hover{background:#B8401E;transform:translateY(-2px)}
     .cta-secondary{background:none;border:2px solid var(--border);color:var(--text)}
     .cta-secondary:hover{border-color:var(--amber);color:var(--amber)}
     .payment-info{border-top:1px solid var(--border);padding-top:1.25rem;margin-top:1.25rem}
@@ -436,7 +436,7 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
     .day-timeline{display:flex;flex-direction:column;position:relative;padding-left:.25rem}
     .day-time-item{display:flex;gap:1rem;align-items:flex-start;padding:.6rem 0;position:relative}
     .day-time-item:not(:last-child)::after{content:'';position:absolute;left:2.35rem;top:1.6rem;bottom:-.4rem;width:1px;background:var(--border)}
-    .dti-time{flex-shrink:0;width:4.5rem;font-size:.72rem;font-weight:700;color:var(--amber);background:rgba(242,159,5,.1);border:1px solid rgba(242,159,5,.3);border-radius:.4rem;padding:.25rem .5rem;text-align:center}
+    .dti-time{flex-shrink:0;width:4.5rem;font-size:.72rem;font-weight:700;color:var(--amber);background:rgba(227,82,42,.1);border:1px solid rgba(227,82,42,.3);border-radius:.4rem;padding:.25rem .5rem;text-align:center}
     .dti-title{font-size:.82rem;color:var(--text);padding-top:.3rem;line-height:1.5}
 
     /* MOBILE STICKY CTA */
@@ -458,11 +458,11 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
 ${p.expires_at ? `<div class="validity-bar">Proposta Nº ${propNum} · válida até <strong>${fmtDate(p.expires_at)}</strong> · valores sujeitos a disponibilidade</div>` : `<div class="validity-bar">Proposta Nº ${propNum} · valores sujeitos a disponibilidade</div>`}
 
 <nav class="nav" style="top:2.2rem">
-  <a href="/consultoria"><img src="/assets/logo.png" alt="Sua Agência" class="nav-logo"></a>
+  <a href="/consultoria"><img src="/assets/logo.png" alt="Scandia Travel" class="nav-logo"></a>
 </nav>
 
 <div class="hero" ${hero ? `style="background-image:url('${esc(hero)}')"` : ''}>
-  ${hero ? '' : '<div class="hero-bg" style="background:#1A1A1A"></div>'}
+  ${hero ? '' : '<div class="hero-bg" style="background:#0A1520"></div>'}
   <div class="hero-overlay"></div>
   <div class="hero-content">
     ${destChips ? `<div class="dest-chips">${destChips}</div>` : ''}
@@ -501,8 +501,8 @@ ${hasMobileCta ? `
 </div>` : ''}
 
 <footer class="footer">
-  <img src="/assets/logo.png" alt="Sua Agência">
-  <p>Proposta preparada por Sua Agência &nbsp;·&nbsp; <a href="/consultoria" style="color:var(--amber)">SEUDOMINIO.com.br</a></p>
+  <img src="/assets/logo.png" alt="Scandia Travel">
+  <p>Proposta preparada por Scandia Travel &nbsp;·&nbsp; <a href="/consultoria" style="color:var(--amber)">SEUDOMINIO.com.br</a></p>
 </footer>
 
 <script>
@@ -527,7 +527,7 @@ ${hasMobileCta ? `
 }
 
 function expiredHtml(p) {
-  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Proposta expirada · Sua Agência</title><link rel="icon" href="/assets/logo.png"><style>body{font-family:sans-serif;background:#0D0D0D;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:2rem}h1{font-size:1.5rem;margin-bottom:.75rem}p{opacity:.6;font-size:.9rem}</style></head><body><div><h1>Esta proposta expirou</h1><p>O prazo de validade desta proposta foi encerrado.</p><p style="margin-top:1rem"><a href="/consultoria" style="color:#F29F05">Fale com a Sua Agência →</a></p></div></body></html>`;
+  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Proposta expirada · Scandia Travel</title><link rel="icon" href="/assets/logo.png"><style>body{font-family:sans-serif;background:#0A1520;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:2rem}h1{font-size:1.5rem;margin-bottom:.75rem}p{opacity:.6;font-size:.9rem}</style></head><body><div><h1>Esta proposta expirou</h1><p>O prazo de validade desta proposta foi encerrado.</p><p style="margin-top:1rem"><a href="/consultoria" style="color:#E3522A">Fale com a Scandia Travel →</a></p></div></body></html>`;
 }
 
 export async function onRequest({ params, env }) {

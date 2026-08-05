@@ -9,18 +9,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg:            #1C1C1C;
-    --card:          #272727;
-    --border:        rgba(252,163,17,0.18);
+    --bg:            #0A1520;
+    --card:          #142438;
+    --border:        rgba(227,82,42,0.18);
     --text:          #FFFFFF;
-    --dim:           #a09a90;
-    --muted:         #6e6860;
-    --accent-blue:   #FCA311;
+    --dim:           #7A90A8;
+    --muted:         #4A6278;
+    --accent-blue:   #E3522A;
     --accent-green:  #4ade80;
-    --accent-amber:  #FCA311;
+    --accent-amber:  #E3522A;
     --accent-red:    #ef4444;
     --accent-purple: #f0b429;
-    --amber:         #FCA311;
+    --amber:         #E3522A;
     --marrom:        #523F38;
     --carvao:        #373737;
   }
@@ -37,8 +37,8 @@
   .dash-tab { padding: 0.5rem 0.875rem; font-size: 0.875rem; border-bottom: 2px solid transparent; color: var(--dim); cursor: pointer; font-weight: 600; }
   .dash-tab.active { color: var(--text); border-color: var(--amber); }
   .range-btn { padding: 0.375rem 0.75rem; font-size: 0.8125rem; border: 1px solid var(--border); background: var(--card); border-radius: 8px; cursor: pointer; color: var(--dim); }
-  .range-btn.active { background: var(--amber); color: #1C1C1C; border-color: var(--amber); font-weight: 700; }
-  .row-hover:hover { background: rgba(252,163,17,0.05); }
+  .range-btn.active { background: var(--amber); color: #0A1520; border-color: var(--amber); font-weight: 700; }
+  .row-hover:hover { background: rgba(227,82,42,0.05); }
   .fade-in { animation: fadeIn 0.35s ease-out; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
   #auth-gate:not(.hidden) { display: flex !important; }
@@ -54,7 +54,7 @@
       <div class="flex items-center gap-3">
         <svg width="36" height="36" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="50" cy="50" r="48" fill="#373737"/>
-          <circle cx="50" cy="36" r="19" fill="none" stroke="#FCA311" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <circle cx="50" cy="36" r="19" fill="none" stroke="#E3522A" stroke-width="1.5" stroke-dasharray="4 3"/>
           <polygon points="50,18 53,30 50,27 47,30" fill="white"/>
           <polygon points="50,54 53,42 50,45 47,42" fill="white"/>
           <polygon points="32,36 44,39 41,36 44,33" fill="white"/>
@@ -63,10 +63,10 @@
           <polygon points="50,54 51.5,48 50,49.5 48.5,48" fill="white" opacity="0.5"/>
           <polygon points="32,36 38,37.5 36.5,36 38,34.5" fill="white" opacity="0.5"/>
           <polygon points="68,36 62,37.5 63.5,36 62,34.5" fill="white" opacity="0.5"/>
-          <path d="M50 24 C46 24 43 27.5 43 31.5 C43 37 50 45 50 45 C50 45 57 37 57 31.5 C57 27.5 54 24 50 24 Z" fill="#FCA311"/>
+          <path d="M50 24 C46 24 43 27.5 43 31.5 C43 37 50 45 50 45 C50 45 57 37 57 31.5 C57 27.5 54 24 50 24 Z" fill="#E3522A"/>
           <circle cx="50" cy="31.5" r="3" fill="#373737"/>
           <text x="50" y="66" text-anchor="middle" fill="white" font-family="Poppins,sans-serif" font-size="13" font-weight="800" letter-spacing="1.5">AGÊNCIA</text>
-          <text x="50" y="78" text-anchor="middle" fill="#FCA311" font-family="Poppins,sans-serif" font-size="8" font-weight="700" letter-spacing="3">TRAVEL</text>
+          <text x="50" y="78" text-anchor="middle" fill="#E3522A" font-family="Poppins,sans-serif" font-size="8" font-weight="700" letter-spacing="3">TRAVEL</text>
         </svg>
         <div>
           <div class="font-bold tracking-wide" style="color:var(--text);font-size:0.9rem;">SUA <span style="color:var(--amber)">AGÊNCIA</span></div>
@@ -345,7 +345,7 @@
 
 <!-- Auth prompt shown when no key is set -->
 <div id="auth-gate" class="min-h-screen hidden" style="
-  background: radial-gradient(ellipse at 50% 40%, rgba(252,163,17,0.12) 0%, rgba(28,28,28,0.95) 55%, #1C1C1C 100%);
+  background: radial-gradient(ellipse at 50% 40%, rgba(227,82,42,0.12) 0%, rgba(28,28,28,0.95) 55%, #0A1520 100%);
   align-items:center; justify-content:center; font-family:'Poppins',sans-serif;
 ">
   <div style="width:min(100% - 48px, 420px); text-align:center;">
@@ -353,7 +353,7 @@
     <!-- Logo SVG grande -->
     <svg width="110" height="110" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin:0 auto 8px;display:block;">
       <circle cx="50" cy="50" r="48" fill="#373737"/>
-      <circle cx="50" cy="36" r="20" fill="none" stroke="#FCA311" stroke-width="1.5" stroke-dasharray="4.5 3"/>
+      <circle cx="50" cy="36" r="20" fill="none" stroke="#E3522A" stroke-width="1.5" stroke-dasharray="4.5 3"/>
       <polygon points="50,17 53.5,31 50,28 46.5,31" fill="white"/>
       <polygon points="50,55 53.5,41 50,44 46.5,41" fill="white"/>
       <polygon points="31,36 45,39.5 42,36 45,32.5" fill="white"/>
@@ -362,10 +362,10 @@
       <polygon points="63,22 56,31 58.5,29 57,32" fill="white" opacity="0.45"/>
       <polygon points="37,50 44,41 41.5,43 43,40" fill="white" opacity="0.45"/>
       <polygon points="63,50 56,41 58.5,43 57,40" fill="white" opacity="0.45"/>
-      <path d="M50 23 C45.5 23 42 27 42 31.5 C42 37.5 50 46 50 46 C50 46 58 37.5 58 31.5 C58 27 54.5 23 50 23 Z" fill="#FCA311"/>
+      <path d="M50 23 C45.5 23 42 27 42 31.5 C42 37.5 50 46 50 46 C50 46 58 37.5 58 31.5 C58 27 54.5 23 50 23 Z" fill="#E3522A"/>
       <circle cx="50" cy="31.5" r="3.5" fill="#373737"/>
       <text x="50" y="65" text-anchor="middle" fill="white" font-family="Poppins,sans-serif" font-size="13.5" font-weight="800" letter-spacing="2">AGÊNCIA</text>
-      <text x="50" y="78" text-anchor="middle" fill="#FCA311" font-family="Poppins,sans-serif" font-size="8.5" font-weight="700" letter-spacing="3.5">TRAVEL</text>
+      <text x="50" y="78" text-anchor="middle" fill="#E3522A" font-family="Poppins,sans-serif" font-size="8.5" font-weight="700" letter-spacing="3.5">TRAVEL</text>
     </svg>
 
     <div style="font-size:0.6rem;font-weight:700;letter-spacing:0.35em;text-transform:uppercase;color:var(--amber);margin-bottom:20px;margin-top:4px;">Menos opções. Mais clareza.</div>
@@ -374,19 +374,19 @@
     <p style="font-size:0.85rem;color:var(--dim);margin-bottom:36px;line-height:1.6;">Área privada de rastreamento e atribuição.</p>
 
     <input id="auth-input" type="password" placeholder="Senha de acesso" style="
-      width:100%; min-height:50px; background:#272727; border:1px solid rgba(252,163,17,0.25);
+      width:100%; min-height:50px; background:#142438; border:1px solid rgba(227,82,42,0.25);
       border-radius:8px; color:var(--text); font-family:'Poppins',sans-serif; font-size:1rem;
       padding:0 18px; outline:none; margin-bottom:12px; letter-spacing:0.05em;
       transition:border-color .2s;
-    " onfocus="this.style.borderColor='#FCA311'" onblur="this.style.borderColor='rgba(252,163,17,0.25)'">
+    " onfocus="this.style.borderColor='#E3522A'" onblur="this.style.borderColor='rgba(227,82,42,0.25)'">
 
     <button id="auth-submit" style="
-      width:100%; min-height:50px; background:#FCA311; border:none;
-      color:#1C1C1C; font-family:'Poppins',sans-serif; font-size:0.7rem; font-weight:800;
+      width:100%; min-height:50px; background:#E3522A; border:none;
+      color:#0A1520; font-family:'Poppins',sans-serif; font-size:0.7rem; font-weight:800;
       letter-spacing:0.22em; text-transform:uppercase; cursor:pointer; border-radius:8px;
       transition:background .25s, color .25s;
-    " onmouseover="this.style.background='#e5920a';this.style.color='#1C1C1C'"
-       onmouseout="this.style.background='#FCA311';this.style.color='#1C1C1C'">
+    " onmouseover="this.style.background='#e5920a';this.style.color='#0A1520'"
+       onmouseout="this.style.background='#E3522A';this.style.color='#0A1520'">
       Entrar
     </button>
 

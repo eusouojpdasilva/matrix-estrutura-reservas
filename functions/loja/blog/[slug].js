@@ -44,7 +44,7 @@ export async function onRequest({ params, env, request }) {
     datePublished: article.published_at,
     dateModified: article.updated_at,
     author: { '@type': 'Person', name: 'Nome do Consultor', url: `${origin}/consultoria#sobre` },
-    publisher: { '@type': 'Organization', name: 'Sua Agência', logo: { '@type': 'ImageObject', url: '/assets/logo.png' } },
+    publisher: { '@type': 'Organization', name: 'Scandia Travel', logo: { '@type': 'ImageObject', url: '/assets/logo.png' } },
   });
 
   // Galeria HTML (visível somente se houver imagens)
@@ -98,14 +98,14 @@ export async function onRequest({ params, env, request }) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>${esc(article.title)} | Sua Agência</title>
+  <title>${esc(article.title)} | Scandia Travel</title>
   <meta name="description" content="${esc(meta)}">
   <link rel="canonical" href="${esc(canonical)}">
   <meta property="og:title" content="${esc(article.title)}">
   <meta property="og:description" content="${esc(meta)}">
   <meta property="og:image" content="${esc(cover)}">
   <meta property="og:type" content="article">
-  <meta property="og:site_name" content="Sua Agência">
+  <meta property="og:site_name" content="Scandia Travel">
   ${article.published_at ? `<meta property="article:published_time" content="${esc(article.published_at)}">` : ''}
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">${schema}</script>
@@ -115,7 +115,7 @@ export async function onRequest({ params, env, request }) {
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--amber:#F29F05;--dark:#1A1A1A;--gray:#4A4A4A;--light:#FAFAFA;--border:#E5E7EB}
+    :root{--amber:#E3522A;--dark:#0F2E47;--gray:#4A4A4A;--light:#FAFAFA;--border:#E5E7EB}
     body{font-family:'Montserrat',sans-serif;color:var(--dark);background:#fff;line-height:1.6}
     a{color:inherit;text-decoration:none}
     img{max-width:100%;height:auto;display:block}
@@ -183,7 +183,7 @@ export async function onRequest({ params, env, request }) {
     .lead-cta-title{font-family:'Playfair Display',serif;font-size:1.625rem;color:#fff;line-height:1.25;margin-bottom:.75rem}
     .lead-cta-sub{font-size:.875rem;color:rgba(255,255,255,.6);line-height:1.7;max-width:480px}
     .lead-cta-btn{flex-shrink:0;display:inline-block;background:var(--amber);color:#fff;font-weight:700;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;padding:.875rem 2rem;border-radius:.5rem;transition:background .2s;white-space:nowrap}
-    .lead-cta-btn:hover{background:#d98a00}
+    .lead-cta-btn:hover{background:#B8401E}
     @media(max-width:640px){.lead-cta-inner{flex-direction:column}.lead-cta-btn{width:100%;text-align:center}}
 
     /* RELATED */
@@ -208,7 +208,7 @@ export async function onRequest({ params, env, request }) {
 </head>
 <body>
   <nav class="nav">
-    <a href="/consultoria"><img src="/assets/logo.png" alt="Sua Agência" class="nav-logo"></a>
+    <a href="/consultoria"><img src="/assets/logo.png" alt="Scandia Travel" class="nav-logo"></a>
     <div class="nav-links">
       <a href="/loja/blog">Blog</a>
       <a href="/consultoria#sobre">Sobre</a>
@@ -234,7 +234,7 @@ export async function onRequest({ params, env, request }) {
             <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
             ${fmtDate(article.published_at)}
           </span>` : ''}
-          <span class="hero-meta-item">Por Nome do Consultor · Sua Agência</span>
+          <span class="hero-meta-item">Por Nome do Consultor · Scandia Travel</span>
         </div>
       </div>
     </div>
@@ -250,8 +250,8 @@ export async function onRequest({ params, env, request }) {
   ${relatedHtml}
 
   <footer class="footer">
-    <img src="/assets/logo.png" alt="Sua Agência">
-    <p>&copy; ${new Date().getFullYear()} Sua Agência &nbsp;·&nbsp; <a href="/loja/blog">Blog</a><a href="/consultoria">Consultoria</a></p>
+    <img src="/assets/logo.png" alt="Scandia Travel">
+    <p>&copy; ${new Date().getFullYear()} Scandia Travel &nbsp;·&nbsp; <a href="/loja/blog">Blog</a><a href="/consultoria">Consultoria</a></p>
   </footer>
 
   <script>
@@ -293,10 +293,10 @@ export async function onRequest({ params, env, request }) {
 }
 
 function notFoundHtml() {
-  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Artigo não encontrado | Sua Agência</title>
+  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Artigo não encontrado | Scandia Travel</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
   <style>body{font-family:Montserrat,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#FAFAFA}
   .box{text-align:center}.box h1{font-family:'Playfair Display',serif;font-size:2rem;margin-bottom:1rem}
-  .box a{color:#F29F05;font-weight:600}</style></head>
+  .box a{color:#E3522A;font-weight:600}</style></head>
   <body><div class="box"><h1>Artigo não encontrado</h1><p><a href="/loja/blog">← Voltar ao Blog</a></p></div></body></html>`;
 }
