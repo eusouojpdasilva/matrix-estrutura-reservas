@@ -629,6 +629,7 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 
       <!-- FATURA FIELDS -->
       <div id="fin-fatura-fields">
+        <input type="hidden" id="ff-id">
         <div class="field">
           <label>Cliente *</label>
           <select id="ff-cliente"></select>
@@ -1724,22 +1725,26 @@ function buildFaturasView(faturas, kpis, mes) {
     ? faturas.map(f => {
         const stBadge = { pendente:'bg-amber', pago:'bg-green', vencido:'bg-red' }[f.status] || 'bg-gray';
         const stLabel = { pendente:'Pendente', pago:'Pago', vencido:'Vencido' }[f.status] || f.status;
-        const actions = f.status === 'pendente'
+        const pagamento = [f.forma_pagamento, f.condicao_pagamento].filter(Boolean).join(' · ') || '—';
+        const statusActions = f.status === 'pendente'
           ? `<button class="btn btn-ghost btn-sm" onclick="faturaPagar('${f.id}')">✓ Pagar</button>
              <button class="btn btn-ghost btn-sm" onclick="faturaVencer('${f.id}')">⚠ Vencer</button>`
           : f.status === 'vencido'
           ? `<button class="btn btn-ghost btn-sm" onclick="faturaPagar('${f.id}')">✓ Pagar</button>
              <button class="btn btn-ghost btn-sm" onclick="faturaDesfazer('${f.id}')">↩ Desfazer</button>`
           : `<button class="btn btn-ghost btn-sm" onclick="faturaDesfazer('${f.id}')">↩ Desfazer</button>`;
+        const actions = `<button class="btn btn-ghost btn-sm" onclick="editFatura('${f.id}')">✏️ Editar</button> ${statusActions}`;
         return `<tr>
           <td><strong>${esc(f.cliente_nome || '—')}</strong></td>
           <td>${fmtR(f.valor)}</td>
+          <td>${f.comissao != null ? fmtR(f.comissao) : '—'}</td>
+          <td>${esc(pagamento)}</td>
           <td><span class="badge ${stBadge}">${stLabel}</span></td>
           <td>${f.data_pagamento ? fmtD(f.data_pagamento) : '—'}</td>
           <td><div class="fin-actions">${actions}</div></td>
         </tr>`;
       }).join('')
-    : `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)">Nenhuma fatura em ${mesLabel}</td></tr>`;
+    : `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Nenhuma fatura em ${mesLabel}</td></tr>`;
 
   return `
     <div class="month-nav">
@@ -1762,7 +1767,7 @@ function buildFaturasView(faturas, kpis, mes) {
       </div>
     </div>
     <table class="fin-table">
-      <thead><tr><th>Cliente</th><th>Valor</th><th>Status</th><th>Pago em</th><th>Ações</th></tr></thead>
+      <thead><tr><th>Cliente</th><th>Valor bruto</th><th>Comissão</th><th>Pagamento</th><th>Status</th><th>Pago em</th><th>Ações</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
 }
@@ -1846,10 +1851,14 @@ async function openFinModal(type) {
   const opts = (cr.clientes||[]).map(c=>`<option value="${c.id}">${esc(c.nome)}</option>`).join('');
   document.getElementById('ff-cliente').innerHTML = `<option value="">Selecione</option>${opts}`;
   // defaults
+  document.getElementById('ff-id').value       = '';
+  document.getElementById('ff-cliente').disabled = false;
   document.getElementById('ff-mes').value      = _finMes;
+  document.getElementById('ff-mes').disabled   = false;
   document.getElementById('ff-valor').value    = '';
   document.getElementById('ff-comissao').value = '';
   document.getElementById('ff-status').value   = 'pendente';
+  document.getElementById('ff-status').disabled = false;
   document.getElementById('ff-forma').value    = '';
   document.getElementById('ff-condicao').value = '';
   document.getElementById('fd-id').value     = '';
@@ -1877,6 +1886,25 @@ function editDespesa(id) {
   });
 }
 
+function editFatura(id) {
+  const f = _faturas.find(x => x.id === id);
+  if (!f) return;
+  openFinModal('fatura').then(() => {
+    document.getElementById('ff-id').value        = f.id;
+    document.getElementById('ff-cliente').value    = f.cliente_id;
+    document.getElementById('ff-cliente').disabled = true;   // cliente não é editável depois de criada
+    document.getElementById('ff-mes').value        = f.mes;
+    document.getElementById('ff-mes').disabled      = true;   // mês não é editável aqui (usa ‹ › pra navegar)
+    document.getElementById('ff-valor').value      = f.valor;
+    document.getElementById('ff-comissao').value   = f.comissao ?? '';
+    document.getElementById('ff-status').value     = f.status;
+    document.getElementById('ff-status').disabled  = true;    // status muda pelos botões ✓ Pagar / ⚠ Vencer / ↩ Desfazer
+    document.getElementById('ff-forma').value      = f.forma_pagamento || '';
+    document.getElementById('ff-condicao').value   = f.condicao_pagamento || '';
+    document.getElementById('fin-title').textContent = 'Editar Fatura';
+  });
+}
+
 function switchFinTab(tab) {
   _finModalTab = tab;
   ['fatura','despesa'].forEach(t => {
@@ -1898,6 +1926,7 @@ document.getElementById('ov-fin').addEventListener('click', e => {
 async function saveFinItem() {
   try {
     if (_finModalTab === 'fatura') {
+      const editId      = document.getElementById('ff-id').value;
       const cliente_id  = document.getElementById('ff-cliente').value;
       const mes         = document.getElementById('ff-mes').value;
       const valor       = parseFloat(document.getElementById('ff-valor').value);
@@ -1907,16 +1936,25 @@ async function saveFinItem() {
       const forma_pagamento    = document.getElementById('ff-forma').value    || null;
       const condicao_pagamento = document.getElementById('ff-condicao').value || null;
       if (!cliente_id || !mes || !valor) { toast('Preencha todos os campos obrigatórios', 'err'); return; }
-      // create contrato (Único) which auto-generates a fatura as 'pendente'
-      const rc = await api('/api/crm/contratos', { method:'POST', body: JSON.stringify({
-        cliente_id, valor, recorrencia:'Único', data_inicio: mes+'-01',
-        comissao_estimada: comissao, forma_pagamento_prevista: forma_pagamento,
-      })});
-      // apply condicao_pagamento and/or non-pending status on the just-created fatura
-      const novaId = rc.faturas?.[0]?.id;
-      if (novaId && condicao_pagamento) await api(`/api/crm/faturas/${novaId}`, { method:'PUT', body: JSON.stringify({ condicao_pagamento }) }).catch(()=>{});
-      if (novaId && status !== 'pendente') await api(`/api/crm/faturas/${novaId}`, { method:'PUT', body: JSON.stringify({ action: status === 'pago' ? 'pagar' : 'vencer' }) }).catch(()=>{});
-      toast('Fatura criada ✓', 'ok');
+      if (editId) {
+        // edit existing fatura: valor/comissão/forma/condição are directly updatable;
+        // cliente/mês/status are locked in the UI (status changes via ✓/⚠/↩ actions)
+        await api(`/api/crm/faturas/${editId}`, { method:'PUT', body: JSON.stringify({
+          valor, comissao, forma_pagamento, condicao_pagamento,
+        })});
+        toast('Fatura atualizada ✓', 'ok');
+      } else {
+        // create contrato (Único) which auto-generates a fatura as 'pendente'
+        const rc = await api('/api/crm/contratos', { method:'POST', body: JSON.stringify({
+          cliente_id, valor, recorrencia:'Único', data_inicio: mes+'-01',
+          comissao_estimada: comissao, forma_pagamento_prevista: forma_pagamento,
+        })});
+        // apply condicao_pagamento and/or non-pending status on the just-created fatura
+        const novaId = rc.faturas?.[0]?.id;
+        if (novaId && condicao_pagamento) await api(`/api/crm/faturas/${novaId}`, { method:'PUT', body: JSON.stringify({ condicao_pagamento }) }).catch(()=>{});
+        if (novaId && status !== 'pendente') await api(`/api/crm/faturas/${novaId}`, { method:'PUT', body: JSON.stringify({ action: status === 'pago' ? 'pagar' : 'vencer' }) }).catch(()=>{});
+        toast('Fatura criada ✓', 'ok');
+      }
     } else {
       const id     = document.getElementById('fd-id').value;
       const item   = document.getElementById('fd-item').value.trim();
