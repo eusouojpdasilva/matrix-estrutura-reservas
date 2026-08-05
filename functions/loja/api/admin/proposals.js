@@ -33,16 +33,16 @@ export async function onRequest({ request, env }) {
     const r = await env.DB.prepare(
       `INSERT INTO proposals
         (lead_id,client_name,title,slug,status,destinations,travel_start,travel_end,travelers,
-         hotels,flights,price_total,price_per_person,currency,includes,excludes,payment_info,
+         hotels,flights,activities,price_total,price_per_person,currency,includes,excludes,payment_info,
          internal_cost,internal_notes,cover_images,description,
          cta_primary_label,cta_primary_url,cta_secondary_label,cta_secondary_url,
          itinerary,expires_at)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
     ).bind(
       b.lead_id || null, b.client_name || '', b.title, b.slug, b.status || 'draft',
       JSON.stringify(b.destinations || []),
       b.travel_start || null, b.travel_end || null, b.travelers || 1,
-      JSON.stringify(b.hotels || []), JSON.stringify(b.flights || []),
+      JSON.stringify(b.hotels || []), JSON.stringify(b.flights || []), JSON.stringify(b.activities || []),
       b.price_total || null, b.price_per_person || null, b.currency || 'BRL',
       b.includes || '', b.excludes || '', b.payment_info || '',
       b.internal_cost || null, b.internal_notes || '',
@@ -59,7 +59,7 @@ export async function onRequest({ request, env }) {
     await env.DB.prepare(
       `UPDATE proposals SET
         lead_id=?,client_name=?,title=?,slug=?,status=?,destinations=?,
-        travel_start=?,travel_end=?,travelers=?,hotels=?,flights=?,
+        travel_start=?,travel_end=?,travelers=?,hotels=?,flights=?,activities=?,
         price_total=?,price_per_person=?,currency=?,includes=?,excludes=?,payment_info=?,
         internal_cost=?,internal_notes=?,cover_images=?,description=?,
         cta_primary_label=?,cta_primary_url=?,cta_secondary_label=?,cta_secondary_url=?,
@@ -69,7 +69,7 @@ export async function onRequest({ request, env }) {
       b.lead_id || null, b.client_name || '', b.title, b.slug, b.status || 'draft',
       JSON.stringify(b.destinations || []),
       b.travel_start || null, b.travel_end || null, b.travelers || 1,
-      JSON.stringify(b.hotels || []), JSON.stringify(b.flights || []),
+      JSON.stringify(b.hotels || []), JSON.stringify(b.flights || []), JSON.stringify(b.activities || []),
       b.price_total || null, b.price_per_person || null, b.currency || 'BRL',
       b.includes || '', b.excludes || '', b.payment_info || '',
       b.internal_cost || null, b.internal_notes || '',

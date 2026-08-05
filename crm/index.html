@@ -336,9 +336,9 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .prop-tag { display:flex; align-items:center; gap:5px; background:rgba(245,166,35,.14); color:var(--accent); box-shadow:inset 0 0 0 1px rgba(245,166,35,.28); border-radius:var(--r-full); padding:4px 12px; font-size:12px; font-weight:600; }
 .prop-tag button { background:none; border:none; color:var(--accent); cursor:pointer; font-size:15px; line-height:1; padding:0; opacity:.7; transition:opacity var(--tr-fast); }
 .prop-tag button:hover { opacity:1; }
-.hotel-card, .flight-card { background:rgba(0,0,0,.22); border-radius:var(--r); border:1px solid var(--line); padding:16px; margin-bottom:10px; display:flex; flex-direction:column; gap:11px; transition:border-color var(--tr); }
-.hotel-card:hover, .flight-card:hover { border-color:rgba(255,255,255,.1); }
-.hotel-card-hd, .flight-card-hd { display:flex; align-items:center; justify-content:space-between; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.7px; font-family:var(--font-ui); }
+.hotel-card, .flight-card, .activity-card { background:rgba(0,0,0,.22); border-radius:var(--r); border:1px solid var(--line); padding:16px; margin-bottom:10px; display:flex; flex-direction:column; gap:11px; transition:border-color var(--tr); }
+.hotel-card:hover, .flight-card:hover, .activity-card:hover { border-color:rgba(255,255,255,.1); }
+.hotel-card-hd, .flight-card-hd, .activity-card-hd { display:flex; align-items:center; justify-content:space-between; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.7px; font-family:var(--font-ui); }
 .cover-row { display:flex; gap:8px; align-items:center; margin-bottom:6px; }
 .cover-row input { flex:1; }
 .prop-link-preview { background:rgba(0,0,0,.3); border:1px solid var(--line); border-radius:var(--r-sm); padding:13px 15px; font-size:12.5px; color:var(--muted); font-family:ui-monospace,'Cascadia Mono',monospace; word-break:break-all; }
@@ -888,9 +888,10 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
       <div class="prop-step active" data-s="1" onclick="propStep(1)">1 · Básico</div>
       <div class="prop-step" data-s="2" onclick="propStep(2)">2 · Hospedagem</div>
       <div class="prop-step" data-s="3" onclick="propStep(3)">3 · Voos</div>
-      <div class="prop-step" data-s="4" onclick="propStep(4)">4 · Investimento</div>
-      <div class="prop-step" data-s="5" onclick="propStep(5)">5 · Capa</div>
-      <div class="prop-step" data-s="6" onclick="propStep(6)">6 · Publicar</div>
+      <div class="prop-step" data-s="4" onclick="propStep(4)">4 · Passeios</div>
+      <div class="prop-step" data-s="5" onclick="propStep(5)">5 · Investimento</div>
+      <div class="prop-step" data-s="6" onclick="propStep(6)">6 · Capa</div>
+      <div class="prop-step" data-s="7" onclick="propStep(7)">7 · Publicar</div>
     </div>
     <div class="modal-body">
       <input type="hidden" id="mp-id">
@@ -924,8 +925,14 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
         <div id="mp-flights"></div>
         <button class="btn btn-ghost btn-sm" onclick="addFlightCard()">+ Adicionar voo</button>
       </div>
-      <!-- Pane 4: Investimento -->
+      <!-- Pane 4: Passeios -->
       <div class="prop-pane" id="pp-4">
+        <div id="mp-activities"></div>
+        <button class="btn btn-ghost btn-sm" onclick="addActivityCard()">+ Adicionar passeio</button>
+        <div class="margin-info hidden" id="mp-activities-total" style="color:var(--muted);background:rgba(255,255,255,.03);border-color:var(--line)"></div>
+      </div>
+      <!-- Pane 5: Investimento -->
+      <div class="prop-pane" id="pp-5">
         <div class="row2">
           <div class="field"><label>Valor total</label><input id="mp-price-total" type="number" min="0" step="0.01" placeholder="0,00" oninput="calcMarginProp()"></div>
           <div class="field"><label>Por pessoa</label><input id="mp-price-pp" type="number" min="0" step="0.01" placeholder="0,00"></div>
@@ -946,8 +953,8 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
         <div class="field"><label>Condições de pagamento</label><textarea id="mp-payment" rows="2" placeholder="50% na confirmação + 50% 30 dias antes da viagem…"></textarea></div>
         <div class="field"><label>Notas internas <span style="color:var(--muted);font-weight:400">(ocultas para o cliente)</span></label><textarea id="mp-notes" rows="2" placeholder="Markup do hotel, contato do fornecedor…"></textarea></div>
       </div>
-      <!-- Pane 5: Capa -->
-      <div class="prop-pane" id="pp-5">
+      <!-- Pane 6: Capa -->
+      <div class="prop-pane" id="pp-6">
         <div class="field">
           <label>Imagens de capa (URLs)</label>
           <div id="mp-covers"></div>
@@ -963,8 +970,8 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
           <div class="field"><label>Botão secundário — link</label><input id="mp-cta2-url" type="text" placeholder="https://wa.me/55…"></div>
         </div>
       </div>
-      <!-- Pane 6: Publicar -->
-      <div class="prop-pane" id="pp-6">
+      <!-- Pane 7: Publicar -->
+      <div class="prop-pane" id="pp-7">
         <div class="row2">
           <div class="field">
             <label>Slug (URL)</label>
@@ -2458,6 +2465,8 @@ function openProposalModal(id, prefill) {
   document.getElementById('mp-dest-tags').innerHTML = '';
   document.getElementById('mp-hotels').innerHTML = '';
   document.getElementById('mp-flights').innerHTML = '';
+  document.getElementById('mp-activities').innerHTML = '';
+  document.getElementById('mp-activities-total').classList.add('hidden');
   document.getElementById('mp-covers').innerHTML = '';
   document.getElementById('mp-margin-info').classList.add('hidden');
   document.getElementById('mp-link-preview').innerHTML = '<span style="font-size:12px">Preencha o slug para ver o link</span>';
@@ -2485,8 +2494,9 @@ async function loadProposalData(id) {
     document.getElementById('mp-end').value        = p.travel_end || '';
     _propDests = JSON.parse(p.destinations || '[]');
     renderDestTags();
-    JSON.parse(p.hotels   || '[]').forEach(h => addHotelCard(h));
-    JSON.parse(p.flights  || '[]').forEach(f => addFlightCard(f));
+    JSON.parse(p.hotels     || '[]').forEach(h => addHotelCard(h));
+    JSON.parse(p.flights    || '[]').forEach(f => addFlightCard(f));
+    JSON.parse(p.activities || '[]').forEach(a => addActivityCard(a));
     document.getElementById('mp-price-total').value = p.price_total || '';
     document.getElementById('mp-price-pp').value    = p.price_per_person || '';
     document.getElementById('mp-currency').value    = p.currency || 'BRL';
@@ -2518,12 +2528,12 @@ function propStep(n) {
   document.querySelectorAll('.prop-step').forEach(el => el.classList.toggle('active', parseInt(el.dataset.s) === n));
   document.querySelectorAll('.prop-pane').forEach(el => el.classList.toggle('active', parseInt(el.id.replace('pp-', '')) === n));
   document.getElementById('mp-prev').disabled = n === 1;
-  document.getElementById('mp-next').disabled = n === 6;
+  document.getElementById('mp-next').disabled = n === 7;
 }
 
 function propStepNav(dir) {
   const next = _propStep + dir;
-  if (next >= 1 && next <= 6) propStep(next);
+  if (next >= 1 && next <= 7) propStep(next);
 }
 
 function addDestTag() {
@@ -2618,6 +2628,31 @@ function addFlightCard(data) {
   document.getElementById('mp-flights').appendChild(d);
 }
 
+function addActivityCard(data) {
+  data = data || {};
+  const n = document.querySelectorAll('#mp-activities .activity-card').length + 1;
+  const d = document.createElement('div');
+  d.className = 'activity-card';
+  d.innerHTML = `
+    <div class="activity-card-hd"><span>Passeio ${n}</span>
+      <button class="btn btn-ghost btn-sm" style="color:var(--red);font-size:12px" onclick="this.closest('.activity-card').remove();calcActivitiesTotal()">× Remover</button>
+    </div>
+    <div class="field"><label>Nome</label><input class="ac-name" type="text" value="${esc(data.name||'')}" placeholder="Ex: Massagem four hands"></div>
+    <div class="field"><label>Descrição</label><textarea class="ac-desc" rows="2" placeholder="Ex: 50min, no spa do hotel, inclui transporte">${esc(data.description||'')}</textarea></div>
+    <div class="field"><label>Preço (R$)</label><input class="ac-price" type="number" min="0" step="0.01" value="${data.price||''}" placeholder="0,00" oninput="calcActivitiesTotal()"></div>`;
+  document.getElementById('mp-activities').appendChild(d);
+  calcActivitiesTotal();
+}
+
+function calcActivitiesTotal() {
+  const total = Array.from(document.querySelectorAll('#mp-activities .ac-price'))
+    .reduce((sum, i) => sum + (parseFloat(i.value) || 0), 0);
+  const el = document.getElementById('mp-activities-total');
+  if (!total) { el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  el.textContent = `Total dos passeios: R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits:2})} — some isso manualmente ao Valor Total na aba Investimento, se quiser incluir.`;
+}
+
 function addCoverRow(url) {
   const d = document.createElement('div');
   d.className = 'cover-row';
@@ -2702,6 +2737,11 @@ function collectProposalData() {
       baggage_checked: c.querySelector('.fc-bagchecked').value.trim(),
     };
   });
+  const activities = Array.from(document.querySelectorAll('#mp-activities .activity-card')).map(c => ({
+    name:        c.querySelector('.ac-name').value.trim(),
+    description: c.querySelector('.ac-desc').value.trim(),
+    price:       parseFloat(c.querySelector('.ac-price').value) || null,
+  }));
   const cover_images = Array.from(document.querySelectorAll('#mp-covers .cover-url'))
     .map(i => i.value.trim()).filter(Boolean);
   return {
@@ -2714,6 +2754,7 @@ function collectProposalData() {
     destinations:        _propDests,
     hotels,
     flights,
+    activities,
     price_total:         parseFloat(document.getElementById('mp-price-total').value) || null,
     price_per_person:    parseFloat(document.getElementById('mp-price-pp').value) || null,
     currency:            document.getElementById('mp-currency').value,
@@ -2737,7 +2778,7 @@ function collectProposalData() {
 async function saveProposal() {
   const data = collectProposalData();
   if (!data.title) { toast('Título é obrigatório', 'err'); propStep(1); return; }
-  if (!data.slug)  { toast('Slug é obrigatório (aba Publicar)', 'err'); propStep(6); return; }
+  if (!data.slug)  { toast('Slug é obrigatório (aba Publicar)', 'err'); propStep(7); return; }
   try {
     if (data.id) {
       await api('/loja/api/admin/proposals', { method:'PUT',  body: JSON.stringify(data) });

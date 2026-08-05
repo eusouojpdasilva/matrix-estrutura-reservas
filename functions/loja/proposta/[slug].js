@@ -132,6 +132,25 @@ function flightsHtml(flights) {
   </section>`;
 }
 
+function activitiesHtml(activities) {
+  if (!activities.length) return '';
+  const cards = activities.map(a => `
+    <div class="act-card">
+      <div class="act-body">
+        <div class="act-name">${esc(a.name || '')}</div>
+        ${a.description ? `<p class="act-desc">${esc(a.description)}</p>` : ''}
+      </div>
+      ${a.price ? `<div class="act-price">${fmtBRL(a.price)}</div>` : ''}
+    </div>`).join('');
+  return `
+  <section class="section">
+    <div class="section-inner">
+      <div class="section-label">Passeios &amp; Experiências</div>
+      <div class="activities-list">${cards}</div>
+    </div>
+  </section>`;
+}
+
 function condicoesHtml(p) {
   const items = [
     p.expires_at ? `<p><strong>Validade:</strong> esta proposta é válida até ${fmtDate(p.expires_at)}. Após essa data, valores e disponibilidade devem ser reconsultados.</p>` : '',
@@ -221,7 +240,7 @@ function itinerarioHtml(itinerary) {
   </section>`;
 }
 
-function renderPage(p, { destinations, hotels, flights, coverImages, itinerary }) {
+function renderPage(p, { destinations, hotels, flights, activities, coverImages, itinerary }) {
   const hero = coverImages[0] || '';
   const dateRange = p.travel_start && p.travel_end
     ? `${fmtDate(p.travel_start)} → ${fmtDate(p.travel_end)}`
@@ -327,6 +346,14 @@ function renderPage(p, { destinations, hotels, flights, coverImages, itinerary }
     .fl-foot strong{color:var(--text)}
     @media(max-width:480px){.fl-code{font-size:1.4rem}.fl-card{padding:1rem}}
 
+    /* ACTIVITIES */
+    .activities-list{display:flex;flex-direction:column;gap:.75rem}
+    .act-card{display:flex;align-items:center;justify-content:space-between;gap:1.25rem;background:var(--surface2);border:1px solid var(--border);border-radius:.75rem;padding:1rem 1.25rem}
+    .act-name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:600}
+    .act-desc{font-size:.78rem;color:var(--muted);margin-top:.3rem;line-height:1.6}
+    .act-price{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--amber);white-space:nowrap;flex-shrink:0}
+    @media(max-width:520px){.act-card{flex-direction:column;align-items:flex-start;gap:.5rem}}
+
     /* CONDIÇÕES */
     .cond{font-size:.8rem;color:var(--muted);line-height:1.7}
     .cond p{padding:.6rem 0;border-bottom:1px solid var(--border)}
@@ -418,6 +445,7 @@ ${p.description ? `
 ${resumoHtml(p, destinations, hotels)}
 ${flightsHtml(flights)}
 ${hotelsHtml(hotels)}
+${activitiesHtml(activities)}
 ${itinerarioHtml(itinerary)}
 ${investimentoHtml(p)}
 ${condicoesHtml(p)}
@@ -475,10 +503,11 @@ export async function onRequest({ params, env }) {
   const destinations = safeJson(proposal.destinations, []);
   const hotels = safeJson(proposal.hotels, []);
   const flights = safeJson(proposal.flights, []);
+  const activities = safeJson(proposal.activities, []);
   const coverImages = safeJson(proposal.cover_images, []);
   const itinerary = safeJson(proposal.itinerary, []);
 
-  return new Response(renderPage(proposal, { destinations, hotels, flights, coverImages, itinerary }), {
+  return new Response(renderPage(proposal, { destinations, hotels, flights, activities, coverImages, itinerary }), {
     headers: { 'content-type': 'text/html;charset=utf-8' }
   });
 }
