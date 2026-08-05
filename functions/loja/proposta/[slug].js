@@ -247,6 +247,12 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
     : (p.travel_start ? `A partir de ${fmtDate(p.travel_start)}` : '');
   const destChips = destinations.map(d => `<span class="dest-chip">${esc(d)}</span>`).join('');
 
+  let diasFaltam = null;
+  if (p.travel_start) {
+    const diff = Math.ceil((new Date(p.travel_start + 'T00:00:00') - new Date()) / 86400000);
+    if (diff > 0) diasFaltam = diff;
+  }
+
   const hasMobileCta = p.cta_primary_url;
   const propYear = p.created_at ? new Date(p.created_at * 1000 || p.created_at).getFullYear() : new Date().getFullYear();
   const propNum = `${String(p.id).padStart(4, '0')}/${propYear}`;
@@ -292,6 +298,17 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
     .section-alt{background:var(--surface)}
     .section-inner{max-width:860px;margin:0 auto}
     .section-label{font-size:.62rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--amber);margin-bottom:1.5rem}
+
+    /* INTRO TEXT */
+    .intro-text{font-size:1.2rem;font-weight:600;color:#fff;line-height:1.7;font-style:normal;border-left:4px solid var(--amber);padding-left:1.5rem}
+    .intro-text::first-line{color:var(--amber)}
+
+    /* COUNTDOWN */
+    .countdown-badge{display:inline-flex;align-items:center;gap:.75rem;margin-top:1.5rem;background:rgba(20,20,20,.6);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.12);border-radius:1rem;padding:.75rem 1.25rem}
+    .cd-ico{font-size:1.4rem}
+    .cd-num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--amber);line-height:1}
+    .cd-text{display:flex;flex-direction:column;font-size:.8rem;font-weight:600;color:#fff;line-height:1.3}
+    .cd-label{font-size:.58rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
 
     /* VALIDITY BAR */
     .validity-bar{position:sticky;top:0;z-index:110;background:#000;color:rgba(255,255,255,.85);font-size:.68rem;letter-spacing:.08em;text-align:center;padding:.55rem 1rem;border-bottom:1px solid var(--border)}
@@ -432,13 +449,19 @@ ${p.expires_at ? `<div class="validity-bar">Proposta Nº ${propNum} · válida a
       ${dateRange ? `<span>📅 ${dateRange}</span>` : ''}
       ${p.travelers ? `<span>👥 ${p.travelers} ${p.travelers > 1 ? 'viajantes' : 'viajante'}</span>` : ''}
     </div>
+    ${diasFaltam ? `
+    <div class="countdown-badge">
+      <span class="cd-ico">⏳</span>
+      <span class="cd-num">${diasFaltam}</span>
+      <span class="cd-text"><span class="cd-label">Faltam</span>dias para o início da viagem</span>
+    </div>` : ''}
   </div>
 </div>
 
 ${p.description ? `
 <section class="section">
   <div class="section-inner">
-    <p style="font-size:.95rem;color:rgba(240,240,240,.75);line-height:1.9;font-style:italic;border-left:3px solid var(--amber);padding-left:1.25rem">${esc(p.description)}</p>
+    <p class="intro-text">${esc(p.description)}</p>
   </div>
 </section>` : ''}
 
