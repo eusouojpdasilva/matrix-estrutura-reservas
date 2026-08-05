@@ -336,9 +336,14 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .prop-tag { display:flex; align-items:center; gap:5px; background:rgba(245,166,35,.14); color:var(--accent); box-shadow:inset 0 0 0 1px rgba(245,166,35,.28); border-radius:var(--r-full); padding:4px 12px; font-size:12px; font-weight:600; }
 .prop-tag button { background:none; border:none; color:var(--accent); cursor:pointer; font-size:15px; line-height:1; padding:0; opacity:.7; transition:opacity var(--tr-fast); }
 .prop-tag button:hover { opacity:1; }
-.hotel-card, .flight-card, .activity-card { background:rgba(0,0,0,.22); border-radius:var(--r); border:1px solid var(--line); padding:16px; margin-bottom:10px; display:flex; flex-direction:column; gap:11px; transition:border-color var(--tr); }
-.hotel-card:hover, .flight-card:hover, .activity-card:hover { border-color:rgba(255,255,255,.1); }
-.hotel-card-hd, .flight-card-hd, .activity-card-hd { display:flex; align-items:center; justify-content:space-between; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.7px; font-family:var(--font-ui); }
+.hotel-card, .flight-card, .activity-card, .day-card { background:rgba(0,0,0,.22); border-radius:var(--r); border:1px solid var(--line); padding:16px; margin-bottom:10px; display:flex; flex-direction:column; gap:11px; transition:border-color var(--tr); }
+.hotel-card:hover, .flight-card:hover, .activity-card:hover, .day-card:hover { border-color:rgba(255,255,255,.1); }
+.hotel-card-hd, .flight-card-hd, .activity-card-hd, .day-card-hd { display:flex; align-items:center; justify-content:space-between; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.7px; font-family:var(--font-ui); }
+.day-items-list { display:flex; flex-direction:column; gap:8px; }
+.day-item-row { display:flex; gap:8px; align-items:center; background:rgba(0,0,0,.18); border:1px solid var(--line); border-radius:var(--r-sm); padding:8px 10px; }
+.day-item-row .di-time { width:90px; flex-shrink:0; }
+.day-item-row .di-title { flex:1; }
+.day-item-row button { flex-shrink:0; }
 .cover-row { display:flex; gap:8px; align-items:center; margin-bottom:6px; }
 .cover-row input { flex:1; }
 .prop-link-preview { background:rgba(0,0,0,.3); border:1px solid var(--line); border-radius:var(--r-sm); padding:13px 15px; font-size:12.5px; color:var(--muted); font-family:ui-monospace,'Cascadia Mono',monospace; word-break:break-all; }
@@ -889,9 +894,10 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
       <div class="prop-step" data-s="2" onclick="propStep(2)">2 · Hospedagem</div>
       <div class="prop-step" data-s="3" onclick="propStep(3)">3 · Voos</div>
       <div class="prop-step" data-s="4" onclick="propStep(4)">4 · Passeios</div>
-      <div class="prop-step" data-s="5" onclick="propStep(5)">5 · Investimento</div>
-      <div class="prop-step" data-s="6" onclick="propStep(6)">6 · Capa</div>
-      <div class="prop-step" data-s="7" onclick="propStep(7)">7 · Publicar</div>
+      <div class="prop-step" data-s="5" onclick="propStep(5)">5 · Roteiro</div>
+      <div class="prop-step" data-s="6" onclick="propStep(6)">6 · Investimento</div>
+      <div class="prop-step" data-s="7" onclick="propStep(7)">7 · Capa</div>
+      <div class="prop-step" data-s="8" onclick="propStep(8)">8 · Publicar</div>
     </div>
     <div class="modal-body">
       <input type="hidden" id="mp-id">
@@ -931,8 +937,13 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
         <button class="btn btn-ghost btn-sm" onclick="addActivityCard()">+ Adicionar passeio</button>
         <div class="margin-info hidden" id="mp-activities-total" style="color:var(--muted);background:rgba(255,255,255,.03);border-color:var(--line)"></div>
       </div>
-      <!-- Pane 5: Investimento -->
+      <!-- Pane 5: Roteiro -->
       <div class="prop-pane" id="pp-5">
+        <div id="mp-days"></div>
+        <button class="btn btn-ghost btn-sm" onclick="addDayCard()">+ Adicionar dia</button>
+      </div>
+      <!-- Pane 6: Investimento -->
+      <div class="prop-pane" id="pp-6">
         <div class="row2">
           <div class="field"><label>Valor total</label><input id="mp-price-total" type="number" min="0" step="0.01" placeholder="0,00" oninput="calcMarginProp()"></div>
           <div class="field"><label>Por pessoa</label><input id="mp-price-pp" type="number" min="0" step="0.01" placeholder="0,00"></div>
@@ -953,8 +964,8 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
         <div class="field"><label>Condições de pagamento</label><textarea id="mp-payment" rows="2" placeholder="50% na confirmação + 50% 30 dias antes da viagem…"></textarea></div>
         <div class="field"><label>Notas internas <span style="color:var(--muted);font-weight:400">(ocultas para o cliente)</span></label><textarea id="mp-notes" rows="2" placeholder="Markup do hotel, contato do fornecedor…"></textarea></div>
       </div>
-      <!-- Pane 6: Capa -->
-      <div class="prop-pane" id="pp-6">
+      <!-- Pane 7: Capa -->
+      <div class="prop-pane" id="pp-7">
         <div class="field">
           <label>Imagens de capa (URLs)</label>
           <div id="mp-covers"></div>
@@ -970,8 +981,8 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
           <div class="field"><label>Botão secundário — link</label><input id="mp-cta2-url" type="text" placeholder="https://wa.me/55…"></div>
         </div>
       </div>
-      <!-- Pane 7: Publicar -->
-      <div class="prop-pane" id="pp-7">
+      <!-- Pane 8: Publicar -->
+      <div class="prop-pane" id="pp-8">
         <div class="row2">
           <div class="field">
             <label>Slug (URL)</label>
@@ -2467,6 +2478,7 @@ function openProposalModal(id, prefill) {
   document.getElementById('mp-flights').innerHTML = '';
   document.getElementById('mp-activities').innerHTML = '';
   document.getElementById('mp-activities-total').classList.add('hidden');
+  document.getElementById('mp-days').innerHTML = '';
   document.getElementById('mp-covers').innerHTML = '';
   document.getElementById('mp-margin-info').classList.add('hidden');
   document.getElementById('mp-link-preview').innerHTML = '<span style="font-size:12px">Preencha o slug para ver o link</span>';
@@ -2497,6 +2509,7 @@ async function loadProposalData(id) {
     JSON.parse(p.hotels     || '[]').forEach(h => addHotelCard(h));
     JSON.parse(p.flights    || '[]').forEach(f => addFlightCard(f));
     JSON.parse(p.activities || '[]').forEach(a => addActivityCard(a));
+    JSON.parse(p.itinerary  || '[]').forEach(d => addDayCard(d));
     document.getElementById('mp-price-total').value = p.price_total || '';
     document.getElementById('mp-price-pp').value    = p.price_per_person || '';
     document.getElementById('mp-currency').value    = p.currency || 'BRL';
@@ -2528,12 +2541,12 @@ function propStep(n) {
   document.querySelectorAll('.prop-step').forEach(el => el.classList.toggle('active', parseInt(el.dataset.s) === n));
   document.querySelectorAll('.prop-pane').forEach(el => el.classList.toggle('active', parseInt(el.id.replace('pp-', '')) === n));
   document.getElementById('mp-prev').disabled = n === 1;
-  document.getElementById('mp-next').disabled = n === 7;
+  document.getElementById('mp-next').disabled = n === 8;
 }
 
 function propStepNav(dir) {
   const next = _propStep + dir;
-  if (next >= 1 && next <= 7) propStep(next);
+  if (next >= 1 && next <= 8) propStep(next);
 }
 
 function addDestTag() {
@@ -2653,6 +2666,48 @@ function calcActivitiesTotal() {
   el.textContent = `Total dos passeios: R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits:2})} — some isso manualmente ao Valor Total na aba Investimento, se quiser incluir.`;
 }
 
+function addDayCard(data) {
+  data = data || {};
+  const n = document.querySelectorAll('#mp-days .day-card').length + 1;
+  const d = document.createElement('div');
+  d.className = 'day-card';
+  d.innerHTML = `
+    <div class="day-card-hd"><span>Dia ${n}</span>
+      <button class="btn btn-ghost btn-sm" style="color:var(--red);font-size:12px" onclick="this.closest('.day-card').remove();renumberDayCards()">× Remover dia</button>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Título</label><input class="dc-title" type="text" value="${esc(data.title||'')}" placeholder="Ex: Chegada em Bali"></div>
+      <div class="field"><label>Data</label><input class="dc-date" type="date" value="${esc(data.date||'')}"></div>
+    </div>
+    <div class="field"><label>Descrição (opcional)</label><textarea class="dc-desc" rows="2" placeholder="Texto de introdução do dia…">${esc(data.description||'')}</textarea></div>
+    <div class="field"><label>URL da imagem (opcional)</label><input class="dc-img" type="text" value="${esc(data.image||'')}" placeholder="https://…"></div>
+    <div class="field">
+      <label>Itens do dia (com horário)</label>
+      <div class="day-items-list"></div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="addDayItem(this.closest('.day-card').querySelector('.day-items-list'))">+ Adicionar item</button>
+    </div>`;
+  document.getElementById('mp-days').appendChild(d);
+  const list = d.querySelector('.day-items-list');
+  (data.items || []).forEach(it => addDayItem(list, it));
+}
+
+function addDayItem(container, data) {
+  data = data || {};
+  const row = document.createElement('div');
+  row.className = 'day-item-row';
+  row.innerHTML = `
+    <input class="di-time" type="time" value="${esc(data.time||'')}">
+    <input class="di-title" type="text" value="${esc(data.title||'')}" placeholder="Ex: Voo Aracaju → Campinas">
+    <button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="this.closest('.day-item-row').remove()">×</button>`;
+  container.appendChild(row);
+}
+
+function renumberDayCards() {
+  document.querySelectorAll('#mp-days .day-card').forEach((c, i) => {
+    c.querySelector('.day-card-hd span').textContent = `Dia ${i + 1}`;
+  });
+}
+
 function addCoverRow(url) {
   const d = document.createElement('div');
   d.className = 'cover-row';
@@ -2742,6 +2797,17 @@ function collectProposalData() {
     description: c.querySelector('.ac-desc').value.trim(),
     price:       parseFloat(c.querySelector('.ac-price').value) || null,
   }));
+  const itinerary = Array.from(document.querySelectorAll('#mp-days .day-card')).map((c, i) => ({
+    day:         i + 1,
+    date:        c.querySelector('.dc-date').value,
+    title:       c.querySelector('.dc-title').value.trim(),
+    description: c.querySelector('.dc-desc').value.trim(),
+    image:       c.querySelector('.dc-img').value.trim(),
+    items: Array.from(c.querySelectorAll('.day-item-row')).map(r => ({
+      time:  r.querySelector('.di-time').value,
+      title: r.querySelector('.di-title').value.trim(),
+    })).filter(it => it.title),
+  }));
   const cover_images = Array.from(document.querySelectorAll('#mp-covers .cover-url'))
     .map(i => i.value.trim()).filter(Boolean);
   return {
@@ -2755,6 +2821,7 @@ function collectProposalData() {
     hotels,
     flights,
     activities,
+    itinerary,
     price_total:         parseFloat(document.getElementById('mp-price-total').value) || null,
     price_per_person:    parseFloat(document.getElementById('mp-price-pp').value) || null,
     currency:            document.getElementById('mp-currency').value,
@@ -2778,7 +2845,7 @@ function collectProposalData() {
 async function saveProposal() {
   const data = collectProposalData();
   if (!data.title) { toast('Título é obrigatório', 'err'); propStep(1); return; }
-  if (!data.slug)  { toast('Slug é obrigatório (aba Publicar)', 'err'); propStep(7); return; }
+  if (!data.slug)  { toast('Slug é obrigatório (aba Publicar)', 'err'); propStep(8); return; }
   try {
     if (data.id) {
       await api('/loja/api/admin/proposals', { method:'PUT',  body: JSON.stringify(data) });

@@ -217,7 +217,17 @@ function investimentoHtml(p) {
 
 function itinerarioHtml(itinerary) {
   if (!itinerary.length) return '';
-  const items = itinerary.map((day, i) => `
+  const items = itinerary.map((day, i) => {
+    const dayItems = Array.isArray(day.items) ? day.items.filter(it => it && it.title) : [];
+    const timeline = dayItems.length ? `
+      <div class="day-timeline">
+        ${dayItems.map(it => `
+          <div class="day-time-item">
+            ${it.time ? `<div class="dti-time">${esc(it.time)}</div>` : '<div class="dti-time">·</div>'}
+            <div class="dti-title">${esc(it.title)}</div>
+          </div>`).join('')}
+      </div>` : '';
+    return `
     <div class="day-item">
       <button class="day-toggle" onclick="toggleDay(${i})">
         <span class="day-num">Dia ${day.day || i + 1}</span>
@@ -228,13 +238,20 @@ function itinerarioHtml(itinerary) {
       <div class="day-body" id="day-body-${i}" style="display:none">
         ${day.image ? `<img src="${esc(day.image)}" alt="" class="day-img" loading="lazy">` : ''}
         ${day.description ? `<p class="day-desc">${esc(day.description)}</p>` : ''}
-        ${Array.isArray(day.items) && day.items.length ? `<ul class="day-list">${day.items.map(it => `<li>${esc(it)}</li>`).join('')}</ul>` : ''}
+        ${timeline}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   return `
   <section class="section section-alt">
     <div class="section-inner">
-      <div class="section-label">Roteiro</div>
+      <div class="section-label" style="display:flex;align-items:center;justify-content:space-between">
+        <span>Roteiro</span>
+        <span class="itin-controls">
+          <button class="itin-btn" onclick="expandAllDays()">Expandir tudo</button>
+          <button class="itin-btn" onclick="collapseAllDays()">Recolher tudo</button>
+        </span>
+      </div>
       <div class="itinerary">${items}</div>
     </div>
   </section>`;
@@ -413,9 +430,14 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
     .day-body{padding:0 1.25rem 1.25rem;background:var(--surface2)}
     .day-img{width:100%;height:180px;object-fit:cover;border-radius:.5rem;margin-bottom:.875rem}
     .day-desc{font-size:.8rem;color:var(--muted);line-height:1.7;margin-bottom:.75rem}
-    .day-list{list-style:none;display:flex;flex-direction:column;gap:.375rem}
-    .day-list li{font-size:.8rem;color:var(--text);padding-left:1.125rem;position:relative}
-    .day-list li::before{content:"▸";position:absolute;left:0;color:var(--amber)}
+    .itin-controls{display:flex;gap:.5rem}
+    .itin-btn{background:none;border:1px solid var(--border);color:var(--muted);font-family:inherit;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.4rem .75rem;border-radius:.4rem;cursor:pointer;transition:all .15s}
+    .itin-btn:hover{color:var(--amber);border-color:var(--amber)}
+    .day-timeline{display:flex;flex-direction:column;position:relative;padding-left:.25rem}
+    .day-time-item{display:flex;gap:1rem;align-items:flex-start;padding:.6rem 0;position:relative}
+    .day-time-item:not(:last-child)::after{content:'';position:absolute;left:2.35rem;top:1.6rem;bottom:-.4rem;width:1px;background:var(--border)}
+    .dti-time{flex-shrink:0;width:4.5rem;font-size:.72rem;font-weight:700;color:var(--amber);background:rgba(242,159,5,.1);border:1px solid rgba(242,159,5,.3);border-radius:.4rem;padding:.25rem .5rem;text-align:center}
+    .dti-title{font-size:.82rem;color:var(--text);padding-top:.3rem;line-height:1.5}
 
     /* MOBILE STICKY CTA */
     .sticky-cta{display:none;position:fixed;bottom:0;left:0;right:0;z-index:50;background:rgba(13,13,13,.97);backdrop-filter:blur(8px);border-top:1px solid var(--border);padding:.875rem 1.25rem}
@@ -490,6 +512,14 @@ ${hasMobileCta ? `
     var open = body.style.display !== 'none';
     body.style.display = open ? 'none' : 'block';
     chev.style.transform = open ? '' : 'rotate(90deg)';
+  }
+  function expandAllDays() {
+    document.querySelectorAll('.day-body').forEach(function(b){ b.style.display = 'block'; });
+    document.querySelectorAll('.day-chevron').forEach(function(c){ c.style.transform = 'rotate(90deg)'; });
+  }
+  function collapseAllDays() {
+    document.querySelectorAll('.day-body').forEach(function(b){ b.style.display = 'none'; });
+    document.querySelectorAll('.day-chevron').forEach(function(c){ c.style.transform = ''; });
   }
 </script>
 </body>
