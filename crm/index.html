@@ -401,7 +401,7 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 
 /* ── dark dashboard ─────────────────────────────────────────────────────────── */
 .dd-wrap { margin:-32px -36px -48px; padding:32px 36px 48px; min-height:calc(100vh - 60px); }
-.dd-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:20px; }
+.dd-kpis { display:grid; grid-template-columns:repeat(5,1fr); gap:18px; margin-bottom:20px; }
 .dd-kpi { background:linear-gradient(180deg,#1B1813,#151310); border:1px solid var(--line); border-radius:var(--r-lg); padding:24px 26px; position:relative; overflow:hidden; box-shadow:var(--sh); transition:border-color var(--tr), box-shadow var(--tr), transform var(--tr); }
 .dd-kpi:hover { border-color:rgba(255,255,255,.11); box-shadow:var(--sh-md); transform:translateY(-2px); }
 .dd-kpi::before { content:''; position:absolute; top:-30px; right:-30px; width:110px; height:110px; border-radius:50%; opacity:.09; filter:blur(4px); }
@@ -409,12 +409,14 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .dd-kpi--b::before  { background:#4A9FE0; }
 .dd-kpi--gr::before { background:#4ADE80; }
 .dd-kpi--y::before  { background:#F7C46A; }
+.dd-kpi--p::before  { background:#B983FF; }
 .dd-kpi-ico { font-size:20px; margin-bottom:16px; line-height:1; width:42px; height:42px; border-radius:12px; background:rgba(255,255,255,.04); box-shadow:inset 0 0 0 1px var(--line); display:flex; align-items:center; justify-content:center; }
 .dd-kpi-val { font-size:34px; font-weight:800; line-height:1; font-family:var(--font-ui); letter-spacing:-.5px; }
 .dd-kpi--g  .dd-kpi-val { color:#F5A623; }
 .dd-kpi--b  .dd-kpi-val { color:#4A9FE0; }
 .dd-kpi--gr .dd-kpi-val { color:#4ADE80; }
 .dd-kpi--y  .dd-kpi-val { color:#F7C46A; }
+.dd-kpi--p  .dd-kpi-val { color:#B983FF; }
 .dd-kpi-lbl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#8A847E; margin-top:12px; font-family:var(--font-ui); }
 .dd-kpi-sub { font-size:11.5px; color:#57524C; margin-top:5px; }
 .dd-row { display:grid; gap:18px; margin-bottom:18px; }
@@ -446,6 +448,7 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .dd-badge-gray  { display:inline-block;padding:3px 11px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(160,150,140,.1);color:#8A847E;box-shadow:inset 0 0 0 1px rgba(160,150,140,.18); }
 .dd-empty { text-align:center;padding:30px;color:#6A6460;font-size:13px; }
 @media(max-width:1140px){ .dd-row3{grid-template-columns:1fr 1fr;} .dd-row3>.dd-panel:last-child{grid-column:span 2;} }
+@media(max-width:1100px) { .dd-kpis{grid-template-columns:repeat(3,1fr);} }
 @media(max-width:800px) { .dd-kpis{grid-template-columns:1fr 1fr;} .dd-row3,.dd-row2{grid-template-columns:1fr;} .dd-row3>.dd-panel:last-child{grid-column:auto;} }
 
 </style>
@@ -621,7 +624,6 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
       <!-- tabs inside modal -->
       <div style="display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:16px">
         <button class="fin-tab active" id="ftab-fatura"   onclick="switchFinTab('fatura')">Fatura Manual</button>
-        <button class="fin-tab"        id="ftab-contrato" onclick="switchFinTab('contrato')">Contrato</button>
         <button class="fin-tab"        id="ftab-despesa"  onclick="switchFinTab('despesa')">Despesa</button>
       </div>
 
@@ -637,55 +639,42 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
             <input id="ff-mes" type="month">
           </div>
           <div class="field">
-            <label>Valor *</label>
+            <label>Valor bruto (faturamento) *</label>
             <input id="ff-valor" type="number" min="0.01" step="0.01" placeholder="0,00">
           </div>
         </div>
-        <div class="field">
-          <label>Status</label>
-          <select id="ff-status">
-            <option value="pendente">Pendente</option>
-            <option value="pago">Pago</option>
-            <option value="vencido">Vencido</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- CONTRATO FIELDS -->
-      <div id="fin-contrato-fields" style="display:none">
-        <div class="field">
-          <label>Cliente *</label>
-          <select id="fc-cliente"></select>
-        </div>
         <div class="row2">
           <div class="field">
-            <label>Valor total *</label>
-            <input id="fc-valor" type="number" min="0.01" step="0.01" placeholder="0,00">
+            <label>Comissão (líquida)</label>
+            <input id="ff-comissao" type="number" min="0" step="0.01" placeholder="0,00">
           </div>
           <div class="field">
-            <label>Moeda</label>
-            <select id="fc-moeda">
-              <option>BRL</option><option>USD</option><option>EUR</option>
+            <label>Status</label>
+            <select id="ff-status">
+              <option value="pendente">Pendente</option>
+              <option value="pago">Pago</option>
+              <option value="vencido">Vencido</option>
             </select>
           </div>
         </div>
         <div class="row2">
           <div class="field">
-            <label>Recorrência</label>
-            <select id="fc-rec" onchange="toggleParcelas()">
-              <option value="Único">Único</option>
+            <label>Forma de pagamento</label>
+            <select id="ff-forma">
+              <option value="">—</option>
+              <option value="Pix">Pix</option>
+              <option value="Cartão">Cartão</option>
+              <option value="Boleto">Boleto</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Condição</label>
+            <select id="ff-condicao">
+              <option value="">—</option>
+              <option value="À vista">À vista</option>
               <option value="Parcelado">Parcelado</option>
-              <option value="Mensal">Mensal</option>
             </select>
           </div>
-          <div class="field" id="fc-nparcelas-wrap" style="display:none">
-            <label>Nº parcelas</label>
-            <input id="fc-nparcelas" type="number" min="2" max="48" placeholder="12">
-          </div>
-        </div>
-        <div class="field">
-          <label>Data início</label>
-          <input id="fc-inicio" type="date">
         </div>
       </div>
 
@@ -1274,9 +1263,15 @@ async function renderDash(el) {
       </div>
       <div class="dd-kpi dd-kpi--y">
         <div class="dd-kpi-ico">💰</div>
-        <div class="dd-kpi-val">${fmtR(kpis.receita_mes)}</div>
-        <div class="dd-kpi-lbl">Receita do Mês</div>
-        <div class="dd-kpi-sub">${mes}</div>
+        <div class="dd-kpi-val">${fmtR(kpis.faturamento_mes)}</div>
+        <div class="dd-kpi-lbl">Faturamento do Mês</div>
+        <div class="dd-kpi-sub">Bruto · ${mes}</div>
+      </div>
+      <div class="dd-kpi dd-kpi--p">
+        <div class="dd-kpi-ico">🪙</div>
+        <div class="dd-kpi-val">${fmtR(kpis.comissao_mes)}</div>
+        <div class="dd-kpi-lbl">Comissão do Mês</div>
+        <div class="dd-kpi-sub">Líquido · seu caixa</div>
       </div>
     </div>
 
@@ -1850,21 +1845,19 @@ async function openFinModal(type) {
   const cr = await api('/api/crm/clientes?limit=500').catch(()=>({clientes:[]}));
   const opts = (cr.clientes||[]).map(c=>`<option value="${c.id}">${esc(c.nome)}</option>`).join('');
   document.getElementById('ff-cliente').innerHTML = `<option value="">Selecione</option>${opts}`;
-  document.getElementById('fc-cliente').innerHTML = `<option value="">Selecione</option>${opts}`;
   // defaults
-  document.getElementById('ff-mes').value    = _finMes;
-  document.getElementById('ff-valor').value  = '';
-  document.getElementById('ff-status').value = 'pendente';
-  document.getElementById('fc-valor').value  = '';
-  document.getElementById('fc-rec').value    = 'Único';
-  document.getElementById('fc-inicio').value = new Date().toISOString().slice(0,10);
+  document.getElementById('ff-mes').value      = _finMes;
+  document.getElementById('ff-valor').value    = '';
+  document.getElementById('ff-comissao').value = '';
+  document.getElementById('ff-status').value   = 'pendente';
+  document.getElementById('ff-forma').value    = '';
+  document.getElementById('ff-condicao').value = '';
   document.getElementById('fd-id').value     = '';
   document.getElementById('fd-item').value   = '';
   document.getElementById('fd-valor').value  = '';
   document.getElementById('fd-data').value   = new Date().toISOString().slice(0,10);
   document.getElementById('fd-cat').value    = '';
   document.getElementById('fin-del').style.display = 'none';
-  toggleParcelas();
   switchFinTab(_finModalTab);
   document.getElementById('ov-fin').classList.remove('hidden');
 }
@@ -1886,17 +1879,12 @@ function editDespesa(id) {
 
 function switchFinTab(tab) {
   _finModalTab = tab;
-  ['fatura','contrato','despesa'].forEach(t => {
+  ['fatura','despesa'].forEach(t => {
     document.getElementById(`ftab-${t}`)?.classList.toggle('active', t === tab);
     document.getElementById(`fin-${t}-fields`).style.display = t === tab ? '' : 'none';
   });
-  const titles = { fatura:'Nova Fatura', contrato:'Novo Contrato', despesa:'Nova Despesa' };
+  const titles = { fatura:'Nova Fatura', despesa:'Nova Despesa' };
   document.getElementById('fin-title').textContent = titles[tab];
-}
-
-function toggleParcelas() {
-  const show = document.getElementById('fc-rec').value === 'Parcelado';
-  document.getElementById('fc-nparcelas-wrap').style.display = show ? '' : 'none';
 }
 
 function closeFinModal() {
@@ -1910,34 +1898,25 @@ document.getElementById('ov-fin').addEventListener('click', e => {
 async function saveFinItem() {
   try {
     if (_finModalTab === 'fatura') {
-      const cliente_id = document.getElementById('ff-cliente').value;
-      const mes        = document.getElementById('ff-mes').value;
-      const valor      = parseFloat(document.getElementById('ff-valor').value);
-      const status     = document.getElementById('ff-status').value;
+      const cliente_id  = document.getElementById('ff-cliente').value;
+      const mes         = document.getElementById('ff-mes').value;
+      const valor       = parseFloat(document.getElementById('ff-valor').value);
+      const comissaoRaw = document.getElementById('ff-comissao').value;
+      const comissao    = comissaoRaw !== '' ? parseFloat(comissaoRaw) : null;
+      const status      = document.getElementById('ff-status').value;
+      const forma_pagamento    = document.getElementById('ff-forma').value    || null;
+      const condicao_pagamento = document.getElementById('ff-condicao').value || null;
       if (!cliente_id || !mes || !valor) { toast('Preencha todos os campos obrigatórios', 'err'); return; }
       // create contrato (Único) which auto-generates a fatura as 'pendente'
-      await api('/api/crm/contratos', { method:'POST', body: JSON.stringify({
-        cliente_id, valor, recorrencia:'Único', data_inicio: mes+'-01'
+      const rc = await api('/api/crm/contratos', { method:'POST', body: JSON.stringify({
+        cliente_id, valor, recorrencia:'Único', data_inicio: mes+'-01',
+        comissao_estimada: comissao, forma_pagamento_prevista: forma_pagamento,
       })});
-      // if non-pending status requested, update the just-created fatura
-      if (status !== 'pendente') {
-        const r2 = await api(`/api/crm/faturas?mes=${mes}&cliente_id=${encodeURIComponent(cliente_id)}`);
-        const nova = (r2.faturas||[]).find(f => f.status === 'pendente');
-        if (nova) await api(`/api/crm/faturas/${nova.id}`, { method:'PUT', body: JSON.stringify({ action: status === 'pago' ? 'pagar' : 'vencer' }) }).catch(()=>{});
-      }
+      // apply condicao_pagamento and/or non-pending status on the just-created fatura
+      const novaId = rc.faturas?.[0]?.id;
+      if (novaId && condicao_pagamento) await api(`/api/crm/faturas/${novaId}`, { method:'PUT', body: JSON.stringify({ condicao_pagamento }) }).catch(()=>{});
+      if (novaId && status !== 'pendente') await api(`/api/crm/faturas/${novaId}`, { method:'PUT', body: JSON.stringify({ action: status === 'pago' ? 'pagar' : 'vencer' }) }).catch(()=>{});
       toast('Fatura criada ✓', 'ok');
-    } else if (_finModalTab === 'contrato') {
-      const cliente_id  = document.getElementById('fc-cliente').value;
-      const valor       = parseFloat(document.getElementById('fc-valor').value);
-      const recorrencia = document.getElementById('fc-rec').value;
-      const moeda       = document.getElementById('fc-moeda').value;
-      const data_inicio = document.getElementById('fc-inicio').value;
-      const num_parcelas= parseInt(document.getElementById('fc-nparcelas').value)||null;
-      if (!cliente_id || !valor) { toast('Preencha cliente e valor', 'err'); return; }
-      const r = await api('/api/crm/contratos', { method:'POST', body: JSON.stringify({
-        cliente_id, valor, recorrencia, moeda, data_inicio, num_parcelas
-      })});
-      toast(`Contrato criado — ${r.faturas_geradas} fatura(s) gerada(s) ✓`, 'ok');
     } else {
       const id     = document.getElementById('fd-id').value;
       const item   = document.getElementById('fd-item').value.trim();

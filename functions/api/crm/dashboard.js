@@ -1,7 +1,7 @@
 // GET /api/crm/dashboard?key=...
 //
 // Returns all KPIs needed by CRM Module 1 in a single request:
-//   leads_ativos, em_proposta, clientes_ativos, receita_mes
+//   leads_ativos, em_proposta, clientes_ativos, faturamento_mes, comissao_mes
 //   funil (count per status), followup_risco (overdue), pipeline_estimado
 
 export async function onRequestGet(context) {
@@ -24,9 +24,13 @@ export async function onRequestGet(context) {
         SELECT COUNT(*) as total FROM crm_clientes WHERE status = 'Ativo'
       `).first(),
 
-      // receita do mês (faturas pagas)
+      // receita do mês (faturas pagas): bruto = faturamento, líquido = comissão real
+      // (COALESCE(comissao, valor) garante retrocompatibilidade com faturas antigas sem comissão)
       env.DB.prepare(`
-        SELECT COALESCE(SUM(valor), 0) as total FROM crm_faturas
+        SELECT
+          COALESCE(SUM(valor), 0) as bruto,
+          COALESCE(SUM(COALESCE(comissao, valor)), 0) as liquido
+        FROM crm_faturas
         WHERE mes = ? AND status = 'pago'
       `).bind(mes).first(),
 
@@ -73,7 +77,8 @@ export async function onRequestGet(context) {
         leads_ativos:     (funilMap['novo'] || 0) + (funilMap['contato'] || 0),
         em_proposta:      funilMap['proposta'] || 0,
         clientes_ativos:  clientes?.total || 0,
-        receita_mes:      receita?.total  || 0,
+        faturamento_mes:  receita?.bruto   || 0,
+        comissao_mes:     receita?.liquido || 0,
       },
       funil: {
         novo:     funilMap['novo']     || 0,

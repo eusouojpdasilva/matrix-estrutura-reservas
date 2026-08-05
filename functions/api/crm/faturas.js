@@ -61,7 +61,10 @@ export async function onRequestPost(context) {
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
 
-  const { cliente_id, contrato_id, mes, valor, status = 'pendente' } = body;
+  const {
+    cliente_id, contrato_id, mes, valor, status = 'pendente',
+    comissao, forma_pagamento, condicao_pagamento,
+  } = body;
 
   if (!cliente_id || !contrato_id || !mes || !valor)
     return json({ error: 'cliente_id, contrato_id, mes, valor are required' }, 400);
@@ -71,9 +74,14 @@ export async function onRequestPost(context) {
 
   try {
     await env.DB.prepare(`
-      INSERT INTO crm_faturas (id, cliente_id, contrato_id, mes, valor, status, created_at, updated_at)
-      VALUES (?,?,?,?,?,?,?,?)
-    `).bind(id, cliente_id, contrato_id, mes, valor, status, now, now).run();
+      INSERT INTO crm_faturas
+        (id, cliente_id, contrato_id, mes, valor, comissao, forma_pagamento, condicao_pagamento, status, created_at, updated_at)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?)
+    `).bind(
+      id, cliente_id, contrato_id, mes, valor,
+      comissao ?? null, forma_pagamento ?? null, condicao_pagamento ?? null,
+      status, now, now,
+    ).run();
 
     const fatura = await env.DB.prepare('SELECT * FROM crm_faturas WHERE id = ?').bind(id).first();
     return json({ fatura }, 201);

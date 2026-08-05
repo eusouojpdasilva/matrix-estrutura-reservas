@@ -39,7 +39,7 @@ export async function onRequestPut(context) {
     updates = [['status', 'pendente'], ['data_pagamento', null], ['updated_at', now]];
   } else {
     // generic partial update
-    const UPDATABLE = ['valor', 'mes', 'status', 'data_pagamento'];
+    const UPDATABLE = ['valor', 'mes', 'status', 'data_pagamento', 'comissao', 'forma_pagamento', 'condicao_pagamento'];
     updates = Object.entries(body).filter(([k]) => UPDATABLE.includes(k));
     if (!updates.length) return json({ error: 'No valid fields' }, 400);
     updates.push(['updated_at', now]);
