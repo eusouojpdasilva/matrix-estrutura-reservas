@@ -20,7 +20,6 @@ export async function onRequest({ params, env, request }) {
     return new Response(notFoundHtml(), { status: 404, headers: { 'Content-Type': 'text/html;charset=utf-8' } });
   }
 
-  // 3 artigos recentes para "Leia também"
   const { results: related } = await env.DB.prepare(
     `SELECT title, slug, cover_image, read_time_min FROM articles
      WHERE status='published' AND slug != ? ORDER BY published_at DESC LIMIT 3`
@@ -31,7 +30,6 @@ export async function onRequest({ params, env, request }) {
   const cover = article.cover_image || 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1920&q=80';
   const meta = article.meta_description || article.excerpt || '';
 
-  // Galeria de fotos (JSON array de URLs)
   let galleryImages = [];
   try { galleryImages = JSON.parse(article.gallery || '[]'); } catch {}
 
@@ -43,11 +41,10 @@ export async function onRequest({ params, env, request }) {
     image: cover,
     datePublished: article.published_at,
     dateModified: article.updated_at,
-    author: { '@type': 'Person', name: 'Nome do Consultor', url: `${origin}/consultoria#sobre` },
-    publisher: { '@type': 'Organization', name: 'Scandia Travel', logo: { '@type': 'ImageObject', url: '/assets/logo.png' } },
+    author: { '@type': 'Person', name: 'Equipe Scandia Travel', url: `${origin}/loja/#Scandia` },
+    publisher: { '@type': 'Organization', name: 'Scandia Travel', logo: { '@type': 'ImageObject', url: `${origin}/brand/logo-light.png` } },
   });
 
-  // Galeria HTML (visível somente se houver imagens)
   const galleryHtml = galleryImages.length ? `
   <section class="gallery" aria-label="Galeria de fotos">
     <div class="gallery-grid">
@@ -57,30 +54,28 @@ export async function onRequest({ params, env, request }) {
         </div>`).join('')}
     </div>
   </section>
-  <!-- Lightbox -->
   <div class="lightbox" id="lb" role="dialog" aria-modal="true" aria-label="Visualizar foto">
-    <button class="lb-close" id="lb-close" aria-label="Fechar">✕</button>
-    <button class="lb-prev" id="lb-prev" aria-label="Anterior">‹</button>
+    <button class="lb-close" id="lb-close" aria-label="Fechar">&#x2715;</button>
+    <button class="lb-prev" id="lb-prev" aria-label="Anterior">&#x2039;</button>
     <img class="lb-img" id="lb-img" src="" alt="">
-    <button class="lb-next" id="lb-next" aria-label="Próxima">›</button>
+    <button class="lb-next" id="lb-next" aria-label="Pr&oacute;xima">&#x203A;</button>
   </div>` : '';
 
-  // CTA de pré-qualificação
   const ctaHtml = `
   <section class="lead-cta">
     <div class="lead-cta-inner">
       <div class="lead-cta-text">
         <span class="lead-cta-eyebrow">Pronto para planejar?</span>
         <h2 class="lead-cta-title">Vamos criar a sua viagem juntos</h2>
-        <p class="lead-cta-sub">Responda algumas perguntas rápidas e receba uma proposta personalizada — sem compromisso.</p>
+        <p class="lead-cta-sub">Responda algumas perguntas r&aacute;pidas e receba uma proposta personalizada &mdash; sem compromisso.</p>
       </div>
-      <a href="/consultoria#formulario" class="lead-cta-btn">Quero minha proposta</a>
+      <a href="/#formulario" class="lead-cta-btn">Quero minha proposta</a>
     </div>
   </section>`;
 
   const relatedHtml = related.length ? `
   <section class="related">
-    <h2 class="related-title">Leia também</h2>
+    <h2 class="related-title">Leia tamb&eacute;m</h2>
     <div class="related-grid">
       ${related.map(r => `
         <a href="/loja/blog/${esc(r.slug)}" class="related-card">
@@ -109,52 +104,52 @@ export async function onRequest({ params, env, request }) {
   ${article.published_at ? `<meta property="article:published_time" content="${esc(article.published_at)}">` : ''}
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">${schema}</script>
-  <link rel="icon" href="/assets/logo.png">
+  <link rel="icon" href="/brand/logo-light.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--amber:#E3522A;--dark:#0F2E47;--gray:#4A4A4A;--light:#FAFAFA;--border:#E5E7EB}
-    body{font-family:'Montserrat',sans-serif;color:var(--dark);background:#fff;line-height:1.6}
+    :root{--amber:#0F1B2D;--teal:#4A6278;--dark:#14181D;--gray:#5A5A5A;--light:#FFFFFF;--border:#E8E0F0}
+    body{font-family:'Lato',sans-serif;color:var(--dark);background:#fff;line-height:1.6}
     a{color:inherit;text-decoration:none}
     img{max-width:100%;height:auto;display:block}
 
     /* NAV */
-    .nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;background:rgba(26,26,26,.95);backdrop-filter:blur(8px)}
-    .nav-logo{height:40px;width:auto;object-fit:contain;filter:brightness(0) invert(1)}
+    .nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;background:rgba(42,26,62,.97);backdrop-filter:blur(8px)}
+    .nav-logo{height:40px;width:auto;object-fit:contain;filter:none}
     .nav-links{display:flex;align-items:center;gap:2rem}
-    .nav-links a{font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#fff;opacity:.8;transition:opacity .2s}
+    .nav-links a{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#fff;opacity:.8;transition:opacity .2s}
     .nav-links a:hover{opacity:1;color:var(--amber)}
     .nav-cta{border:1.5px solid var(--amber);color:var(--amber)!important;padding:.5rem 1.25rem;border-radius:.375rem;opacity:1!important}
     .nav-cta:hover{background:var(--amber)!important;color:#fff!important}
-    @media(max-width:640px){.nav-links{display:none}.nav{padding:.75rem 1.25rem}}
+    @media(max-width:640px){.nav-links{gap:1rem}.nav{padding:.75rem 1.25rem}.hide-mob{display:none}}
 
     /* HERO */
     .hero{position:relative;height:70vh;min-height:480px;display:flex;align-items:flex-end;padding-bottom:3rem}
     .hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-    .hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.3) 50%,rgba(0,0,0,.1) 100%)}
+    .hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(42,26,62,.92) 0%,rgba(42,26,62,.35) 55%,rgba(42,26,62,.1) 100%)}
     .hero-content{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:0 1.5rem;width:100%;color:#fff}
     .hero-breadcrumb{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;opacity:.7;margin-bottom:1rem}
     .hero-breadcrumb a:hover{color:var(--amber)}
     .hero-breadcrumb span{margin:0 .5rem;opacity:.5}
-    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(1.75rem,5vw,3rem);font-weight:700;line-height:1.2;margin-bottom:1rem}
+    .hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.75rem,5vw,3rem);font-weight:700;line-height:1.2;margin-bottom:1rem}
     .hero-meta{display:flex;align-items:center;gap:1.5rem;font-size:.75rem;opacity:.8;flex-wrap:wrap}
     .hero-meta-item{display:flex;align-items:center;gap:.375rem}
 
     /* ARTICLE */
     .article-wrap{max-width:740px;margin:0 auto;padding:3.5rem 1.5rem 2rem}
     .article-excerpt{font-size:1.125rem;color:var(--gray);line-height:1.75;border-left:3px solid var(--amber);padding-left:1.25rem;margin-bottom:2.5rem;font-style:italic}
-    .article-content{font-size:1.0625rem;line-height:1.85;color:#222}
-    .article-content h2{font-family:'Playfair Display',serif;font-size:1.625rem;color:var(--dark);margin:2.5rem 0 1rem;font-weight:700}
-    .article-content h3{font-family:'Playfair Display',serif;font-size:1.25rem;color:var(--dark);margin:2rem 0 .75rem;font-weight:600}
+    .article-content{font-size:1.0625rem;line-height:1.85;color:#2A2A2A}
+    .article-content h2{font-family:'Cormorant Garamond',serif;font-size:1.625rem;color:var(--dark);margin:2.5rem 0 1rem;font-weight:700}
+    .article-content h3{font-family:'Cormorant Garamond',serif;font-size:1.25rem;color:var(--dark);margin:2rem 0 .75rem;font-weight:600}
     .article-content p{margin-bottom:1.5rem}
     .article-content strong{font-weight:700;color:var(--dark)}
     .article-content em{font-style:italic}
     .article-content a{color:var(--amber);border-bottom:1px solid currentColor}
     .article-content ul,.article-content ol{margin:0 0 1.5rem 1.5rem}
     .article-content li{margin-bottom:.5rem}
-    .article-content blockquote{border-left:3px solid var(--amber);padding:.75rem 1.25rem;margin:2rem 0;background:var(--light);font-style:italic;color:var(--gray)}
+    .article-content blockquote{border-left:3px solid var(--teal);padding:.75rem 1.25rem;margin:2rem 0;background:var(--light);font-style:italic;color:var(--gray)}
     .article-content img{width:100%;border-radius:.5rem;margin:2rem 0;box-shadow:0 4px 24px rgba(0,0,0,.1)}
     .article-content hr{border:none;border-top:1px solid var(--border);margin:2.5rem 0}
 
@@ -178,41 +173,41 @@ export async function onRequest({ params, env, request }) {
 
     /* LEAD CTA */
     .lead-cta{max-width:1100px;margin:3rem auto;padding:0 1.5rem}
-    .lead-cta-inner{background:var(--dark);border-radius:1rem;padding:2.5rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;border-left:5px solid var(--amber)}
-    .lead-cta-eyebrow{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);display:block;margin-bottom:.5rem}
-    .lead-cta-title{font-family:'Playfair Display',serif;font-size:1.625rem;color:#fff;line-height:1.25;margin-bottom:.75rem}
-    .lead-cta-sub{font-size:.875rem;color:rgba(255,255,255,.6);line-height:1.7;max-width:480px}
+    .lead-cta-inner{background:linear-gradient(135deg,#0F1B2D 0%,#3D1F5C 60%,#1A3A3B 100%);border-radius:1rem;padding:2.5rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;border-left:5px solid var(--teal)}
+    .lead-cta-eyebrow{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);display:block;margin-bottom:.5rem}
+    .lead-cta-title{font-family:'Cormorant Garamond',serif;font-size:1.625rem;color:#fff;line-height:1.25;margin-bottom:.75rem}
+    .lead-cta-sub{font-size:.875rem;color:rgba(255,255,255,.65);line-height:1.7;max-width:480px}
     .lead-cta-btn{flex-shrink:0;display:inline-block;background:var(--amber);color:#fff;font-weight:700;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;padding:.875rem 2rem;border-radius:.5rem;transition:background .2s;white-space:nowrap}
-    .lead-cta-btn:hover{background:#B8401E}
+    .lead-cta-btn:hover{background:#0F1B2D}
     @media(max-width:640px){.lead-cta-inner{flex-direction:column}.lead-cta-btn{width:100%;text-align:center}}
 
     /* RELATED */
     .related{max-width:1100px;margin:4rem auto;padding:0 1.5rem}
-    .related-title{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:2rem;color:var(--dark)}
+    .related-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;margin-bottom:2rem;color:var(--dark)}
     .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.5rem}
     .related-card{display:block;border-radius:.75rem;overflow:hidden;border:1px solid var(--border);transition:box-shadow .2s;background:#fff}
-    .related-card:hover{box-shadow:0 8px 32px rgba(0,0,0,.1)}
+    .related-card:hover{box-shadow:0 8px 32px rgba(0,0,0,.08)}
     .related-img-wrap{height:160px;overflow:hidden}
     .related-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
     .related-card:hover .related-img-wrap img{transform:scale(1.05)}
     .related-info{padding:1rem 1.25rem}
     .related-time{font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);font-weight:600;display:block;margin-bottom:.375rem}
-    .related-info h3{font-family:'Playfair Display',serif;font-size:1rem;color:var(--dark);line-height:1.4}
+    .related-info h3{font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--dark);line-height:1.4}
 
     /* FOOTER */
-    .footer{background:var(--dark);color:rgba(255,255,255,.5);padding:3rem 1.5rem;text-align:center;margin-top:4rem}
-    .footer img{height:48px;opacity:.8;margin:0 auto 1rem}
+    .footer{background:linear-gradient(135deg,#0F1B2D 0%,#1A3A3B 100%);color:rgba(255,255,255,.45);padding:3rem 1.5rem;text-align:center;margin-top:4rem}
+    .footer img{height:44px;filter:none;opacity:.7;margin:0 auto 1rem}
     .footer p{font-size:.8rem}
     .footer a{color:var(--amber);margin:0 .75rem}
   </style>
 </head>
 <body>
   <nav class="nav">
-    <a href="/consultoria"><img src="/assets/logo.png" alt="Scandia Travel" class="nav-logo"></a>
+    <a href="/"><img src="/brand/logo-light.png" alt="Scandia Travel" class="nav-logo"></a>
     <div class="nav-links">
       <a href="/loja/blog">Blog</a>
-      <a href="/consultoria#sobre">Sobre</a>
-      <a href="/consultoria#formulario" class="nav-cta">Planejar viagem</a>
+      <a href="/loja/" class="hide-mob">Guias</a>
+      <a href="/#formulario" class="nav-cta">Planejar viagem</a>
     </div>
   </nav>
 
@@ -222,7 +217,7 @@ export async function onRequest({ params, env, request }) {
       <div class="hero-overlay"></div>
       <div class="hero-content">
         <div class="hero-breadcrumb">
-          <a href="/consultoria">Início</a><span>›</span><a href="/loja/blog">Blog</a><span>›</span>${esc(article.title)}
+          <a href="/">In&iacute;cio</a><span>&rsaquo;</span><a href="/loja/blog">Blog</a><span>&rsaquo;</span>${esc(article.title)}
         </div>
         <h1 class="hero-title">${esc(article.title)}</h1>
         <div class="hero-meta">
@@ -234,7 +229,7 @@ export async function onRequest({ params, env, request }) {
             <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
             ${fmtDate(article.published_at)}
           </span>` : ''}
-          <span class="hero-meta-item">Por Nome do Consultor · Scandia Travel</span>
+          <span class="hero-meta-item">Por equipe Scandia Travel &middot; Scandia Travel</span>
         </div>
       </div>
     </div>
@@ -250,8 +245,8 @@ export async function onRequest({ params, env, request }) {
   ${relatedHtml}
 
   <footer class="footer">
-    <img src="/assets/logo.png" alt="Scandia Travel">
-    <p>&copy; ${new Date().getFullYear()} Scandia Travel &nbsp;·&nbsp; <a href="/loja/blog">Blog</a><a href="/consultoria">Consultoria</a></p>
+    <img src="/brand/logo-light.png" alt="Scandia Travel">
+    <p>&copy; ${new Date().getFullYear()} Scandia Travel &nbsp;&middot;&nbsp; <a href="/loja/blog">Blog</a><a href="/loja/">Guias</a><a href="/">Consultoria</a></p>
   </footer>
 
   <script>
@@ -265,7 +260,6 @@ export async function onRequest({ params, env, request }) {
       })
     }).catch(() => {});
 
-    // Lightbox
     const imgs = ${JSON.stringify(galleryImages)};
     if (imgs.length) {
       let cur = 0;
@@ -293,10 +287,10 @@ export async function onRequest({ params, env, request }) {
 }
 
 function notFoundHtml() {
-  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Artigo não encontrado | Scandia Travel</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-  <style>body{font-family:Montserrat,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#FAFAFA}
-  .box{text-align:center}.box h1{font-family:'Playfair Display',serif;font-size:2rem;margin-bottom:1rem}
-  .box a{color:#E3522A;font-weight:600}</style></head>
-  <body><div class="box"><h1>Artigo não encontrado</h1><p><a href="/loja/blog">← Voltar ao Blog</a></p></div></body></html>`;
+  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Artigo n&atilde;o encontrado | Scandia Travel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=Lato:wght@400;600&display=swap" rel="stylesheet">
+  <style>body{font-family:Lato,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#F4F1EC}
+  .box{text-align:center}.box h1{font-family:'Cormorant Garamond',serif;font-size:2rem;margin-bottom:1rem;color:#0F1B2D}
+  .box a{color:#0F1B2D;font-weight:600}</style></head>
+  <body><div class="box"><h1>Artigo n&atilde;o encontrado</h1><p><a href="/loja/blog">&larr; Voltar ao Blog</a></p></div></body></html>`;
 }

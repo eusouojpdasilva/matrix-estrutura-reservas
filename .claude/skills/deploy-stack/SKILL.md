@@ -139,8 +139,8 @@ Tell them:
 > 3. **Project name**: `${PROJECT_NAME}` (must match — it controls the `.pages.dev` subdomain).
 > 4. **Production branch**: `main`.
 > 5. **Framework preset**: None.
-> 6. **Build command**: (leave empty).
-> 7. **Build output directory**: `/` (just a forward slash).
+> 6. **Build command**: `npm run build && npm run check:build`.
+> 7. **Build output directory**: `dist`; root directory: repository root. Node 22 via `.nvmrc`.
 >
 > Click "Save and Deploy". The first deploy will probably fail or serve a blank page because the D1 binding and env vars aren't set yet. That's expected — the next two steps fix it.
 
@@ -269,7 +269,7 @@ Skip it — this skill uses `npx wrangler@latest` throughout, which doesn't need
 Most likely `DASH_KEY` was pasted with a trailing space or newline. Edit the env var in the dashboard and re-paste carefully.
 
 **Pages deploys, but pages return blank / 404.**
-Likely the "Build output directory" was set to something other than `/`. Go to Pages project → Settings → Builds → Configure production deployments and set output to `/`.
+Check that the build command is `npm run build && npm run check:build` and output directory is `dist`. Inspect the build log before retrying.
 
 **Migrations apply but `sessions` table is empty after visiting a page.**
 The D1 binding isn't wired. Re-check Pages → Settings → Bindings: the variable name must be `DB` (exactly), and the database must be `${PROJECT_NAME}-db`. After fixing, retry the deploy.

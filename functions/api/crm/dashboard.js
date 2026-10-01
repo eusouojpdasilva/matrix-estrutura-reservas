@@ -55,15 +55,28 @@ export async function onRequestGet(context) {
     ]);
 
     // filtrar aniversários nos próximos 15 dias (no JS para evitar edge case virada de ano)
-    const hoje = new Date();
+    // "hoje" no fuso de Brasília (-03:00) — Workers rodam em UTC.
+    const hoje = new Date(Date.now() - 3 * 3600 * 1000);
     const proximos15 = Array.from({ length: 16 }, (_, i) => {
       const d = new Date(hoje);
-      d.setDate(hoje.getDate() + i);
-      return `${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      d.setUTCDate(hoje.getUTCDate() + i);
+      return `${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
     });
+    // normaliza o aniversário para 'MM-DD'. Convenção:
+    //  • 'DD/MM' (com barra) = dia/mês, padrão brasileiro (ex: 05/10 = 5 de out)
+    //  • 'MM-DD' (com hífen) = mês/dia (formato do placeholder antigo)
+    //  • 'YYYY-MM-DD' / ISO = ano-mês-dia
+    const toMMDD = (v) => {
+      if (!v) return null;
+      const s = String(v).trim();
+      let m = s.match(/^(\d{4})-(\d{2})-(\d{2})/); if (m) return `${m[2]}-${m[3]}`; // YYYY-MM-DD
+      m = s.match(/^(\d{1,2})\/(\d{1,2})$/);       if (m) return `${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`; // DD/MM (BR)
+      m = s.match(/^(\d{1,2})-(\d{1,2})$/);        if (m) return `${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`; // MM-DD
+      return s;
+    };
     const aniversariantes = (anivRes.results || [])
-      .map(c => ({ ...c, mmdd: c.aniversario }))
-      .filter(c => proximos15.includes(c.mmdd))
+      .map(c => ({ ...c, mmdd: toMMDD(c.aniversario) }))
+      .filter(c => c.mmdd && proximos15.includes(c.mmdd))
       .map(c => ({ ...c, dias: proximos15.indexOf(c.mmdd) }))
       .sort((a, b) => a.dias - b.dias);
 
