@@ -9,14 +9,15 @@ type Article = {
   cover_image?: string | null;
 };
 
-const topics = [
-  { number: "01", title: "Quando viajar", detail: "Luz, clima e estação certa para o que você quer viver." },
-  { number: "02", title: "Por onde começar", detail: "Destinos e trajetos que fazem sentido no seu tempo." },
-  { number: "03", title: "Viajar com calma", detail: "Natureza, cultura e conforto no mesmo roteiro." },
+const featuredArticles: Article[] = [
+  { title: "Islândia e aurora boreal: como planejar sem deixar a viagem depender do céu", slug: "islandia-aurora-sem-pressa" },
+  { title: "Fiordes da Noruega com calma: menos deslocamentos, mais paisagem", slug: "noruega-fiordes-com-calma" },
+  { title: "Lapônia finlandesa no inverno: uma viagem para sentir, não apenas fotografar", slug: "laponia-finlandesa-inverno" },
 ];
 
 const BlogSection = () => {
   const [articles, setArticles] = useState<Article[]>([]);
+  const visibleArticles = articles.length ? articles : featuredArticles;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -58,39 +59,18 @@ const BlogSection = () => {
             <p className="absolute bottom-6 left-6 right-6 text-white text-[12px] font-semibold uppercase tracking-[0.18em]">Islândia · natureza em outra escala</p>
           </div>
           <div className="flex flex-col justify-center p-6 md:p-10 lg:p-12">
-            {articles.length > 0 ? (
-              <>
-                <span className="eyebrow text-[#4A6278] mb-3">Últimas histórias</span>
-                <div className="divide-y divide-[#0F1B2D]/10">
-                  {articles.map((article) => (
-                    <a key={article.slug} href={`/loja/blog/${encodeURIComponent(article.slug)}`} className="group block py-5 first:pt-0 last:pb-0">
-                      <span className="flex items-start justify-between gap-3">
-                        <span className="font-serif text-[25px] md:text-[29px] leading-tight text-[#0F1B2D] group-hover:text-[#4A6278] transition-colors">{article.title}</span>
-                        <ArrowUpRight size={18} className="shrink-0 mt-1 text-[#C9A24B]" aria-hidden="true" />
-                      </span>
-                      {article.excerpt && <span className="mt-2 block text-sm leading-relaxed text-[#14181D]/65 line-clamp-2">{article.excerpt}</span>}
-                    </a>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <>
-                <span className="eyebrow text-[#4A6278] mb-3">Em pauta no blog</span>
-                <h3 className="font-serif text-[31px] md:text-[38px] leading-tight text-[#0F1B2D] mb-5">Boas escolhas fazem a viagem.</h3>
-                <div className="divide-y divide-[#0F1B2D]/10">
-                  {topics.map((topic) => (
-                    <div key={topic.number} className="flex gap-4 py-4 first:pt-0 last:pb-0">
-                      <span className="text-xs font-bold text-[#C9A24B] pt-1">{topic.number}</span>
-                      <div>
-                        <h4 className="font-sans text-[15px] font-bold text-[#0F1B2D]">{topic.title}</h4>
-                        <p className="text-sm text-[#14181D]/65 leading-relaxed mt-1">{topic.detail}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-xs text-[#14181D]/55 mt-6">Os primeiros artigos estão em preparação.</p>
-              </>
-            )}
+            <span className="eyebrow text-[#4A6278] mb-3">Últimas histórias</span>
+            <div className="divide-y divide-[#0F1B2D]/10">
+              {visibleArticles.map((article) => (
+                <a key={article.slug} href={`/loja/blog/${encodeURIComponent(article.slug)}`} className="group block py-5 first:pt-0 last:pb-0">
+                  <span className="flex items-start justify-between gap-3">
+                    <span className="font-serif text-[25px] md:text-[29px] leading-tight text-[#0F1B2D] group-hover:text-[#4A6278] transition-colors">{article.title}</span>
+                    <ArrowUpRight size={18} className="shrink-0 mt-1 text-[#C9A24B]" aria-hidden="true" />
+                  </span>
+                  {article.excerpt && <span className="mt-2 block text-sm leading-relaxed text-[#14181D]/65 line-clamp-2">{article.excerpt}</span>}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </div>

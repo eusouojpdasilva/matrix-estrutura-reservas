@@ -80,6 +80,7 @@
     .footer p{font-size:.8rem}
     .footer a{color:var(--amber);margin:0 .5rem}
   </style>
+  <link rel="stylesheet" href="/loja/assets/blog-editorial.css">
 </head>
 <body>
   <nav class="nav">
@@ -120,7 +121,7 @@
 
     function fmtDate(iso) {
       if (!iso) return '';
-      return new Date(iso).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' });
+      return new Date(iso.length === 10 ? iso + 'T12:00:00' : iso).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' });
     }
 
     const DEFAULT_COVERS = [
@@ -135,7 +136,7 @@
       <a href="/loja/blog/${a.slug}" class="featured-card">
         <div class="featured-img"><img src="${cover}" alt="${a.title}" loading="lazy"></div>
         <div class="featured-body">
-          <div class="featured-label">Destaque</div>
+          <div class="featured-label">${a.category || 'Destaque editorial'}</div>
           <h2 class="featured-title">${a.title}</h2>
           ${a.excerpt ? `<p class="featured-excerpt">${a.excerpt}</p>` : ''}
           <div class="article-meta" style="margin-bottom:1.25rem">
@@ -153,6 +154,7 @@
       <a href="/loja/blog/${a.slug}" class="article-card">
         <div class="article-img"><img src="${cover}" alt="${a.title}" loading="lazy"></div>
         <div class="article-body">
+          <div class="featured-label">${a.category || 'Caderno de viagem'}</div>
           <h2 class="article-title">${a.title}</h2>
           ${a.excerpt ? `<p class="article-excerpt">${a.excerpt}</p>` : ''}
           <div class="article-meta">
@@ -185,7 +187,7 @@
     async function loadArticles() {
       try {
         const res = await fetch('/loja/api/articles?limit=50');
-        allArticles = await res.json();
+        allArticles = res.ok ? await res.json() : [];
       } catch { allArticles = []; }
       renderArticles();
     }

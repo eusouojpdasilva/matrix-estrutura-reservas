@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const dist = resolve(root, 'dist');
-for (const file of ['index.html', 'crm/index.html', 'dash/index.html', 'dash/design.css', 'dash/design.js', 'loja/index.html', 'loja/blog/index.html']) {
+for (const file of ['index.html', 'crm/index.html', 'dash/index.html', 'dash/design.css', 'dash/design.js', 'loja/index.html', 'loja/blog/index.html', 'loja/assets/blog-editorial.css', 'loja/assets/article-editorial.css', 'loja/blog/images/islandia-aurora.jpg', 'loja/blog/images/islandia-cascata.jpg', 'loja/blog/images/noruega-geiranger.jpg', 'loja/blog/images/noruega-lofoten.jpg', 'loja/blog/images/finlandia-oulanka.jpg', 'loja/blog/images/laponia-inverno.jpg']) {
   assert(existsSync(join(dist, file)), `Arquivo ausente no build: ${file}`);
 }
 function inspect(directory) {

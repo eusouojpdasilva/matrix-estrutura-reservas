@@ -1,29 +1,39 @@
+import { editorialArticles, editorialArticleBySlug } from '../../../content/editorial-articles.js';
+
 function esc(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function fmtDate(iso) {
   if (!iso) return '';
-  return new Date(iso).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+  return new Date(iso.length === 10 ? iso + 'T12:00:00' : iso).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 export async function onRequest({ params, env, request }) {
   const { slug } = params;
 
-  const article = await env.DB.prepare(`
+  const article = editorialArticleBySlug.get(slug) || (env.DB ? await env.DB.prepare(`
     SELECT a.*
     FROM articles a
     WHERE a.slug = ? AND a.status = 'published'
-  `).bind(slug).first();
+  `).bind(slug).first() : null);
 
   if (!article) {
     return new Response(notFoundHtml(), { status: 404, headers: { 'Content-Type': 'text/html;charset=utf-8' } });
   }
 
-  const { results: related } = await env.DB.prepare(
-    `SELECT title, slug, cover_image, read_time_min FROM articles
-     WHERE status='published' AND slug != ? ORDER BY published_at DESC LIMIT 3`
-  ).bind(slug).all();
+  let databaseRelated = [];
+  if (env.DB) {
+    try {
+      const { results } = await env.DB.prepare(
+        `SELECT title, slug, cover_image, read_time_min FROM articles
+         WHERE status='published' AND slug != ? ORDER BY published_at DESC LIMIT 3`
+      ).bind(slug).all();
+      databaseRelated = results || [];
+    } catch { /* O artigo continua acessível quando a lista de relacionados falha. */ }
+  }
+  const editorialRelated = editorialArticles.filter((item) => item.slug !== slug);
+  const related = (editorialArticleBySlug.has(slug) ? [...editorialRelated, ...databaseRelated] : [...databaseRelated, ...editorialRelated]).slice(0, 3);
 
   const origin = new URL(request.url).origin;
   const canonical = `${origin}/loja/blog/${slug}`;
@@ -40,7 +50,7 @@ export async function onRequest({ params, env, request }) {
     description: meta,
     image: cover,
     datePublished: article.published_at,
-    dateModified: article.updated_at,
+    dateModified: article.updated_at || article.published_at,
     author: { '@type': 'Person', name: 'Equipe Scandia Travel', url: `${origin}/loja/#Scandia` },
     publisher: { '@type': 'Organization', name: 'Scandia Travel', logo: { '@type': 'ImageObject', url: `${origin}/brand/logo-light.png` } },
   });
@@ -66,10 +76,10 @@ export async function onRequest({ params, env, request }) {
     <div class="lead-cta-inner">
       <div class="lead-cta-text">
         <span class="lead-cta-eyebrow">Pronto para planejar?</span>
-        <h2 class="lead-cta-title">Vamos criar a sua viagem juntos</h2>
-        <p class="lead-cta-sub">Responda algumas perguntas r&aacute;pidas e receba uma proposta personalizada &mdash; sem compromisso.</p>
+        <h2 class="lead-cta-title">Sua pr&oacute;xima viagem come&ccedil;a com boas escolhas.</h2>
+        <p class="lead-cta-sub">Conte o que deseja viver no norte. Quatro escolhas r&aacute;pidas nos ajudam a iniciar a conversa sobre seu roteiro.</p>
       </div>
-      <a href="/#formulario" class="lead-cta-btn">Quero minha proposta</a>
+      <a href="/#formulario" class="lead-cta-btn">Planejar minha viagem &rarr;</a>
     </div>
   </section>`;
 
@@ -200,8 +210,10 @@ export async function onRequest({ params, env, request }) {
     .footer p{font-size:.8rem}
     .footer a{color:var(--amber);margin:0 .75rem}
   </style>
+  <link rel="stylesheet" href="/loja/assets/article-editorial.css">
 </head>
 <body>
+  <div class="reading-progress" aria-hidden="true"><span id="reading-progress-bar"></span></div>
   <nav class="nav">
     <a href="/"><img src="/brand/logo-light.png" alt="Scandia Travel" class="nav-logo"></a>
     <div class="nav-links">
@@ -213,12 +225,11 @@ export async function onRequest({ params, env, request }) {
 
   <div style="padding-top:72px">
     <div class="hero">
-      <img src="${esc(cover)}" alt="${esc(article.title)}" class="hero-img">
+      <img src="${esc(cover)}" alt="${esc(article.cover_alt || article.title)}" class="hero-img" fetchpriority="high">
       <div class="hero-overlay"></div>
       <div class="hero-content">
-        <div class="hero-breadcrumb">
-          <a href="/">In&iacute;cio</a><span>&rsaquo;</span><a href="/loja/blog">Blog</a><span>&rsaquo;</span>${esc(article.title)}
-        </div>
+        <div class="hero-breadcrumb"><a href="/">In&iacute;cio</a><span>&rsaquo;</span><a href="/loja/blog">Blog</a></div>
+        ${article.category ? `<div class="hero-category">${esc(article.category)}</div>` : ''}
         <h1 class="hero-title">${esc(article.title)}</h1>
         <div class="hero-meta">
           <span class="hero-meta-item">
@@ -229,7 +240,7 @@ export async function onRequest({ params, env, request }) {
             <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
             ${fmtDate(article.published_at)}
           </span>` : ''}
-          <span class="hero-meta-item">Por equipe Scandia Travel &middot; Scandia Travel</span>
+          <span class="hero-meta-item">Por equipe Scandia Travel</span>
         </div>
       </div>
     </div>
@@ -238,6 +249,7 @@ export async function onRequest({ params, env, request }) {
   <article class="article-wrap">
     ${article.excerpt ? `<p class="article-excerpt">${esc(article.excerpt)}</p>` : ''}
     <div class="article-content">${article.content || ''}</div>
+    <a class="back-to-blog" href="/loja/blog/">&larr; Voltar ao caderno de viagem</a>
   </article>
 
   ${galleryHtml}
@@ -250,6 +262,14 @@ export async function onRequest({ params, env, request }) {
   </footer>
 
   <script>
+    const progressBar = document.getElementById('reading-progress-bar');
+    const updateProgress = () => {
+      const article = document.querySelector('.article-wrap');
+      const end = article.offsetTop + article.offsetHeight - innerHeight;
+      progressBar.style.width = Math.min(100, Math.max(0, (scrollY - article.offsetTop + innerHeight * .45) / Math.max(1, end - article.offsetTop + innerHeight * .45) * 100)) + '%';
+    };
+    addEventListener('scroll', updateProgress, { passive: true });
+    updateProgress();
     fetch('/tracker', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
