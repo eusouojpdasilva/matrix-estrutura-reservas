@@ -6,6 +6,8 @@ import HowItWorksSection from "@/components/HowItWorksSection";
 import DestinationsGrid from "@/components/DestinationsGrid";
 import ForWhoSection from "@/components/ForWhoSection";
 import AboutSection from "@/components/AboutSection";
+import BlogSection from "@/components/BlogSection";
+import FAQSection from "@/components/FAQSection";
 import StepForm from "@/components/StepForm";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import FinalCTA from "@/components/FinalCTA";
@@ -23,6 +25,8 @@ const Index = () => {
         <DestinationsGrid />
         <ForWhoSection />
         <AboutSection />
+        <BlogSection />
+        <FAQSection />
         <StepForm />
         <TestimonialsSection />
         <FinalCTA />

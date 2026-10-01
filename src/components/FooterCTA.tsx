@@ -25,6 +25,8 @@ const FooterCTA = () => {
           >
             Entre em contato
           </a>
+          <span aria-hidden="true"> · </span>
+          <a href="/loja/blog/" className="underline underline-offset-2 hover:text-white transition-colors" style={{ color: "rgba(255,255,255,.8)" }}>Blog de viagens</a>
         </p>
       </div>
     </footer>
