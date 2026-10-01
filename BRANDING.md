@@ -4,7 +4,7 @@ A identidade base Scandia Travel usa azul profundo `#0F1B2D`, azul acinzentado `
 
 1. Crie um repositório próprio a partir desta matriz. Troque logos e nome em `src/`, `public/`, `functions/loja/` e `index.html`.
 2. Ajuste cores em `src/index.css`, `tailwind.config.ts`, CRM, dashboard, loja, blog e propostas.
-3. Troque textos e fotos em `src/components/`. Configure WhatsApp em `public/brand/config.js`; sem número válido o formulário não envia leads.
+3. Troque textos e fotos em `src/components/`. Substitua o WhatsApp da Scandia em `public/brand/config.js`; sem número válido o formulário não envia leads.
 4. Configure domínio em `index.html`. IDs de Meta Pixel e GA4 vão em `public/brand/config.js`; só então habilite `trackingEnabled`. Segredos nunca vão nesse arquivo.
 5. Configure D1 `DB`, `DASH_KEY` e demais secrets no Pages do novo cliente. Revise `config/products.js` e o workflow Meta Ads antes de ativá-lo.
 6. Confira `/`, `/crm/`, `/dash/`, `/loja/`, `/loja/blog/`, artigos e propostas. Faça um teste real do formulário no ambiente novo.

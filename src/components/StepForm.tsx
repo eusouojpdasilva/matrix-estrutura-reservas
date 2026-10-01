@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import auroraImg from "@/assets/hero-islandia-aurora.jpg";
 
 declare global {
   interface Window {
@@ -7,136 +9,164 @@ declare global {
   }
 }
 
-
+const steps = [
+  { label: "Destino", title: "Para onde você sonha ir?", hint: "Escolha o destino que mais combina com o momento de vocês.", options: ["Islândia", "Noruega", "Suécia", "Finlândia", "Combinar destinos", "Quero orientação"] },
+  { label: "Experiência", title: "O que mais deseja viver?", hint: "Vamos usar sua escolha como ponto de partida para o roteiro.", options: ["Aurora e inverno", "Fiordes e natureza", "Cultura e cidades", "Um pouco de tudo"] },
+  { label: "Época", title: "Quando imagina viajar?", hint: "Uma previsão já nos ajuda a pensar na melhor temporada.", options: ["Nos próximos 6 meses", "Entre 6 e 12 meses", "Daqui a mais de 1 ano", "Ainda não defini"] },
+  { label: "Companhia", title: "Com quem você vai viajar?", hint: "O ritmo da viagem começa pelas pessoas que vão vivê-la.", options: ["Em casal", "Com pequena família", "Sozinho(a)", "Outro formato"] },
+] as const;
 
 const StepForm = () => {
-  const [nome, setNome]       = useState("");
-  const [phone, setPhone]     = useState("");
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState<string[]>(["", "", "", ""]);
+  const [nome, setNome] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
-  const [erro, setErro]       = useState("");
+  const [erro, setErro] = useState("");
+  const onContact = step === steps.length;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const select = (value: string) => {
+    setAnswers((current) => current.map((answer, index) => index === step ? value : answer));
+    setErro("");
+  };
+
+  const next = () => {
+    if (!answers[step]) { setErro("Escolha uma opção para continuar."); return; }
+    setErro("");
+    setStep((current) => current + 1);
+  };
+
+  const back = () => { setErro(""); setStep((current) => Math.max(0, current - 1)); };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (loading) return;
     setErro("");
 
-    const nomeTrim  = nome.trim();
-    const phoneTrim = phone.replace(/\D/g, "");
-
-    if (!nomeTrim) { setErro("Por favor, informe seu nome."); return; }
-    if (phoneTrim.length < 10) { setErro("Por favor, informe um WhatsApp válido."); return; }
+    const nomeTrim = nome.trim();
+    const digits = phone.replace(/\D/g, "");
+    const phoneIntl = /^\d{10,11}$/.test(digits) ? `55${digits}` : /^55\d{10,11}$/.test(digits) ? digits : "";
+    if (!nomeTrim) { setErro("Informe seu nome para continuarmos."); return; }
+    if (!phoneIntl) { setErro("Informe um WhatsApp válido com DDD."); return; }
 
     const config = window.SCANDIA_CONFIG;
-    if (!config?.whatsapp || !/^[1-9][0-9]{9,14}$/.test(config.whatsapp)) {
-      setErro("O atendimento online estará disponível em breve."); return;
+    if (!config?.whatsapp || !/^\d{12,15}$/.test(config.whatsapp)) {
+      setErro("O WhatsApp da agência está indisponível no momento. Tente novamente mais tarde."); return;
     }
+
     setLoading(true);
+    try {
+      const response = await fetch("/api/crm/lead-capture", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nome: nomeTrim,
+          whatsapp: phoneIntl,
+          destino: answers[0],
+          datas: answers[2],
+          observacoes: `Experiência desejada: ${answers[1]}\nCompanhia: ${answers[3]}`,
+          origem: "Landing Page Scandia Travel",
+        }),
+      });
+      if (!response.ok) throw new Error("CRM unavailable");
 
-    const eventId =
-      (crypto.randomUUID && crypto.randomUUID()) ||
-      (Date.now() + "-" + Math.random().toString(36).slice(2));
+      const eventId = crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      if (typeof window.fbq === "function") window.fbq("track", "Lead", {}, { eventID: eventId });
+      if (config.trackingEnabled) {
+        fetch("/tracker", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          keepalive: true,
+          body: JSON.stringify({
+            event_name: "Lead",
+            event_id: eventId,
+            event_time: Math.floor(Date.now() / 1000),
+            event_source_url: window.location.href,
+            user_data: {
+              ph: phoneIntl,
+              fn: nomeTrim.split(" ")[0].toLowerCase(),
+              ln: nomeTrim.split(" ").slice(1).join(" ").toLowerCase() || undefined,
+            },
+          }),
+        }).catch(() => {});
+      }
 
-    // 1. CRM lead capture — fire-and-forget, não bloqueia o redirect
-    fetch("/api/crm/lead-capture", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      keepalive: true,
-      body: JSON.stringify({
-        nome:     nomeTrim,
-        whatsapp: phoneTrim,
-        origem:   "Landing Page",
-      }),
-    }).catch(() => {});
-
-    // 2. Meta pixel Lead (browser-side)
-    if (typeof window !== "undefined" && typeof window.fbq === "function") {
-      window.fbq("track", "Lead", { phone: phoneTrim }, { eventID: eventId });
+      const message = [
+        config.whatsappMessage,
+        "",
+        `Nome: ${nomeTrim}`,
+        `Meu WhatsApp: +${phoneIntl}`,
+        `Destino: ${answers[0]}`,
+        `Experiência: ${answers[1]}`,
+        `Época: ${answers[2]}`,
+        `Viajantes: ${answers[3]}`,
+      ].join("\n");
+      window.location.assign(`https://wa.me/${config.whatsapp}?text=${encodeURIComponent(message)}`);
+    } catch {
+      setErro("Não foi possível registrar seu pedido agora. Verifique sua conexão e tente novamente.");
+      setLoading(false);
     }
-
-    // 3. CAPI server-side Lead (com phone para Advanced Matching)
-    if (window.SCANDIA_CONFIG?.trackingEnabled) fetch("/tracker", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      keepalive: true,
-      body: JSON.stringify({
-        event_name:       "Lead",
-        event_id:         eventId,
-        event_time:       Math.floor(Date.now() / 1000),
-        event_source_url: window.location.href,
-        user_data: {
-          ph: phoneTrim,
-          fn: nomeTrim.split(" ")[0].toLowerCase(),
-          ln: nomeTrim.split(" ").slice(1).join(" ").toLowerCase() || undefined,
-        },
-      }),
-    }).catch(() => {});
-
-    // 4. Abre WhatsApp
-    window.open(
-      `https://wa.me/${config.whatsapp}?text=${encodeURIComponent(config.whatsappMessage)}`,
-      "_blank",
-      "noopener"
-    );
-
-    setLoading(false);
   };
 
   return (
-    <section id="formulario" className="section-padding bg-secondary">
-      <div className="container max-w-lg text-center">
-        <h2 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-4">
-          Vamos começar a planejar sua viagem ao norte?
-        </h2>
-        <p className="font-sans text-sm text-muted-foreground mb-8 max-w-md mx-auto">
-          Conte como imagina viver Islândia ou Escandinávia. Entraremos em contato
-          para uma conversa inicial sobre seu perfil, a melhor época e o ritmo da viagem.
-        </p>
+    <section id="formulario" className="relative scroll-mt-20 overflow-hidden bg-[#0F1B2D] px-5 py-16 md:px-8 md:py-28 lg:px-16">
+      <img src={auroraImg} alt="" aria-hidden="true" loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-25" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0F1B2D]/95 to-[#0F1B2D]/65" />
+      <div className="container relative max-w-[1120px] grid lg:grid-cols-[0.8fr_1.2fr] gap-9 lg:gap-16 items-center">
+        <div className="text-white">
+          <span className="eyebrow text-[#C9A24B] block mb-5">Sua viagem começa aqui</span>
+          <h2 className="font-serif font-medium text-[clamp(2.4rem,5vw,4.2rem)] leading-[1.05] max-w-[550px]">Conte como imagina viver o norte.</h2>
+          <p className="mt-6 max-w-[470px] text-[16px] leading-relaxed text-white/80">Quatro escolhas rápidas ajudam a entender o destino, a época e o ritmo que combinam com você. Depois, conversamos sobre os próximos passos.</p>
+          <p className="mt-8 hidden lg:block text-sm text-[#C9A24B]">Islândia · Noruega · Suécia · Finlândia</p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3 max-w-sm mx-auto">
-          <input
-            type="text"
-            placeholder="Seu nome"
-            value={nome}
-            onChange={e => setNome(e.target.value)}
-            className="w-full px-5 py-3.5 rounded-full border border-border bg-background text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#0F1B2D]/40 transition"
-            autoComplete="name"
-          />
-          <input
-            type="tel"
-            placeholder="WhatsApp (DDD + número)"
-            value={phone}
-            onChange={e => setPhone(e.target.value)}
-            className="w-full px-5 py-3.5 rounded-full border border-border bg-background text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#0F1B2D]/40 transition"
-            autoComplete="tel"
-            inputMode="tel"
-          />
+        <div className="min-w-0 rounded-2xl bg-[#F4F1EC] p-6 sm:p-8 md:p-10 shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
+          <div className="flex items-center justify-between gap-4 mb-3">
+            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#4A6278]">{onContact ? "Último passo · contato" : `Etapa ${step + 1} de ${steps.length} · ${steps[step].label}`}</span>
+            <span className="text-xs font-semibold text-[#4A6278]">{Math.round((step / steps.length) * 100)}%</span>
+          </div>
+          <div className="h-1.5 w-full rounded-full bg-[#0F1B2D]/10 overflow-hidden" role="progressbar" aria-valuemin={0} aria-valuemax={4} aria-valuenow={step} aria-label="Progresso do planejamento">
+            <div className="h-full rounded-full bg-[#C9A24B] transition-all duration-300" style={{ width: `${(step / steps.length) * 100}%` }} />
+          </div>
 
-          {erro && (
-            <p className="text-sm text-red-500 text-center">{erro}</p>
+          {onContact ? (
+            <form onSubmit={handleSubmit} className="mt-8">
+              <h3 className="font-serif text-[32px] md:text-[39px] leading-tight text-[#0F1B2D]">Agora vamos conversar.</h3>
+              <p className="mt-3 mb-6 text-[15px] leading-relaxed text-[#14181D]/70">Deixe seu nome e WhatsApp. Seu pedido será registrado e uma mensagem com suas escolhas ficará pronta para enviar à Scandia.</p>
+              <label htmlFor="lead-name" className="block text-sm font-semibold text-[#0F1B2D] mb-2">Seu nome</label>
+              <input id="lead-name" type="text" value={nome} onChange={(event) => setNome(event.target.value)} autoComplete="name" maxLength={120} className="w-full rounded-lg border border-[#0F1B2D]/20 bg-white px-4 py-3.5 text-[#14181D] focus:outline-none focus:ring-2 focus:ring-[#4A6278]" placeholder="Como podemos chamar você?" />
+              <label htmlFor="lead-phone" className="block text-sm font-semibold text-[#0F1B2D] mb-2 mt-5">Seu WhatsApp com DDD</label>
+              <input id="lead-phone" type="tel" value={phone} onChange={(event) => setPhone(event.target.value)} autoComplete="tel" inputMode="tel" maxLength={20} className="w-full rounded-lg border border-[#0F1B2D]/20 bg-white px-4 py-3.5 text-[#14181D] focus:outline-none focus:ring-2 focus:ring-[#4A6278]" placeholder="(61) 99999-9999" />
+              {erro && <p role="alert" className="mt-4 text-sm text-red-700">{erro}</p>}
+              <div className="flex flex-col-reverse sm:flex-row sm:items-center gap-3 mt-7">
+                <button type="button" onClick={back} disabled={loading} className="inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3.5 text-sm font-bold text-[#4A6278] hover:bg-[#0F1B2D]/5 disabled:opacity-50"><ArrowLeft size={16} /> Voltar</button>
+                <button type="submit" disabled={loading} className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-[#0F1B2D] px-5 py-3.5 text-sm font-bold text-white hover:bg-[#4A6278] disabled:opacity-60 transition-colors">{loading ? "Registrando pedido..." : "Continuar no WhatsApp"}<ArrowRight size={16} /></button>
+              </div>
+              <p className="mt-5 text-xs leading-relaxed text-[#14181D]/60">Seus dados serão registrados no CRM da Scandia Travel para que a equipe possa entrar em contato. Você confirma o envio da mensagem no WhatsApp.</p>
+            </form>
+          ) : (
+            <div className="mt-8">
+              <h3 className="font-serif text-[32px] md:text-[39px] leading-tight text-[#0F1B2D]">{steps[step].title}</h3>
+              <p className="mt-2 text-[15px] leading-relaxed text-[#14181D]/70">{steps[step].hint}</p>
+              <div className="grid sm:grid-cols-2 gap-3 mt-7" role="group" aria-label={steps[step].title}>
+                {steps[step].options.map((option) => {
+                  const selected = answers[step] === option;
+                  return <button key={option} type="button" onClick={() => select(option)} aria-pressed={selected} className={`flex min-h-[70px] items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-[15px] font-semibold transition-colors ${selected ? "border-[#0F1B2D] bg-[#0F1B2D] text-white" : "border-[#0F1B2D]/15 bg-white text-[#0F1B2D] hover:border-[#4A6278]"}`}>
+                    <span>{option}</span><span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${selected ? "border-[#C9A24B] bg-[#C9A24B] text-[#0F1B2D]" : "border-[#4A6278]/40"}`}>{selected && <Check size={13} strokeWidth={3} />}</span>
+                  </button>;
+                })}
+              </div>
+              {erro && <p role="alert" className="mt-4 text-sm text-red-700">{erro}</p>}
+              <div className="flex items-center justify-between gap-3 mt-7">
+                <button type="button" onClick={back} disabled={step === 0} className="inline-flex items-center gap-2 rounded-lg px-4 py-3.5 text-sm font-bold text-[#4A6278] hover:bg-[#0F1B2D]/5 disabled:invisible"><ArrowLeft size={16} /> Voltar</button>
+                <button type="button" onClick={next} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#0F1B2D] px-6 py-3.5 text-sm font-bold text-white hover:bg-[#4A6278] transition-colors">Continuar <ArrowRight size={16} /></button>
+              </div>
+            </div>
           )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex w-full items-center justify-center gap-3 px-8 py-4 rounded-full bg-[#25D366] hover:bg-[#20BD5A] disabled:opacity-60 text-white font-sans font-bold text-base shadow-lg hover:shadow-xl hover:scale-[1.03] transition-all duration-300 active:scale-[0.98]"
-          >
-            <WhatsAppIcon />
-            {loading ? "Aguarde..." : "Falar com a Scandia"}
-          </button>
-
-          <p className="text-xs text-muted-foreground text-center mt-1">
-            Seus dados são usados apenas para entrar em contato com você.
-          </p>
-        </form>
+        </div>
       </div>
     </section>
   );
 };
-
-const WhatsAppIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-    <path d="M17.47 14.38c-.29-.15-1.72-.85-1.98-.94-.27-.1-.46-.15-.66.15-.2.29-.76.94-.93 1.13-.17.2-.34.22-.63.07-.29-.15-1.22-.45-2.32-1.43-.86-.76-1.44-1.71-1.6-2-.17-.29-.02-.45.13-.6.13-.13.29-.34.44-.51.15-.17.2-.29.29-.48.1-.2.05-.36-.02-.51-.07-.15-.66-1.59-.91-2.18-.24-.57-.48-.5-.66-.51-.17-.01-.36-.01-.56-.01-.2 0-.51.07-.78.36-.27.29-1.02 1-1.02 2.43 0 1.43 1.04 2.82 1.19 3.01.15.2 2.05 3.13 4.96 4.39.69.3 1.23.48 1.65.61.69.22 1.32.19 1.82.11.55-.08 1.72-.7 1.96-1.38.24-.68.24-1.26.17-1.38-.07-.12-.27-.2-.56-.34z"/>
-    <path d="M12.02 2C6.5 2 2 6.48 2 11.98c0 1.99.53 3.85 1.55 5.5L2 22l4.65-1.5a10.1 10.1 0 0 0 5.37 1.54h.01c5.52 0 10.02-4.48 10.02-9.98A9.9 9.9 0 0 0 12.02 2zm0 18.15h-.01a8.3 8.3 0 0 1-4.23-1.16l-.3-.18-3.15 1.02 1.03-3.06-.2-.32a8.14 8.14 0 0 1-1.27-4.47c0-4.53 3.7-8.22 8.24-8.22 2.2 0 4.27.86 5.83 2.41a8.14 8.14 0 0 1 2.41 5.82c0 4.53-3.7 8.16-8.35 8.16z"/>
-  </svg>
-);
 
 export default StepForm;

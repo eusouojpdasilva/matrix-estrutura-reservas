@@ -15,6 +15,6 @@ Repositório matriz para novos clientes: página de captação, CRM, dashboard, 
 
 `public/lp/` foi excluída. A loja de guias foi recebida como distribuição compilada; mudanças profundas nela exigem recuperar seu projeto fonte.
 
-Use Node 22 e npm: `npm ci`, `npm test`, `npm run build`, `npm run check:build`. O Vite serve a interface; Functions exigem Pages/Workers. Veja [DEPLOY.md](DEPLOY.md) para criar o projeto de cada cliente. A configuração pública vem sem WhatsApp ou IDs de tracking; configure esses dados antes de ativar a captação.
+Use Node 22 e npm: `npm ci`, `npm test`, `npm run build`, `npm run check:build`. O Vite serve a interface; Functions exigem Pages/Workers. Veja [DEPLOY.md](DEPLOY.md) para criar o projeto de cada cliente. A configuração pública inclui o WhatsApp da Scandia e não inclui IDs de tracking. Troque o contato ao clonar para outro cliente.
 
 A base funcional veio do projeto consolidado da Andrea em 2026-10-01. A identidade e os contatos foram adaptados para Scandia, sem dados nem credenciais de cliente. Veja [docs/matrix-update.md](docs/matrix-update.md).
