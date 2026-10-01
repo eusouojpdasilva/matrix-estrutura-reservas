@@ -84,10 +84,11 @@ const StepForm = () => {
     <section id="formulario" className="section-padding bg-secondary">
       <div className="container max-w-lg text-center">
         <h2 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-4">
-          Solicite uma conversa antes da sua viagem
+          Vamos começar a planejar sua viagem ao norte?
         </h2>
         <p className="font-sans text-sm text-muted-foreground mb-8 max-w-md mx-auto">
-          A Scandia Travel conduz um número limitado de planejamentos por período. Preencha abaixo para iniciar uma conversa e verificar a disponibilidade.
+          Conte como imagina viver Islândia ou Escandinávia. Entraremos em contato
+          para uma conversa inicial sobre seu perfil, a melhor época e o ritmo da viagem.
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 max-w-sm mx-auto">

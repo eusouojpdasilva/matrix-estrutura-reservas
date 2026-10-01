@@ -1,9 +1,9 @@
-const items = ["Itália", "França", "Espanha", "Portugal", "Suíça", "Holanda", "Inglaterra", "Bélgica"];
+const items = ["Islândia", "Noruega", "Suécia", "Finlândia"];
 const loop = [...items, ...items, ...items];
 
 const DestinationsStrip = () => {
   return (
-    <section aria-label="Países atendidos na Europa" className="overflow-hidden py-5" style={{ background: "#4A6278" }}>
+    <section aria-label="Destinos de especialidade da Scandia Travel" className="overflow-hidden py-5" style={{ background: "#4A6278" }}>
       <div className="flex w-max animate-marquee whitespace-nowrap">
         {loop.map((country, i) => (
           <div key={`${country}-${i}`} className="flex items-center px-8">

@@ -1,20 +1,14 @@
 import { useReveal } from "@/hooks/useReveal";
-import amsterdamImg from "@/assets/destino-amsterdam.jpg";
-import londresImg from "@/assets/destino-londres.jpg";
-import romaImg from "@/assets/destino-roma.jpg";
-import barcelonaImg from "@/assets/destino-barcelona.jpg";
-import lucernaImg from "@/assets/destino-lucerna.jpg";
-import portoImg from "@/assets/destino-porto.jpg";
+import icelandImg from "@/assets/destino-islandia.jpg";
+import norwayImg from "@/assets/destino-noruega.jpg";
+import swedenImg from "@/assets/destino-suecia.jpg";
+import finlandImg from "@/assets/destino-finlandia.jpg";
 
 const destinations = [
-  { name: "Itália", img: romaImg },
-  { name: "França", img: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&q=80" },
-  { name: "Espanha", img: barcelonaImg },
-  { name: "Portugal", img: portoImg },
-  { name: "Suíça", img: lucernaImg },
-  { name: "Holanda", img: amsterdamImg },
-  { name: "Inglaterra", img: londresImg },
-  { name: "Bélgica", img: "https://images.unsplash.com/photo-1572886071978-7c60b5b3e506?w=1200&q=80" },
+  { name: "Islândia", detail: "Cascatas e paisagens vulcânicas", img: icelandImg, alt: "Cascata entre paredões cobertos de musgo na Islândia" },
+  { name: "Noruega", detail: "Fiordes e rotas panorâmicas", img: norwayImg, alt: "Ponte e montanhas das Ilhas Lofoten, na Noruega" },
+  { name: "Suécia", detail: "Cidades e cultura local", img: swedenImg, alt: "Casario histórico à beira d'água em Estocolmo, Suécia" },
+  { name: "Finlândia", detail: "Lapônia e inverno com calma", img: finlandImg, alt: "Cabana à beira de lago cercada por floresta nevada na Finlândia" },
 ];
 
 const DestinationsGrid = () => {
@@ -24,11 +18,12 @@ const DestinationsGrid = () => {
         <div className="max-w-[760px] mb-12">
 
           <h2 className="font-serif text-offwhite leading-[1.1] mb-4" style={{ fontSize: "clamp(34px, 4.5vw, 56px)", fontWeight: 500 }}>
-            Top Destinos{" "}
-            <em className="text-scandia-cream" style={{ fontFamily: '"Cormorant Garamond", serif' }}>Mais Procurados</em>
+            Quatro destinos.{" "}
+            <em className="text-scandia-cream" style={{ fontFamily: '"Cormorant Garamond", serif' }}>Infinitas formas de viver.</em>
           </h2>
           <p className="font-sans font-light text-offwhite" style={{ fontSize: "18px", lineHeight: 1.65 }}>
-            Europa explorada com critério e profundidade.
+            Da paisagem vulcânica da Islândia aos fiordes noruegueses, da cultura
+            sueca ao inverno da Lapônia finlandesa.
           </p>
         </div>
 
@@ -40,8 +35,9 @@ const DestinationsGrid = () => {
           className="font-sans font-light text-offwhite mt-10 max-w-[860px]"
           style={{ fontSize: "16px", lineHeight: 1.7 }}
         >
-          <span className="text-scandia-cream font-medium">Outros destinos que trabalhamos:</span>{" "}
-          Áustria, Alemanha, República Tcheca, Hungria, Polônia, Croácia, Suécia, Grécia, entre outros.
+          <span className="text-scandia-cream font-medium">A melhor época faz parte do roteiro:</span>{" "}
+          aurora boreal, sol da meia-noite, estrada pelos fiordes ou cidades nórdicas
+          com calma — cada viagem pede uma escolha diferente.
         </p>
       </div>
     </section>
@@ -53,12 +49,12 @@ const Card = ({ d, index }: { d: typeof destinations[number]; index: number }) =
   return (
     <article
       ref={ref}
-      className={`reveal ${visible ? "is-visible" : ""} group relative overflow-hidden h-[320px] cursor-pointer`}
+      className={`reveal ${visible ? "is-visible" : ""} group relative overflow-hidden h-[320px]`}
       style={{ transitionDelay: `${index * 80}ms` }}
     >
       <img
         src={d.img}
-        alt={d.name}
+        alt={d.alt}
         loading="lazy"
         className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
       />
@@ -69,6 +65,7 @@ const Card = ({ d, index }: { d: typeof destinations[number]; index: number }) =
 
       <div className="absolute inset-x-0 bottom-0 p-6 transition-transform duration-500 group-hover:-translate-y-2">
         <h3 className="font-serif text-offwhite" style={{ fontSize: "26px", fontWeight: 500 }}>{d.name}</h3>
+        <p className="font-sans text-[13px] text-offwhite/85 leading-relaxed mt-1">{d.detail}</p>
       </div>
     </article>
   );

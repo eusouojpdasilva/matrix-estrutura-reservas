@@ -3,10 +3,10 @@ import { Bed, Ticket, Route, GraduationCap } from "lucide-react";
 const scrollToForm = () => document.getElementById("formulario")?.scrollIntoView({ behavior: "smooth" });
 
 const items = [
-  { icon: Bed, text: "Hospedagens alinhadas ao seu estilo de viagem e bem localizadas" },
-  { icon: Ticket, text: "Ingressos e passeios reservados com parceiros confiáveis" },
-  { icon: Route, text: "Logística organizada dentro e entre cidades para evitar desperdício de tempo e dinheiro" },
-  { icon: GraduationCap, text: "Treinamento pré-viagem para você embarcar segura e preparada" },
+  { icon: Bed, text: "Hospedagens bem localizadas, confortáveis e coerentes com cada etapa da viagem" },
+  { icon: Ticket, text: "Experiências escolhidas com guias e fornecedores locais, longe do roteiro de excursão" },
+  { icon: Route, text: "Estações, distâncias e conexões pensadas para aproveitar cada dia sem correria" },
+  { icon: GraduationCap, text: "Orientação e acompanhamento antes, durante e depois da viagem" },
 ];
 
 const ProblemSection = () => {
@@ -15,15 +15,15 @@ const ProblemSection = () => {
       <div className="container max-w-[1100px]">
         <div className="max-w-[760px] mb-12">
           <span className="eyebrow text-scandia-purple mb-5 block">
-            Itália · Roma · Florença · Veneza · Milão · Amalfi · Toscana
+            Islândia · Noruega · Suécia · Finlândia
           </span>
           <h2 className="font-serif leading-[1.1] mb-5" style={{ color: "#0F1B2D", fontSize: "clamp(26px, 4.5vw, 56px)", fontWeight: 500 }}>
-            O que{" "}
-            <em className="text-scandia-purple" style={{ fontFamily: '"Cormorant Garamond", serif' }}>entregamos</em>
+            Uma viagem que faz sentido{" "}
+            <em className="text-scandia-purple" style={{ fontFamily: '"Cormorant Garamond", serif' }}>para você</em>
           </h2>
           <p className="font-sans font-light mb-2 max-w-[640px]" style={{ color: "#0F1B2D", fontSize: "clamp(15px, 3.5vw, 18px)", lineHeight: 1.65 }}>
-            Uma viagem 100% criada e organizada, pensada para você que quer conhecer a Europa
-            no seu jeito e ritmo.
+            Uma consultoria para transformar o que você sonha viver no norte da Europa
+            em um plano possível, bem encadeado e no seu ritmo.
           </p>
         </div>
 
@@ -49,10 +49,10 @@ const ProblemSection = () => {
 
         <div>
           <button onClick={scrollToForm} className="btn-brand">
-            Agendar conversa inicial →
+            Começar meu planejamento →
           </button>
           <p className="mt-3 text-[13px] tracking-wider" style={{ color: "#0F1B2D" }}>
-            Número limitado de planejamentos por período.
+            Atendimento personalizado para cada viagem.
           </p>
         </div>
       </div>

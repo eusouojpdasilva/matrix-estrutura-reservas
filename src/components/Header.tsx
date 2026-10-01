@@ -53,7 +53,7 @@ const Header = () => {
             </button>
           ))}
           <button onClick={() => scrollTo("formulario")} className="btn-brand !py-2.5 !px-5 !text-[12px]">
-            Agendar conversa
+            Planejar viagem
           </button>
         </nav>
 
@@ -79,7 +79,7 @@ const Header = () => {
               </button>
             ))}
             <button onClick={() => scrollTo("formulario")} className="btn-brand mt-2 !py-3">
-              Agendar conversa inicial
+              Planejar viagem
             </button>
           </nav>
         </div>

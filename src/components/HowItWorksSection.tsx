@@ -1,22 +1,22 @@
 import { useReveal } from "@/hooks/useReveal";
 
 const bullets = [
-  "Roteiros copiados da internet que ignoram seu ritmo e seus interesses",
-  "Hospedagens escolhidas pela foto, não pela localização real",
-  "Ingressos perdidos por não saber o que precisa ser reservado com antecedência",
-  "Dias mal distribuídos que cansam mais do que aproveitam",
-  "Deslocamentos subestimados que atrasam tudo",
+  "Escolher a época errada para ver aurora boreal ou viver o sol da meia-noite",
+  "Reservar hotéis isolados e perder horas em deslocamentos",
+  "Tentar encaixar países demais em uma viagem de poucos dias",
+  "Seguir um pacote que não respeita seu ritmo nem seus interesses",
+  "Ter de resolver sozinho mudanças de clima e imprevistos no destino",
 ];
 
 const steps = [
-  { num: "01", label: "Primeiro passo", title: "Análise do seu perfil",
-    desc: "Você preenche um breve formulário com o destino que quer, o tempo disponível e o que prioriza na viagem." },
-  { num: "02", label: "Alinhamento inicial", title: "Conversa no WhatsApp",
-    desc: "Antes do agendamento, um breve contato para entender melhor sua situação e garantir que a consultoria faz sentido pra você." },
-  { num: "03", label: "A consultoria", title: "Sessão com nossa equipe",
-    desc: "Um bate-papo onde nossa equipe entende seu perfil, fala sobre roteiros ideais e apresenta os modelos de consultoria ideal para você." },
-  { num: "04", label: "Planejamento da viagem", title: "Roteiro e reservas",
-    desc: "Roteiro personalizado, hospedagens selecionadas, ingressos, passeios e passagens cuidados do início ao fim." },
+  { num: "01", label: "Escuta ativa", title: "Entendemos sua viagem",
+    desc: "Conversamos sobre o que vocês já viveram, o que querem sentir agora e qual ritmo combina com vocês." },
+  { num: "02", label: "Curadoria de destino", title: "Desenhamos o caminho",
+    desc: "Combinamos estação, destinos, distâncias e experiências para que cada escolha tenha sentido." },
+  { num: "03", label: "Rede local", title: "Cuidamos da execução",
+    desc: "Selecionamos hospedagens, guias e fornecedores locais e, se você desejar, cuidamos também das reservas." },
+  { num: "04", label: "Acompanhamento", title: "Seguimos com você",
+    desc: "A orientação continua antes, durante e depois da viagem, inclusive quando o clima muda os planos." },
 ];
 
 const HowItWorksSection = () => {
@@ -27,17 +27,17 @@ const HowItWorksSection = () => {
         <div className="max-w-[820px] mb-16">
           <span className="eyebrow text-scandia-purple mb-5 block">O problema mais comum</span>
           <h2 className="font-serif text-foreground leading-[1.1] mb-7" style={{ fontSize: "clamp(26px, 4.5vw, 56px)", fontWeight: 500 }}>
-            Existe muita informação sobre a Europa.{" "}
+            Você já pesquisou sobre o norte da Europa.{" "}
             <em className="text-scandia-purple" style={{ fontFamily: '"Cormorant Garamond", serif' }}>
-              E pouca clareza
+              Falta clareza
             </em>{" "}
-            sobre o que fazer
+            para decidir
           </h2>
           <p className="font-sans font-light text-foreground/72 mb-8" style={{ fontSize: "17px", lineHeight: 1.7 }}>
-            Quem começa a pesquisar uma viagem à Europa rapidamente se perde em grupos, blogs
-            contraditórios, preços que mudam todo dia e roteiros genéricos que servem para qualquer
-            pessoa — e por isso não funcionam direito para ninguém. A dificuldade não é falta de
-            informação. É saber o que vale para o seu caso.
+            Entre aurora, fiordes, longas distâncias e estações muito diferentes, uma
+            escolha errada pode custar dias e dinheiro. Você não precisa virar especialista
+            em Islândia ou Noruega para acertar hotel, época e roteiro. Precisa de alguém
+            que conheça os destinos e organize as decisões com você.
           </p>
 
           <ul className="space-y-3 mb-12">
@@ -55,13 +55,12 @@ const HowItWorksSection = () => {
           >
             <div className="h-[2px] w-10 mb-5" style={{ background: "linear-gradient(90deg, #0F1B2D, #4A6278)" }} />
             <h3 className="text-scandia-cream italic mb-4" style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: "clamp(18px, 4vw, 26px)", fontWeight: 400 }}>
-              "Pesquisei muito, mas na hora de montar o roteiro, não sabia por onde começar."
+              "Pesquisei tanto que ficou mais difícil escolher a época, o trajeto e onde ficar."
             </h3>
             <p className="font-sans font-light text-offwhite" style={{ fontSize: "16px", lineHeight: 1.7 }}>
-              Isso é o que a maioria das pessoas sente. A Europa parece simples de pesquisar, mas tem muita
-              decisão importante que não aparece nos guias: o que vale a pena, o que você pode pular, o que
-              precisa ser reservado com meses de antecedência. Uma conversa com quem planeja
-              viagens resolve isso em minutos.
+              Informações soltas não mostram como ligar os lugares sem transformar as férias
+              em uma maratona. Nosso trabalho é dar critério a cada escolha e deixar espaço
+              para viver o destino, com conforto e tranquilidade.
             </p>
           </div>
         </div>
@@ -74,13 +73,23 @@ const HowItWorksSection = () => {
             <em className="text-scandia-purple" style={{ fontFamily: '"Cormorant Garamond", serif' }}>consultoria</em>
           </h3>
           <p className="font-sans font-light text-foreground/72" style={{ fontSize: "16px", lineHeight: 1.65 }}>
-            Da primeira conversa ao embarque, você tem orientação especializada em cada etapa.
+            Da primeira conversa ao retorno, você tem uma especialista nos destinos em cada etapa.
           </p>
         </div>
 
         {/* 4 cards */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-[3px]">
           {steps.map((s, i) => <StepCard key={s.num} step={s} index={i} />)}
+        </div>
+
+        <div className="mt-8 rounded-lg border border-scandia-purple/15 bg-[#F4F1EC] p-7 md:p-9">
+          <span className="eyebrow text-scandia-purple block mb-3">A consultoria</span>
+          <p className="font-sans text-[16px] leading-relaxed text-foreground/85 max-w-[850px]">
+            Planejamento personalizado para viagens de até 15 dias, com roteiro,
+            curadoria da melhor época, logística entre destinos e experiências locais.
+            O investimento no planejamento é de R$ 1.500 e esse valor é abatido
+            caso você escolha fazer as reservas com a Scandia.
+          </p>
         </div>
       </div>
     </section>
