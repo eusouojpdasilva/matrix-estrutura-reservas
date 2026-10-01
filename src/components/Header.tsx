@@ -34,7 +34,7 @@ const Header = () => {
         WebkitBackdropFilter: "blur(16px)",
       }}
     >
-      <div className="container flex items-center justify-between">
+      <div className="container flex items-center justify-between gap-5">
         <button onClick={() => scrollTo("hero")} aria-label="Scandia Travel" className="flex items-center gap-3">
           <img src={logoscandia} alt="" className="h-12 md:h-14 w-auto rounded-sm" />
           <span className="font-serif text-offwhite text-lg md:text-xl tracking-[0.18em] leading-none text-left">
@@ -42,7 +42,7 @@ const Header = () => {
           </span>
         </button>
 
-        <nav className="hidden md:flex items-center gap-10">
+        <nav className="hidden lg:flex items-center gap-6 xl:gap-10">
           {links.map(([label, id]) => (
             <button
               key={id}
@@ -59,15 +59,16 @@ const Header = () => {
 
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden text-offwhite p-1"
-          aria-label="Menu"
+          className="lg:hidden text-offwhite p-2"
+          aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
+          aria-expanded={menuOpen}
         >
           {menuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
       {menuOpen && (
-        <div className="md:hidden mt-3 mx-4 rounded-lg border border-scandia-purple/30" style={{ background: "rgba(15, 8, 32, 0.96)", backdropFilter: "blur(16px)" }}>
+        <div className="lg:hidden mt-3 mx-4 rounded-lg border border-white/20" style={{ background: "rgba(15, 27, 45, 0.97)", backdropFilter: "blur(16px)" }}>
           <nav className="flex flex-col py-4 px-5 gap-3">
             {links.map(([label, id]) => (
               <button
