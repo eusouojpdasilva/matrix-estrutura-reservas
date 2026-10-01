@@ -133,7 +133,7 @@ export async function onRequest({ params, env, request }) {
     .nav-links a:hover{opacity:1;color:var(--amber)}
     .nav-cta{border:1.5px solid var(--amber);color:var(--amber)!important;padding:.5rem 1.25rem;border-radius:.375rem;opacity:1!important}
     .nav-cta:hover{background:var(--amber)!important;color:#fff!important}
-    @media(max-width:640px){.nav-links{gap:1rem}.nav{padding:.75rem 1.25rem}.hide-mob{display:none}}
+    @media(max-width:640px){.nav-links{gap:1rem}.nav{padding:.75rem 1.25rem}}
 
     /* HERO */
     .hero{position:relative;height:70vh;min-height:480px;display:flex;align-items:flex-end;padding-bottom:3rem}
@@ -218,7 +218,6 @@ export async function onRequest({ params, env, request }) {
     <a href="/"><img src="/brand/logo-light.png" alt="Scandia Travel" class="nav-logo"></a>
     <div class="nav-links">
       <a href="/loja/blog">Blog</a>
-      <a href="/loja/" class="hide-mob">Guias</a>
       <a href="/#formulario" class="nav-cta">Planejar viagem</a>
     </div>
   </nav>
@@ -258,7 +257,7 @@ export async function onRequest({ params, env, request }) {
 
   <footer class="footer">
     <img src="/brand/logo-light.png" alt="Scandia Travel">
-    <p>&copy; ${new Date().getFullYear()} Scandia Travel &nbsp;&middot;&nbsp; <a href="/loja/blog">Blog</a><a href="/loja/">Guias</a><a href="/">Consultoria</a></p>
+    <p>&copy; ${new Date().getFullYear()} Scandia Travel &nbsp;&middot;&nbsp; <a href="/loja/blog">Blog</a><a href="/">Consultoria</a></p>
   </footer>
 
   <script>
