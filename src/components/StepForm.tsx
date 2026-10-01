@@ -28,11 +28,6 @@ const StepForm = () => {
   const select = (value: string) => {
     setAnswers((current) => current.map((answer, index) => index === step ? value : answer));
     setErro("");
-  };
-
-  const next = () => {
-    if (!answers[step]) { setErro("Escolha uma opção para continuar."); return; }
-    setErro("");
     setStep((current) => current + 1);
   };
 
@@ -156,11 +151,7 @@ const StepForm = () => {
                   </button>;
                 })}
               </div>
-              {erro && <p role="alert" className="mt-4 text-sm text-red-700">{erro}</p>}
-              <div className="flex items-center justify-between gap-3 mt-7">
-                <button type="button" onClick={back} disabled={step === 0} className="inline-flex items-center gap-2 rounded-lg px-4 py-3.5 text-sm font-bold text-[#4A6278] hover:bg-[#0F1B2D]/5 disabled:invisible"><ArrowLeft size={16} /> Voltar</button>
-                <button type="button" onClick={next} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#0F1B2D] px-6 py-3.5 text-sm font-bold text-white hover:bg-[#4A6278] transition-colors">Continuar <ArrowRight size={16} /></button>
-              </div>
+              {step > 0 && <button type="button" onClick={back} className="mt-7 inline-flex items-center gap-2 rounded-lg px-4 py-3.5 text-sm font-bold text-[#4A6278] hover:bg-[#0F1B2D]/5"><ArrowLeft size={16} /> Voltar</button>}
             </div>
           )}
         </div>

@@ -22,14 +22,18 @@ describe("formulário de captação", () => {
     render(<StepForm />);
 
     expect(screen.queryByLabelText("Seu nome")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /continuar/i }));
-    expect(screen.getByRole("alert")).toHaveTextContent("Escolha uma opção");
+    expect(screen.queryByRole("button", { name: "Continuar" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Islândia" }));
+    expect(screen.getByRole("heading", { name: "O que mais deseja viver?" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Voltar" }));
+    expect(screen.getByRole("button", { name: "Islândia" })).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(screen.getByRole("button", { name: "Noruega" }));
 
-    for (const option of ["Islândia", "Aurora e inverno", "Entre 6 e 12 meses", "Em casal"]) {
+    for (const option of ["Aurora e inverno", "Entre 6 e 12 meses", "Em casal"]) {
       fireEvent.click(screen.getByRole("button", { name: option }));
-      fireEvent.click(screen.getByRole("button", { name: /continuar/i }));
     }
 
+    expect(screen.getByRole("heading", { name: "Agora vamos conversar." })).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Seu nome"), { target: { value: "Ana Exemplo" } });
     fireEvent.change(screen.getByLabelText("Seu WhatsApp com DDD"), { target: { value: "(61) 99999-9999" } });
     fireEvent.click(screen.getByRole("button", { name: /continuar no whatsapp/i }));
@@ -40,7 +44,7 @@ describe("formulário de captação", () => {
     expect(JSON.parse(request.body)).toMatchObject({
       nome: "Ana Exemplo",
       whatsapp: "5561999999999",
-      destino: "Islândia",
+      destino: "Noruega",
       datas: "Entre 6 e 12 meses",
       observacoes: "Experiência desejada: Aurora e inverno\nCompanhia: Em casal",
     });
