@@ -1,0 +1,988 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scandia · Dashboard de Tracking</title>
+<link rel="icon" href="/brand/logo-light.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=Lato:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --purple:      #0F1B2D;
+    --purple-dark: #0F1B2D;
+    --purple-soft: #F4F1EC;
+    --teal:        #4A6278;
+    --teal-dark:   #364B5E;
+    --teal-soft:   #E8EDF1;
+    --cream:       #F4F1EC;
+    --cream-soft:  #F4F1EC;
+    --ink:         #14181D;
+    --ink-soft:    #4a4a4a;
+    --ink-mute:    #8a8a8a;
+    --border:      #DEDAD3;
+    --surface:     #ffffff;
+    --bg:          #F4F1EC;
+    --grad:        linear-gradient(135deg, #0F1B2D 0%, #4A6278 100%);
+    --grad-h:      linear-gradient(135deg, #0F1B2D 0%, #364B5E 100%);
+    --green:       #0f7d55;
+    --green-soft:  #e6f7f0;
+    --amber:       #d97706;
+    --amber-soft:  #fef3c7;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Lato', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,h2,h3,h4 { font-family: 'Cormorant Garamond', Georgia, serif; letter-spacing: -0.01em; }
+
+  /* Cards */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; }
+  .card-hover { transition: box-shadow .2s, transform .2s; }
+  .card-hover:hover { box-shadow: 0 8px 32px rgba(15,27,45,.10); transform: translateY(-1px); }
+
+  /* KPI */
+  .kpi-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-mute); }
+  .kpi-value { font-size: 2rem; font-weight: 700; letter-spacing: -.03em; font-family: 'Cormorant Garamond', serif; line-height: 1; }
+  .kpi-sub   { font-size: .75rem; margin-top: .375rem; color: var(--ink-mute); }
+
+  /* Tabs */
+  .tab { padding: .4rem .85rem; font-size: .8125rem; font-weight: 600; border-bottom: 2px solid transparent; color: var(--ink-mute); cursor: pointer; transition: color .15s, border-color .15s; white-space: nowrap; }
+  .tab.active { color: var(--purple); border-color: var(--purple); }
+  .tab:hover:not(.active) { color: var(--ink); }
+
+  /* Range pills */
+  .range-btn { padding: .3rem .75rem; font-size: .8125rem; font-weight: 600; border: 1.5px solid rgba(255,255,255,.35); background: rgba(255,255,255,.12); border-radius: 999px; cursor: pointer; color: rgba(255,255,255,.8); transition: all .15s; }
+  .range-btn.active { background: rgba(255,255,255,.95); color: var(--purple); border-color: transparent; }
+  .range-btn:hover:not(.active) { background: rgba(255,255,255,.2); color: #fff; }
+  .date-input { padding: .3rem .6rem; font-size: .8125rem; font-weight: 600; border: 1.5px solid rgba(255,255,255,.35); background: rgba(255,255,255,.12); border-radius: 999px; color: #fff; color-scheme: dark; }
+  .date-input::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+  #date-apply.active { background: rgba(255,255,255,.95); color: var(--purple); border-color: transparent; }
+
+  /* Table rows */
+  .row-hover:hover { background: var(--bg); }
+
+  /* Badges */
+  .badge-ok    { display: inline-flex; align-items: center; gap: .25rem; background: var(--green-soft); color: var(--green); border-radius: 999px; padding: .15rem .6rem; font-size: .75rem; font-weight: 700; }
+  .badge-err   { display: inline-flex; align-items: center; gap: .25rem; background: #fde8e8; color: #c0392b; border-radius: 999px; padding: .15rem .6rem; font-size: .75rem; font-weight: 700; }
+  .badge-muted { display: inline-flex; align-items: center; gap: .25rem; background: #f1f1f3; color: #888; border-radius: 999px; padding: .15rem .6rem; font-size: .75rem; font-weight: 700; }
+
+  /* Gradient text */
+  .grad-text { background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+  /* Animations */
+  .fade-in { animation: fadeIn .35s ease-out; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+  /* Dot decorations */
+  .dot-purple { width:10px; height:10px; border-radius:50%; background:var(--purple); display:inline-block; flex-shrink:0; }
+  .dot-teal   { width:10px; height:10px; border-radius:50%; background:var(--teal);   display:inline-block; flex-shrink:0; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius:999px; }
+
+  /* Funnel */
+  .funnel-bar {
+    height: 54px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.25rem;
+    font-weight: 700;
+    color: #fff;
+    transition: width .6s cubic-bezier(.22,1,.36,1);
+  }
+  .funnel-connector {
+    display: flex;
+    align-items: center;
+    padding: .5rem 1.25rem;
+    gap: .5rem;
+    font-size: .8125rem;
+    font-weight: 700;
+    color: var(--ink-mute);
+  }
+
+  /* Spend pill */
+  .spend-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    background: var(--cream-soft);
+    border: 1.5px solid var(--cream);
+    border-radius: 999px;
+    padding: .25rem .85rem;
+    font-size: .75rem;
+    font-weight: 700;
+    color: var(--amber);
+  }
+
+  /* Section separator */
+  .section-title {
+    font-family: 'Lato', sans-serif;
+    font-size: .9375rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .section-sub {
+    font-size: .75rem;
+    color: var(--ink-mute);
+    margin-top: .125rem;
+  }
+</style>
+<link rel="stylesheet" href="./design.css">
+</head>
+<body>
+
+<!-- ===================== AUTH GATE ===================== -->
+<div id="auth-gate" class="hidden">
+  <div class="login-landscapes" aria-hidden="true">
+    <img class="active" src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&amp;fit=crop&amp;w=2200&amp;q=85" alt="" fetchpriority="high" referrerpolicy="no-referrer" data-author="Pietro De Grandi" data-credit="https://unsplash.com/photos/T7K4aEPoGGk">
+    <img src="https://images.unsplash.com/photo-1672303264384-49b7b2e6c74b?auto=format&amp;fit=crop&amp;w=2200&amp;q=85" alt="" decoding="async" referrerpolicy="no-referrer" data-author="Stefano Casarini" data-credit="https://unsplash.com/photos/9oaAOwjAM48">
+    <img src="https://images.unsplash.com/photo-1540278383344-ecd917e4fe23?auto=format&amp;fit=crop&amp;w=2200&amp;q=85" alt="" decoding="async" referrerpolicy="no-referrer" data-author="Francesco Ungaro" data-credit="https://unsplash.com/photos/biHpvJA1omM">
+  </div>
+  <div class="login-shade"></div>
+  <div class="login-layout">
+    <div class="login-brand"><img src="/brand/logo-dark.png" alt="Scandia Travel"><span class="eyebrow">Viagens com significado</span></div>
+    <div class="login-story"><div class="eyebrow">Um novo olhar para cada jornada</div><h1>Grandes viagens.<br><em>Novas perspectivas.</em></h1><p>Cada conexão é o começo de uma nova história. Acompanhe os caminhos que levam até a Scandia.</p></div>
+    <div class="login-panel fade-in">
+      <div class="login-symbol" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="11" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="eyebrow">Seu espaço de acompanhamento</div><h2>Boas-vindas.</h2><p>Acesse uma visão completa das visitas, conexões e resultados da sua marca.</p>
+      <label for="auth-input">Chave de acesso</label>
+      <input id="auth-input" type="password" placeholder="Insira sua chave de acesso" autocomplete="current-password" class="w-full border rounded-xl px-4 py-3 outline-none" style="border-color:var(--border);" aria-describedby="auth-error">
+      <button id="auth-submit" class="w-full text-white font-bold text-sm">Entrar no dashboard <span aria-hidden="true">↗</span></button>
+      <div id="auth-error" role="alert" class="text-center text-sm mt-3 hidden" style="color:#c0392b;">Chave inválida. Verifique e tente novamente.</div>
+      <div class="login-security">Acesso exclusivo · Scandia Travel</div>
+    </div>
+    <div class="login-footer">
+      <div class="photo-caption"><strong>Dolomitas, Itália</strong><a id="photo-credit" href="https://unsplash.com/photos/T7K4aEPoGGk" target="_blank" rel="noopener noreferrer">Pietro De Grandi / Unsplash</a></div>
+      <div class="slideshow-controls"><button class="slide-dot" aria-label="Paisagem 1" aria-pressed="true"></button><button class="slide-dot" aria-label="Paisagem 2" aria-pressed="false"></button><button class="slide-dot" aria-label="Paisagem 3" aria-pressed="false"></button><button id="slideshow-toggle" type="button">Pausar</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="app" class="hidden min-h-screen">
+
+  <!-- Header -->
+  <header class="sticky z-40">
+    <div class="topbar">
+      <div class="brand"><img src="/brand/logo-light.png" alt="Scandia Travel"><div class="brand-caption"><strong>Scandia Travel</strong>Dashboard de resultados</div></div>
+      <nav class="dashboard-nav" aria-label="Navegação do dashboard"><a href="#overview" class="active" aria-current="location">Visão geral</a><a href="#origins">Origens</a><a href="#leads-section">Leads</a></nav>
+      <div class="profile"><span class="avatar" aria-hidden="true">ST</span><span>Scandia Travel</span><button id="dash-logout" class="dash-logout" type="button" title="Sair" aria-label="Sair">⏻ Sair</button></div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+
+    <div class="welcome" id="overview"><div><div class="eyebrow">Scandia · Visão de resultados</div><h1>Olá, equipe Scandia.</h1><p>Uma nova perspectiva sobre cada conexão com a sua marca.</p></div><div class="welcome-note">Os próximos destinos começam<br>com boas conexões.</div></div>
+    <div class="filters"><span class="filter-label">Período de análise</span><div class="filter-controls">
+      <div class="flex items-center" id="range-picker"><button class="range-btn" data-days="7">7 dias</button><button class="range-btn active" data-days="30">30 dias</button><button class="range-btn" data-days="90">90 dias</button></div>
+      <div class="flex items-center" id="custom-range"><input type="date" id="date-from" class="date-input" aria-label="Data inicial"><span>até</span><input type="date" id="date-to" class="date-input" aria-label="Data final"><button class="range-btn" id="date-apply">Aplicar</button></div>
+    </div></div>
+    <!-- ══ ROW 1: 5 KPI Cards ══ -->
+    <section class="metrics grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 fade-in">
+      <!-- Visitas -->
+      <div class="card card-hover p-5" style="border-top:3px solid var(--teal);">
+        <div class="kpi-label">Visitas</div>
+        <div class="kpi-value mt-2" style="color:var(--teal);" id="kpi-visits">—</div>
+        <div class="kpi-sub" id="kpi-visits-sub">&nbsp;</div>
+      </div>
+      <!-- Custo por Visita -->
+      <div class="card card-hover p-5" style="border-top:3px solid var(--cream);">
+        <div class="kpi-label">Custo / Visita</div>
+        <div class="kpi-value mt-2" style="color:var(--purple);" id="kpi-cpv">—</div>
+        <div class="kpi-sub" id="kpi-cpv-sub">custo por visita</div>
+      </div>
+      <!-- Leads -->
+      <div class="card card-hover p-5" style="border-top:3px solid var(--purple);">
+        <div class="kpi-label">Leads captados</div>
+        <div class="kpi-value mt-2" style="color:var(--purple);" id="kpi-leads">—</div>
+        <div class="kpi-sub" id="kpi-leads-sub">&nbsp;</div>
+      </div>
+      <!-- Taxa de Conversão -->
+      <div class="card card-hover p-5" style="border-top:3px solid var(--green);">
+        <div class="kpi-label">Taxa de Conversão</div>
+        <div class="kpi-value mt-2" style="color:var(--green);" id="kpi-conv">—</div>
+        <div class="kpi-sub">leads ÷ visitas</div>
+      </div>
+      <!-- CPL -->
+      <div class="card card-hover p-5" style="border-top:3px solid var(--amber);">
+        <div class="kpi-label">CPL</div>
+        <div class="kpi-value mt-2" style="color:var(--amber);" id="kpi-cpl">—</div>
+        <div class="kpi-sub" id="kpi-cpl-sub">custo por lead</div>
+      </div>
+    </section>
+
+    <div class="overview-grid">
+    <!-- ══ ROW 2: Dual chart Visitas + Leads ══ -->
+    <section class="card p-6 fade-in">
+      <div class="flex items-start justify-between mb-5 flex-wrap gap-3">
+        <div>
+          <div class="section-title">Visitas e leads ao longo do tempo</div>
+          <div class="section-sub">Comparação diária entre sessões iniciadas e leads gerados</div>
+        </div>
+        <div class="flex items-center gap-5 text-xs" style="color:var(--ink-mute);">
+          <span class="flex items-center gap-1.5"><span class="dot-teal"></span> Visitas</span>
+          <span class="flex items-center gap-1.5"><span class="dot-purple"></span> Leads</span>
+        </div>
+      </div>
+      <div class="chart-area" style="height:260px;"><canvas id="chart-dual"></canvas></div>
+    </section>
+
+      <!-- Métricas de investimento -->
+      <div class="card p-6 spend-card">
+        <div class="mb-5 flex items-start justify-between flex-wrap gap-2">
+          <div>
+            <div class="section-title">Investimento em mídia</div>
+            <div class="section-sub" id="spend-sync-label">Meta Ads · sincronização automática</div>
+          </div>
+          <span id="spend-sync-badge" class="spend-pill hidden">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M5 3v2.5l1.5 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            <span id="spend-sync-time"></span>
+          </span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="rounded-xl p-4" style="background:var(--amber-soft);">
+            <div class="kpi-label" style="color:var(--amber);">Gasto Meta Ads</div>
+            <div class="text-2xl font-bold mt-1" style="color:var(--amber);font-family:'Cormorant Garamond',serif;" id="spend-total">—</div>
+          </div>
+          <div class="rounded-xl p-4" style="background:var(--purple-soft);">
+            <div class="kpi-label" style="color:var(--purple);">CPL · Meta</div>
+            <div class="text-2xl font-bold mt-1" style="color:var(--purple);font-family:'Cormorant Garamond',serif;" id="spend-cpl">—</div>
+          </div>
+          <div class="rounded-xl p-4" style="background:var(--teal-soft);">
+            <div class="kpi-label" style="color:var(--teal-dark);">Leads atribuídos</div>
+            <div class="text-2xl font-bold mt-1" style="color:var(--teal);font-family:'Cormorant Garamond',serif;" id="spend-leads-meta">—</div>
+            <div class="text-xs mt-0.5" style="color:var(--teal-dark);">via fbclid</div>
+          </div>
+          <div class="rounded-xl p-4" style="background:var(--cream-soft);">
+            <div class="kpi-label" style="color:var(--purple);">Custo / Visita</div>
+            <div class="text-2xl font-bold mt-1" style="color:var(--purple);font-family:'Cormorant Garamond',serif;" id="spend-cpv">—</div>
+          </div>
+        </div>
+
+        <div id="spend-no-data" class="hidden mt-4 rounded-xl p-4 text-sm" style="background:var(--cream-soft);border:1.5px dashed var(--cream);color:var(--ink-soft);">
+          <strong>Dados de gasto não configurados.</strong> Para ativar CPL e custo por visita, conecte o Meta Ads Insights via cron de sincronização.
+        </div>
+      </div>
+    </div>
+      <!-- Funil de conversão -->
+      <div class="card p-6">
+        <div class="mb-5">
+          <div class="section-title">Funil de conversão</div>
+          <div class="section-sub">Jornada desde a visita até o lead captado</div>
+        </div>
+        <div id="funnel-container" class="space-y-1">
+          <!-- rendered by JS -->
+          <div class="text-sm text-center py-8" style="color:var(--ink-mute);">Carregando…</div>
+        </div>
+      </div>
+
+    <!-- ══ ROW 4: UTM breakdown (visitas + leads + conversão) ══ -->
+    <section id="origins" class="card p-6 fade-in">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <div>
+          <div class="section-title">Origem das visitas e leads</div>
+          <div class="section-sub">Visitas, leads e taxa de conversão por dimensão UTM</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex gap-0 border-b -mx-6 px-6 mb-5 overflow-x-auto" style="border-color:var(--border);" id="utm-tabs">
+        <button type="button" class="tab active" data-dim="utm_source">Origem</button>
+        <button type="button" class="tab" data-dim="utm_medium">Mídia</button>
+        <button type="button" class="tab" data-dim="utm_campaign">Campanha</button>
+        <button type="button" class="tab" data-dim="utm_content">Conteúdo</button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <!-- Table -->
+        <div class="lg:col-span-3 overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr style="border-bottom:1.5px solid var(--border);">
+                <th class="text-left py-2 pr-4 text-xs uppercase tracking-widest font-bold" style="color:var(--ink-mute);">Origem</th>
+                <th class="text-right py-2 pr-4 text-xs uppercase tracking-widest font-bold" style="color:var(--teal);">Visitas</th>
+                <th class="text-right py-2 pr-4 text-xs uppercase tracking-widest font-bold" style="color:var(--purple);">Leads</th>
+                <th class="text-right py-2 text-xs uppercase tracking-widest font-bold" style="color:var(--green);">Conv.</th>
+              </tr>
+            </thead>
+            <tbody id="utm-tbody">
+              <tr><td colspan="4" class="py-6 text-center text-sm" style="color:var(--ink-mute);">Carregando…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Donut chart -->
+        <div class="lg:col-span-2 flex items-center justify-center" style="max-height:280px;">
+          <canvas id="chart-utm-donut"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ ROW 5: Leads recentes ══ -->
+    <section id="leads-section" class="card p-6 fade-in">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <div>
+          <div class="section-title">Leads recentes</div>
+          <div class="section-sub">Clique em uma linha para ver o payload enviado ao Meta e GA4</div>
+        </div>
+        <div id="kpi-today-badge" class="spend-pill" style="background:var(--purple-soft);border-color:var(--border);color:var(--purple);">
+          <span id="kpi-today-n">—</span> hoje
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr style="border-bottom:1.5px solid var(--border);">
+              <th class="text-left py-2 pr-4 text-xs uppercase tracking-widest font-bold" style="color:var(--ink-mute);">Quando</th>
+              <th class="text-left py-2 pr-4 text-xs uppercase tracking-widest font-bold" style="color:var(--ink-mute);">Nome</th>
+              <th class="text-left py-2 pr-4 text-xs uppercase tracking-widest font-bold" style="color:var(--ink-mute);">Página</th>
+              <th class="text-left py-2 pr-4 text-xs uppercase tracking-widest font-bold" style="color:var(--ink-mute);">Source</th>
+              <th class="text-left py-2 pr-4 text-xs uppercase tracking-widest font-bold" style="color:var(--ink-mute);">Campanha</th>
+              <th class="text-center py-2 pr-4 text-xs uppercase tracking-widest font-bold" style="color:var(--ink-mute);">Meta</th>
+              <th class="text-center py-2 text-xs uppercase tracking-widest font-bold" style="color:var(--ink-mute);">GA4</th>
+            </tr>
+          </thead>
+          <tbody id="leads-tbody">
+            <tr><td colspan="7" class="py-8 text-center text-sm" style="color:var(--ink-mute);">Carregando…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="pt-2 pb-10 text-xs text-center" style="color:var(--ink-mute);">
+      Scandia Travel · Cada conexão, uma nova possibilidade.
+    </footer>
+  </main>
+</div>
+
+<!-- Details Modal -->
+<div id="details-modal" class="fixed inset-0 hidden items-center justify-center z-50 p-4" style="background:rgba(28,28,28,.55);backdrop-filter:blur(4px);" role="dialog" aria-modal="true">
+  <div class="card w-full max-w-2xl" style="max-height:85vh;overflow-y:auto;">
+    <div class="flex items-center justify-between px-6 py-4 sticky top-0 bg-white" style="border-bottom:1.5px solid var(--border);">
+      <div>
+        <div id="modal-title" class="font-bold text-sm">Detalhes do lead</div>
+        <div id="modal-subtitle" class="text-xs mt-0.5" style="color:var(--ink-mute);"></div>
+      </div>
+      <button id="modal-close" class="w-8 h-8 rounded-full flex items-center justify-center text-lg hover:bg-gray-100 transition-colors" style="color:var(--ink-soft);" aria-label="Fechar">&times;</button>
+    </div>
+    <div id="modal-body" class="p-6 space-y-5"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const qs  = s => document.querySelector(s);
+  const qsa = s => document.querySelectorAll(s);
+
+  const fmtInt = n => new Intl.NumberFormat('pt-BR').format(Number(n || 0));
+  const fmtBRL = n => {
+    const v = Number(n || 0);
+    return v === 0 ? '—' : 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+  const fmtPct = (num, den) => den > 0 ? (num / den * 100).toFixed(1) + '%' : '—';
+  // Fuso fixo de Brasília (-03:00). São Paulo não tem horário de verão desde
+  // 2019, então um offset fixo é seguro e não depende do fuso do navegador de
+  // quem abre o dashboard. Mantém tabela, "hoje", calendário e gráfico diário
+  // todos no mesmo dia-calendário.
+  const fmtDate = ts => new Date(Number(ts) * 1000).toLocaleString('pt-BR', {
+    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
+    timeZone: 'America/Sao_Paulo'
+  });
+  // 'YYYY-MM-DD' do dia-calendário em Brasília para um timestamp unix (segundos).
+  const dayStrBRT = ts => new Date((Number(ts) - 10800) * 1000).toISOString().slice(0, 10);
+  const todayStrBRT = () => dayStrBRT(Math.floor(Date.now() / 1000));
+
+  // ── Auth ──
+  const urlParams = new URL(window.location.href);
+  let key = urlParams.searchParams.get('key') || sessionStorage.getItem('dashKey') || '';
+
+  async function probeKey(k) {
+    try {
+      const r = await fetch(`/api/leads?key=${encodeURIComponent(k)}&days=1&limit=1`);
+      return r.ok;
+    } catch (_) { return false; }
+  }
+
+  async function openDashboard() {
+    qs('#auth-gate').classList.add('hidden');
+    qs('#app').classList.remove('hidden');
+    sessionStorage.setItem('dashKey', key);
+    const lo = qs('#dash-logout');
+    if (lo) lo.addEventListener('click', () => {
+      try { sessionStorage.removeItem('dashKey'); } catch (e) {}
+      location.reload();
+    });
+    await loadAll(currentRange);
+  }
+
+  (async function gate() {
+    if (key && await probeKey(key)) { return openDashboard(); }
+    qs('#auth-gate').classList.remove('hidden');
+    qs('#auth-submit').addEventListener('click', async () => {
+      key = qs('#auth-input').value.trim();
+      if (!key) return;
+      if (await probeKey(key)) { openDashboard(); }
+      else { qs('#auth-error').classList.remove('hidden'); }
+    });
+    qs('#auth-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') qs('#auth-submit').click();
+    });
+  })();
+
+  // ── State ──
+  // currentRange always carries { since, until, days } in unix seconds —
+  // both the 7d/30d/90d quick buttons and the calendar picker resolve to
+  // this same shape before hitting the API.
+  let currentRange = daysToRange(30);
+  let currentUtmDim = 'utm_source';
+  let dualChart = null;
+  let donutChart = null;
+  let cachedLeads = [];
+  let cachedSessions = null;
+
+  const fetchJson = path =>
+    fetch(`${path}${path.includes('?') ? '&' : '?'}key=${encodeURIComponent(key)}`)
+      .then(r => r.json());
+
+  // Converts a preset day count into the same { since, until, days } shape
+  // the calendar picker produces, so every loader always deals in explicit
+  // unix-second boundaries.
+  function daysToRange(days) {
+    const until = Math.floor(Date.now() / 1000);
+    const since = until - days * 86400;
+    return { since, until, days };
+  }
+
+  // ── Loaders ──
+  async function loadSessions(range) {
+    const data = await fetchJson(`/api/sessions?since=${range.since}&until=${range.until}`);
+    cachedSessions = data;
+    return data;
+  }
+
+  async function loadLeads(range) {
+    const data = await fetchJson(`/api/leads?since=${range.since}&until=${range.until}&limit=500`);
+    cachedLeads = data.leads || [];
+    return data;
+  }
+
+  async function loadAttribution(range) {
+    const data = await fetchJson(`/api/attribution?since=${range.since}&until=${range.until}`);
+    return data;
+  }
+
+  // ── KPI rendering ──
+  function renderKpis(sessions, leads, attribution) {
+    const totalVisits = sessions.total || 0;
+    const totalLeads  = cachedLeads.length;
+    const todayLeads  = cachedLeads.filter(l => dayStrBRT(l.timestamp) === todayStrBRT()).length;
+    const todayVisits = sessions.today || 0;
+
+    qs('#kpi-visits').textContent     = fmtInt(totalVisits);
+    qs('#kpi-visits-sub').textContent = `${fmtInt(todayVisits)} hoje`;
+    qs('#kpi-leads').textContent      = fmtInt(totalLeads);
+    qs('#kpi-leads-sub').textContent  = `${fmtInt(todayLeads)} hoje`;
+    qs('#kpi-today-n').textContent    = fmtInt(todayLeads);
+    qs('#kpi-conv').textContent       = fmtPct(totalLeads, totalVisits);
+
+    const metaSpend = Number(attribution.meta_spend || 0);
+    if (metaSpend > 0) {
+      const cpl = totalLeads > 0 ? metaSpend / totalLeads : null;
+      const cpv = totalVisits > 0 ? metaSpend / totalVisits : null;
+      qs('#kpi-cpl').textContent     = cpl != null ? fmtBRL(cpl) : '—';
+      qs('#kpi-cpv').textContent     = cpv != null ? fmtBRL(cpv) : '—';
+      qs('#kpi-cpl-sub').textContent = 'custo por lead';
+      qs('#kpi-cpv-sub').textContent = 'custo por visita';
+    } else {
+      qs('#kpi-cpl').textContent = '—';
+      qs('#kpi-cpv').textContent = '—';
+      qs('#kpi-cpl-sub').textContent = 'sem dados de gasto';
+      qs('#kpi-cpv-sub').textContent = 'sem dados de gasto';
+    }
+  }
+
+  // ── Dual chart: Visitas + Leads ──
+  function renderDualChart(sessions, leads) {
+    // Built from the actual selected range (since→until), not "today back
+    // N days" — a custom past range (ex: 1-10 de junho) doesn't end today.
+    const dates = [];
+    // Iteramos em dias-calendário de Brasília: deslocamos -3h e lemos a data em
+    // UTC, para os rótulos baterem com a tabela e com o agrupamento do servidor
+    // (que também usa '-3 hours').
+    const cursor = new Date((currentRange.since - 10800) * 1000);
+    cursor.setUTCHours(0, 0, 0, 0);
+    const end = new Date((currentRange.until - 10800) * 1000);
+    while (cursor.getTime() <= end.getTime()) {
+      dates.push(cursor.toISOString().slice(0, 10));
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
+    }
+
+    // Sessions daily map
+    const sessMap = {};
+    for (const row of (sessions.daily || [])) sessMap[row.date] = row.count;
+
+    // Leads daily map
+    const leadsMap = {};
+    for (const l of leads) {
+      const d = dayStrBRT(l.timestamp);
+      leadsMap[d] = (leadsMap[d] || 0) + 1;
+    }
+
+    const visitCounts = dates.map(d => sessMap[d]  || 0);
+    const leadCounts  = dates.map(d => leadsMap[d] || 0);
+    const labels      = dates.map(d => { const [, m, day] = d.split('-'); return `${day}/${m}`; });
+
+    const ctx = qs('#chart-dual').getContext('2d');
+    if (dualChart) dualChart.destroy();
+
+    const neonGlow = {
+      id: 'neonGlow',
+      beforeDatasetDraw(chart, args) {
+        const ds = chart.data.datasets[args.index];
+        chart.ctx.shadowColor = (typeof ds.borderColor === 'string' ? ds.borderColor : '#b14dff');
+        chart.ctx.shadowBlur = 16;
+      },
+      afterDatasetDraw(chart) { chart.ctx.shadowBlur = 0; },
+    };
+
+    dualChart = new Chart(ctx, {
+      type: 'line',
+      plugins: [neonGlow],
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Visitas',
+            data: visitCounts,
+            borderColor: '#1ff2e0',
+            backgroundColor: 'rgba(31,242,224,.10)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: visitCounts.map(v => v > 0 ? 3 : 0),
+            pointBackgroundColor: '#1ff2e0',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            borderWidth: 2.5,
+            yAxisID: 'yVisits',
+          },
+          {
+            label: 'Leads',
+            data: leadCounts,
+            borderColor: '#b14dff',
+            backgroundColor: 'rgba(177,77,255,.12)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: leadCounts.map(v => v > 0 ? 4 : 0),
+            pointBackgroundColor: '#b14dff',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            borderWidth: 2.5,
+            yAxisID: 'yLeads',
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#14181D',
+            titleColor: '#fff',
+            bodyColor: 'rgba(255,255,255,.8)',
+            padding: 12,
+            cornerRadius: 10,
+            callbacks: {
+              label: ctx => ` ${ctx.dataset.label}: ${fmtInt(ctx.raw)}`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: '#8a8a8a', font: { size: 11, family: 'Lato' }, maxTicksLimit: dates.length <= 14 ? dates.length : 10 },
+            border: { display: false },
+          },
+          yVisits: {
+            position: 'left',
+            grid: { color: 'rgba(74,98,120,.10)' },
+            ticks: { color: '#0f9b93', font: { size: 11, family: 'Lato' }, precision: 0 },
+            border: { display: false },
+            beginAtZero: true,
+          },
+          yLeads: {
+            position: 'right',
+            grid: { drawOnChartArea: false },
+            ticks: { color: '#8a4bb0', font: { size: 11, family: 'Lato' }, precision: 0, stepSize: 1 },
+            border: { display: false },
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+  }
+
+  // ── Funnel ──
+  function renderFunnel(totalVisits, totalLeads) {
+    const conv = totalVisits > 0 ? (totalLeads / totalVisits * 100) : 0;
+    const leadPct = totalVisits > 0 ? Math.max(totalLeads / totalVisits, 0.04) : 0;
+
+    qs('#funnel-container').innerHTML = `
+      <div>
+        <div class="funnel-bar" style="width:100%;background:linear-gradient(90deg,#1ff2e0,#22d3ee);box-shadow:0 0 20px rgba(31,242,224,.45);">
+          <span style="font-size:.8125rem;">Visitas à página</span>
+          <span style="font-size:1.25rem;">${fmtInt(totalVisits)}</span>
+        </div>
+      </div>
+      <div class="funnel-connector">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="color:var(--green);">
+          <path d="M8 2v12M4 10l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span style="color:var(--green);font-size:.9375rem;">${conv.toFixed(2)}% de taxa de conversão</span>
+        <span style="color:var(--ink-mute);font-weight:400;">${totalLeads > 0 ? `1 lead a cada ${Math.round(totalVisits/totalLeads)} visitas` : ''}</span>
+      </div>
+      <div>
+        <div class="funnel-bar" style="width:${Math.round(leadPct*100)}%;min-width:120px;max-width:100%;background:linear-gradient(90deg,#b14dff,#c65cff);box-shadow:0 0 20px rgba(177,77,255,.45);">
+          <span style="font-size:.8125rem;">Leads captados</span>
+          <span style="font-size:1.25rem;">${fmtInt(totalLeads)}</span>
+        </div>
+      </div>
+      ${totalVisits === 0 ? `<p class="text-xs mt-4" style="color:var(--ink-mute);">Aguardando dados de visitas do período selecionado.</p>` : ''}
+    `;
+  }
+
+  // ── Spend section ──
+  function renderSpend(attribution, totalLeads, totalVisits) {
+    const spend = Number(attribution.meta_spend || 0);
+    const metaLeads = (attribution.groups?.meta?.sales || 0);
+    const lastSync = attribution.last_synced_at;
+
+    if (spend > 0) {
+      qs('#spend-no-data').classList.add('hidden');
+      qs('#spend-total').textContent = fmtBRL(spend);
+      qs('#spend-cpl').textContent   = totalLeads > 0 ? fmtBRL(spend / totalLeads) : '—';
+      qs('#spend-cpv').textContent   = totalVisits > 0 ? fmtBRL(spend / totalVisits) : '—';
+      qs('#spend-leads-meta').textContent = fmtInt(metaLeads);
+      if (lastSync) {
+        qs('#spend-sync-badge').classList.remove('hidden');
+        qs('#spend-sync-time').textContent = 'sync: ' + fmtDate(lastSync);
+      }
+    } else {
+      qs('#spend-no-data').classList.remove('hidden');
+      qs('#spend-total').textContent = '—';
+      qs('#spend-cpl').textContent   = '—';
+      qs('#spend-cpv').textContent   = '—';
+      qs('#spend-leads-meta').textContent = '—';
+      qs('#spend-sync-label').textContent = 'Meta Ads · sem dados de gasto configurados';
+    }
+  }
+
+  // ── UTM breakdown (visits + leads + conv) ──
+  function renderUtm(dim) {
+    // Sessions UTM from API
+    const sessBreak = (cachedSessions?.utm_breakdown?.[dim] || []);
+    const sessMap = {};
+    for (const row of sessBreak) sessMap[row.value || ''] = row.count;
+
+    // Leads UTM from cachedLeads
+    const leadsMap = {};
+    for (const l of cachedLeads) {
+      const v = l[dim] || '';
+      leadsMap[v] = (leadsMap[v] || 0) + 1;
+    }
+
+    // Merge
+    const allKeys = new Set([...Object.keys(sessMap), ...Object.keys(leadsMap)]);
+    const rows = Array.from(allKeys).map(k => ({
+      value:  k || '(direto / não definido)',
+      visits: sessMap[k]  || 0,
+      leads:  leadsMap[k] || 0,
+    })).sort((a, b) => b.visits - a.visits);
+
+    const totalVisits = rows.reduce((s, r) => s + r.visits, 0) || 1;
+
+    const tbody = qs('#utm-tbody');
+    if (rows.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-sm" style="color:var(--ink-mute);">Nenhum dado no período.</td></tr>';
+      if (donutChart) { donutChart.destroy(); donutChart = null; }
+      return;
+    }
+
+    tbody.innerHTML = rows.map(r => {
+      const pct  = Math.round(r.visits / totalVisits * 100);
+      const conv = r.visits > 0 ? (r.leads / r.visits * 100).toFixed(1) + '%' : '—';
+      const convColor = r.visits > 0
+        ? (r.leads / r.visits > 0.05 ? 'var(--green)' : r.leads > 0 ? 'var(--amber)' : 'var(--ink-mute)')
+        : 'var(--ink-mute)';
+      return `
+        <tr class="row-hover" style="border-bottom:1px solid var(--border);">
+          <td class="py-2.5 pr-4">
+            <div class="font-semibold text-sm">${escapeHtml(r.value)}</div>
+            <div class="mt-1 h-1 rounded-full overflow-hidden" style="background:var(--border);width:100%;max-width:140px;">
+              <div class="h-full rounded-full" style="width:${pct}%;background:var(--grad);"></div>
+            </div>
+          </td>
+          <td class="py-2.5 pr-4 text-right font-bold" style="color:var(--teal);">${fmtInt(r.visits)}</td>
+          <td class="py-2.5 pr-4 text-right font-bold" style="color:var(--purple);">${fmtInt(r.leads)}</td>
+          <td class="py-2.5 text-right font-bold" style="color:${convColor};">${conv}</td>
+        </tr>
+      `;
+    }).join('');
+
+    renderUtmDonut(rows, totalVisits);
+  }
+
+  function renderUtmDonut(rows, totalVisits) {
+    const top6 = rows.slice(0, 6);
+    const palette = ['#b14dff','#1ff2e0','#ff5db1','#7cff6b','#ffd54d','#4d9bff'];
+    const ctx = qs('#chart-utm-donut').getContext('2d');
+    if (donutChart) donutChart.destroy();
+    if (top6.length === 0) return;
+
+    const neonGlowDonut = {
+      id: 'neonGlowDonut',
+      beforeDatasetDraw(chart) { chart.ctx.shadowColor = 'rgba(177,77,255,.55)'; chart.ctx.shadowBlur = 18; },
+      afterDatasetDraw(chart) { chart.ctx.shadowBlur = 0; },
+    };
+
+    donutChart = new Chart(ctx, {
+      type: 'doughnut',
+      plugins: [neonGlowDonut],
+      data: {
+        labels: top6.map(r => r.value),
+        datasets: [{
+          data: top6.map(r => r.visits),
+          backgroundColor: palette,
+          borderColor: '#fff',
+          borderWidth: 3,
+          hoverOffset: 6,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        cutout: '62%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { font: { size: 11, family: 'Lato' }, boxWidth: 10, padding: 12 },
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => {
+                const row = top6[ctx.dataIndex];
+                const pct = totalVisits > 0 ? Math.round(ctx.raw / totalVisits * 100) : 0;
+                return ` ${ctx.raw} visitas (${pct}%) · ${row.leads} leads`;
+              },
+            },
+            backgroundColor: '#14181D',
+            padding: 10,
+            cornerRadius: 8,
+          },
+        },
+      },
+    });
+  }
+
+  // ── Leads table ──
+  function renderLeadsTable(leads) {
+    const tbody = qs('#leads-tbody');
+    if (!leads || leads.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="py-8 text-center text-sm" style="color:var(--ink-mute);">Nenhum lead no período.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = leads.slice(0, 50).map((l, i) => {
+      const metaBadge = l.meta_response_ok
+        ? '<span class="badge-ok">✓ Meta</span>'
+        : '<span class="badge-err">✕ Meta</span>';
+      const ga4Badge = l.ga4_response_ok
+        ? '<span class="badge-ok">✓ GA4</span>'
+        : '<span class="badge-muted">— GA4</span>';
+      return `
+        <tr class="row-hover cursor-pointer" style="border-bottom:1px solid var(--border);" data-idx="${i}">
+          <td class="py-3 pr-4 text-sm" style="color:var(--ink-mute);white-space:nowrap;">${fmtDate(l.timestamp)}</td>
+          <td class="py-3 pr-4 font-semibold text-sm">${escapeHtml(l.raw_name && l.raw_name !== '—' ? l.raw_name : '—')}</td>
+          <td class="py-3 pr-4 text-sm" style="color:var(--ink-soft);">${escapeHtml(pagePath(l.landing_url))}</td>
+          <td class="py-3 pr-4">
+            ${l.utm_source
+              ? `<span class="px-2 py-0.5 rounded-full text-xs font-bold" style="background:var(--purple-soft);color:var(--purple);">${escapeHtml(l.utm_source)}</span>`
+              : '<span style="color:var(--ink-mute);">direto</span>'
+            }
+          </td>
+          <td class="py-3 pr-4 text-sm" style="color:var(--ink-soft);">${escapeHtml(l.utm_campaign || '—')}</td>
+          <td class="py-3 pr-4 text-center">${metaBadge}</td>
+          <td class="py-3 text-center">${ga4Badge}</td>
+        </tr>
+      `;
+    }).join('');
+
+    qsa('#leads-tbody tr[data-idx]').forEach(row => {
+      row.addEventListener('click', () => openModal(leads[parseInt(row.dataset.idx, 10)]));
+    });
+  }
+
+  // ── Modal ──
+  function openModal(lead) {
+    qs('#modal-title').textContent    = 'Detalhes do lead';
+    qs('#modal-subtitle').textContent = `${fmtDate(lead.timestamp)} · event_id: ${lead.event_id || '—'}`;
+
+    const utmRows = [
+      ['página', pagePath(lead.landing_url)],
+      ['utm_source', lead.utm_source], ['utm_medium', lead.utm_medium],
+      ['utm_campaign', lead.utm_campaign], ['utm_content', lead.utm_content],
+    ].filter(([, v]) => v && v !== '—');
+
+    const utmHtml = utmRows.length > 0
+      ? utmRows.map(([k, v]) => `
+          <div class="flex justify-between py-1.5 text-sm" style="border-bottom:1px solid var(--border);">
+            <span style="color:var(--ink-mute);">${k}</span>
+            <span class="font-semibold">${escapeHtml(v)}</span>
+          </div>`).join('')
+      : '<div class="text-sm py-2" style="color:var(--ink-mute);">Acesso direto (sem UTMs)</div>';
+
+    qs('#modal-body').innerHTML = `
+      <div class="rounded-xl p-4" style="background:var(--bg);">
+        <div class="text-xs font-bold uppercase tracking-widest mb-3" style="color:var(--ink-mute);">Atribuição</div>
+        ${utmHtml}
+      </div>
+      ${renderPayload('Meta CAPI', { status_code: lead.meta_status_code, response_ok: lead.meta_response_ok, payload_sent: lead.meta_payload_sent, response_body: lead.meta_response_body })}
+      ${renderPayload('GA4 Measurement Protocol', { status_code: lead.ga4_status_code, response_ok: lead.ga4_response_ok, payload_sent: lead.ga4_payload_sent, response_body: lead.ga4_response_body })}
+    `;
+
+    const modal = qs('#details-modal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+
+  function renderPayload(title, data) {
+    const hasData = data.payload_sent != null;
+    let badge;
+    if (!hasData) {
+      badge = '<span class="badge-muted">— não disparado</span>';
+    } else if (data.response_ok === 1) {
+      badge = `<span class="badge-ok">✓ Aceito${data.status_code ? ` · HTTP ${data.status_code}` : ''}</span>`;
+    } else {
+      badge = `<span class="badge-err">✕ Falhou${data.status_code ? ` · HTTP ${data.status_code}` : ''}</span>`;
+    }
+    const fmt = raw => {
+      if (raw == null || raw === '') return '—';
+      if (typeof raw === 'object') return JSON.stringify(raw, null, 2);
+      try { return JSON.stringify(JSON.parse(raw), null, 2); } catch { return String(raw); }
+    };
+    return `
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <div class="font-bold text-sm">${title}</div>${badge}
+        </div>
+        <div class="mb-3">
+          <div class="text-xs font-bold uppercase tracking-widest mb-1.5" style="color:var(--ink-mute);">Payload enviado</div>
+          <pre class="text-xs rounded-xl p-4 overflow-x-auto whitespace-pre-wrap" style="background:var(--bg);border:1px solid var(--border);font-family:monospace;line-height:1.6;">${escapeHtml(fmt(data.payload_sent))}</pre>
+        </div>
+        <div>
+          <div class="text-xs font-bold uppercase tracking-widest mb-1.5" style="color:var(--ink-mute);">Resposta</div>
+          <pre class="text-xs rounded-xl p-4 overflow-x-auto whitespace-pre-wrap" style="background:var(--bg);border:1px solid var(--border);font-family:monospace;line-height:1.6;">${escapeHtml(fmt(data.response_body))}</pre>
+        </div>
+      </div>
+    `;
+  }
+
+  function closeModal() {
+    const m = qs('#details-modal');
+    m.classList.add('hidden');
+    m.classList.remove('flex');
+  }
+  qs('#modal-close').addEventListener('click', closeModal);
+  qs('#details-modal').addEventListener('click', e => { if (e.target.id === 'details-modal') closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // ── Orchestration ──
+  async function loadAll(range) {
+    currentRange = range;
+    const [sessions, , attribution] = await Promise.all([
+      loadSessions(range),
+      loadLeads(range),
+      loadAttribution(range),
+    ]);
+
+    const totalVisits = sessions.total || 0;
+    const totalLeads  = cachedLeads.length;
+
+    renderKpis(sessions, cachedLeads, attribution);
+    renderDualChart(sessions, cachedLeads);
+    renderFunnel(totalVisits, totalLeads);
+    renderSpend(attribution, totalLeads, totalVisits);
+    renderUtm(currentUtmDim);
+    renderLeadsTable(cachedLeads);
+  }
+
+  // ── UI bindings ──
+  qsa('#range-picker .range-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      qsa('#range-picker .range-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      qs('#date-apply').classList.remove('active');
+      qs('#date-from').value = '';
+      qs('#date-to').value = '';
+      loadAll(daysToRange(parseInt(btn.dataset.days, 10)));
+    });
+  });
+
+  qs('#date-apply').addEventListener('click', () => {
+    const fromVal = qs('#date-from').value;
+    const toVal = qs('#date-to').value;
+    if (!fromVal || !toVal) return;
+    // Dias inteiros selecionados, delimitados no fuso de Brasília (-03:00) para
+    // bater com a exibição da tabela e com o agrupamento diário do servidor.
+    const since = Math.floor(new Date(`${fromVal}T00:00:00-03:00`).getTime() / 1000);
+    const until = Math.floor(new Date(`${toVal}T23:59:59-03:00`).getTime() / 1000);
+    if (until < since) return;
+    const days = Math.max(1, Math.round((until - since) / 86400));
+
+    qsa('#range-picker .range-btn').forEach(b => b.classList.remove('active'));
+    qs('#date-apply').classList.add('active');
+    loadAll({ since, until, days });
+  });
+
+  qsa('#utm-tabs .tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      qsa('#utm-tabs .tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentUtmDim = tab.dataset.dim;
+      renderUtm(currentUtmDim);
+    });
+  });
+
+  function pagePath(landingUrl) {
+    if (!landingUrl) return '—';
+    try {
+      const u = new URL(landingUrl);
+      return u.pathname === '/' ? '/ (principal)' : u.pathname;
+    } catch {
+      return '—';
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+})();
+</script>
+<script src="./design.js"></script>
+</body>
+</html>

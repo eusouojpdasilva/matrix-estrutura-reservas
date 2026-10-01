@@ -1,20 +1,15 @@
-// GET /api/attribution?key=...&days=30
+// GET /api/attribution?key=...&since=&until=
 //
-// Splits purchases into three groups by click identifier presence:
-//   - 'meta'    → purchase had an fbc cookie (fbclid captured by middleware)
-//   - 'google'  → purchase had gclid / gbraid / wbraid
-//   - 'organic' → neither
-//
-// Also joins ad_spend to surface Meta spend, CPA, and ROAS when the sync
-// cron has populated that table. Google Ads spend is a v1.1 follow-up.
+// Returns Meta Ads spend filtered to the tracked landing page's ad set
+// (configured via TRACKED_ADSET_NAME env var — partial match on ad_name).
+// Also returns daily spend breakdown for charts.
 //
 // Response: {
 //   days,
-//   groups: { meta: {...}, google: {...}, organic: {...} },
-//   meta_spend,         // from ad_spend (may be 0 if sync isn't configured)
-//   meta_cpa,           // meta_spend / meta.sales (null if sales == 0)
-//   meta_roas,          // meta.revenue / meta_spend (null if spend == 0)
-//   last_synced_at,     // last successful Meta sync timestamp, or null
+//   meta_spend,           // total spend for tracked adset in period
+//   daily_spend,          // [{ date, spend }] per day, for charts
+//   tracked_adset,        // the TRACKED_ADSET_NAME value (for UI label)
+//   last_synced_at,
 // }
 
 export async function onRequestGet(context) {
@@ -26,47 +21,51 @@ export async function onRequestGet(context) {
     return json({ error: 'Unauthorized' }, 401);
   }
 
+  const rawSince = parseInt(url.searchParams.get('since') || '', 10);
+  const rawUntil = parseInt(url.searchParams.get('until') || '', 10);
   const days = clampInt(url.searchParams.get('days'), 30, 1, 365);
-  const since = Math.floor(Date.now() / 1000) - days * 86400;
+  const now = Math.floor(Date.now() / 1000);
+  const since = Number.isFinite(rawSince) ? rawSince : now - days * 86400;
+  const until = Number.isFinite(rawUntil) ? rawUntil : now;
+
+  const sinceDate = ymd(new Date(since * 1000));
+  const untilDate = ymd(new Date(until * 1000));
+
+  // TRACKED_ADSET_NAME filters spend to a specific ad set (partial match).
+  // If not set, returns zero spend so the UI shows "not configured".
+  const trackedAdset = (env.TRACKED_ADSET_NAME || '').trim();
 
   try {
-    const rows = await env.DB.prepare(`
-      SELECT
-        CASE
-          WHEN fbc IS NOT NULL AND fbc != '' THEN 'meta'
-          WHEN (gclid != '' AND gclid IS NOT NULL)
-            OR (gbraid != '' AND gbraid IS NOT NULL)
-            OR (wbraid != '' AND wbraid IS NOT NULL) THEN 'google'
-          ELSE 'organic'
-        END as source_type,
-        COUNT(*) as sales,
-        COALESCE(SUM(value), 0) as revenue
-      FROM purchase_log
-      WHERE created_at >= ?
-      GROUP BY source_type
-    `).bind(since).all();
+    let spendRow, dailySpendRows;
 
-    const groups = { meta: empty(), google: empty(), organic: empty() };
-    for (const row of rows.results || []) {
-      if (groups[row.source_type]) {
-        groups[row.source_type] = {
-          sales: Number(row.sales || 0),
-          revenue: Number(row.revenue || 0),
-        };
-      }
+    if (trackedAdset) {
+      spendRow = await env.DB.prepare(`
+        SELECT COALESCE(SUM(spend_cents), 0) as spend_cents
+        FROM ad_spend
+        WHERE platform = 'meta' AND date >= ? AND date <= ?
+          AND ad_name LIKE ?
+      `).bind(sinceDate, untilDate, `%${trackedAdset}%`).first();
+
+      dailySpendRows = await env.DB.prepare(`
+        SELECT date, COALESCE(SUM(spend_cents), 0) as spend_cents
+        FROM ad_spend
+        WHERE platform = 'meta' AND date >= ? AND date <= ?
+          AND ad_name LIKE ?
+        GROUP BY date
+        ORDER BY date ASC
+      `).bind(sinceDate, untilDate, `%${trackedAdset}%`).all();
+    } else {
+      spendRow = { spend_cents: 0 };
+      dailySpendRows = { results: [] };
     }
-
-    // Meta spend from ad_spend table over the same window.
-    const sinceDate = ymd(new Date(since * 1000));
-    const spendRow = await env.DB.prepare(`
-      SELECT COALESCE(SUM(spend_cents), 0) as spend_cents
-      FROM ad_spend
-      WHERE platform = 'meta' AND date >= ?
-    `).bind(sinceDate).first();
 
     const metaSpend = Number(spendRow?.spend_cents || 0) / 100;
 
-    // Last successful Meta sync (for "stale data" warnings in the UI).
+    const dailySpend = (dailySpendRows.results || []).map(r => ({
+      date: r.date,
+      spend: Number(r.spend_cents || 0) / 100,
+    }));
+
     const syncRow = await env.DB.prepare(`
       SELECT MAX(run_at) as last_synced_at
       FROM sync_log
@@ -75,18 +74,15 @@ export async function onRequestGet(context) {
 
     return json({
       days,
-      groups,
       meta_spend: metaSpend,
-      meta_cpa: groups.meta.sales > 0 ? metaSpend / groups.meta.sales : null,
-      meta_roas: metaSpend > 0 ? groups.meta.revenue / metaSpend : null,
+      daily_spend: dailySpend,
+      tracked_adset: trackedAdset || null,
       last_synced_at: syncRow?.last_synced_at || null,
     });
   } catch (err) {
     return json({ error: err.message }, 500);
   }
 }
-
-function empty() { return { sales: 0, revenue: 0 }; }
 
 function ymd(d) {
   const pad = n => String(n).padStart(2, '0');

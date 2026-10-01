@@ -2,14 +2,6 @@ export async function onRequest(context) {
   const { request, next, env } = context;
   const url = new URL(request.url);
 
-  // Hostname-based routing: a "consultoria." subdomain (any domain) redirects
-  // to the capture page path. Add other subdomain routes here as needed.
-  if (url.pathname === '/' || url.pathname === '') {
-    if (url.hostname.startsWith('consultoria.')) {
-      return Response.redirect(new URL('/consultoria/', request.url).toString(), 302);
-    }
-  }
-
   // Only intercept HTML page requests, skip static assets, API endpoints,
   // and the operator-facing dashboard (we don't want tracking cookies set
   // when an admin checks metrics).
@@ -21,7 +13,6 @@ export async function onRequest(context) {
     && !url.pathname.startsWith('/webhook/')
     && !url.pathname.startsWith('/checkout-session')
     && !url.pathname.startsWith('/api/')
-    && !url.pathname.startsWith('/loja/api/')
     && !url.pathname.startsWith('/dash');
 
   if (!isPageRequest) {

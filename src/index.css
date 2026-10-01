@@ -1,0 +1,201 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Lato:wght@300;400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Scandia Travel — paleta do branding book: azul #0F1B2D, azul acinzentado #4A6278, dourado #C9A24B, creme #F4F1EC e texto #14181D. */
+
+@layer base {
+  :root {
+    --background: 38 27% 94%;            /* #FFFFFF */
+    --foreground: 210 17% 10%;             /* #14181D */
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 11%;
+
+    --primary: 216 50% 12%;             /* #0F1B2D */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 38 27% 94%;            /* #F4F1EC */
+    --secondary-foreground: 0 0% 11%;
+
+    --muted: 38 27% 96%;
+    --muted-foreground: 0 0% 30%;
+
+    --accent: 43 55% 54%;              /* #4A6278 */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 38 15% 84%;
+    --input: 38 15% 84%;
+    --ring: 216 50% 12%;
+
+    --radius: 0.5rem;
+
+    /* Brand tokens — apenas cores oficiais do manual */
+    --scandia-purple: 216 50% 12%;        /* #0F1B2D */
+    --scandia-purple-light: 209 24% 38%;
+    --scandia-purple-dark: 216 50% 10%;   /* tom mais fechado do roxo oficial */
+    --scandia-teal: 209 24% 38%;          /* #4A6278 */
+    --scandia-teal-light: 209 24% 52%;
+    --scandia-teal-dark: 209 27% 29%;     /* tom mais fechado do teal oficial */
+    --scandia-cream: 43 55% 54%;          /* #F4F1EC */
+
+    --hero-dark: 216 50% 12%;           /* roxo oficial */
+    --hero-deeper: 216 50% 10%;
+    --section-light: 0 0% 100%;         /* branco */
+    --offwhite: 0 0% 100%;              /* branco puro */
+
+    /* Aliases legados */
+    --deep-purple: 216 50% 12%;
+    --deep-purple-foreground: 0 0% 100%;
+    --lilac: 209 24% 38%;
+    --lilac-light: 38 27% 96%;
+    --gold: 38 27% 94%;
+    --gold-light: 38 27% 96%;
+    --gold-dark: 209 24% 38%;
+    --warm-bg: 0 0% 100%;
+    --overlay-dark: 216 50% 10%;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 11%;
+    --sidebar-primary: 216 50% 12%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 38 27% 96%;
+    --sidebar-accent-foreground: 0 0% 11%;
+    --sidebar-border: 38 15% 84%;
+    --sidebar-ring: 216 50% 12%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  html { scroll-behavior: smooth; }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Lato', system-ui, sans-serif;
+    font-weight: 400;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    letter-spacing: -0.005em;
+  }
+}
+
+@layer components {
+  .section-padding { @apply px-5 py-12 md:px-8 md:py-28 lg:px-16 lg:py-32; }
+
+  .eyebrow {
+    font-family: 'Lato', system-ui, sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    font-size: 11px;
+  }
+
+  .text-gradient-brand {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(var(--scandia-purple-light)), hsl(var(--scandia-teal-light)));
+  }
+  .text-gradient-cream {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(var(--scandia-purple-light)), hsl(var(--scandia-cream)));
+  }
+  /* Alias mantido */
+  .text-gradient-gold {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(var(--scandia-cream)), hsl(var(--scandia-purple-light)));
+  }
+
+  .bg-hero-gradient {
+    background-image: linear-gradient(135deg, #0F1B2D 0%, #4A6278 100%);
+  }
+  .bg-section-dark {
+    background-image: linear-gradient(180deg, #0F1B2D 0%, #4A6278 100%);
+  }
+  .bg-cta-gradient {
+    background-image: linear-gradient(135deg, #0F1B2D 0%, #4A6278 100%);
+  }
+
+  .btn-brand {
+    @apply inline-flex items-center justify-center rounded-md font-semibold uppercase shadow-lg transition-all duration-300;
+    background-color: #4A6278;
+    color: #fff;
+    padding: 16px 40px;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    font-family: 'Lato', system-ui, sans-serif;
+  }
+  .btn-brand:hover {
+    background-color: #128587;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px -10px rgba(74,98,120, 0.55);
+  }
+  .btn-brand:active { transform: translateY(0); }
+
+  .btn-on-gradient {
+    @apply inline-flex items-center justify-center rounded-md font-semibold uppercase transition-all duration-300;
+    background: #ffffff;
+    color: #0F1B2D;
+    padding: 18px 52px;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    font-family: 'Lato', system-ui, sans-serif;
+  }
+  .btn-on-gradient:hover { background: #F4F1EC; color: #0F1B2D; }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(15,27,45, 0.22);
+    backdrop-filter: blur(8px);
+  }
+
+  .nav-link {
+    @apply relative inline-block transition-colors;
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute; left: 0; bottom: -4px;
+    width: 100%; height: 1px;
+    background: linear-gradient(90deg, #0F1B2D, #4A6278);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+  .nav-link:hover::after { transform: scaleX(1); }
+
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.7s ease-out, transform 0.7s ease-out; }
+  .reveal.is-visible { opacity: 1; transform: translateY(0); }
+}
+
+@layer utilities {
+  .animate-fade-up { animation: fadeUp 0.8s ease-out both; }
+  .animate-fade-up-delay-1 { animation: fadeUp 0.8s ease-out 0.2s both; }
+  .animate-fade-up-delay-2 { animation: fadeUp 0.8s ease-out 0.4s both; }
+  .animate-fade-up-delay-3 { animation: fadeUp 0.8s ease-out 0.6s both; }
+  .animate-slide-down { animation: slideDown 0.6s ease-out 0.5s both; }
+  .animate-ken-burns { animation: kenBurns 20s ease-in-out infinite alternate; }
+  .animate-marquee { animation: marquee 25s linear infinite; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes kenBurns {
+  from { transform: scale(1); }
+  to   { transform: scale(1.05); }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
