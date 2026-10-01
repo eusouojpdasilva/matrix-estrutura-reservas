@@ -13,7 +13,7 @@ function fmtDate(iso) {
 
 function fmtBRL(v) {
   if (!v && v !== 0) return '';
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(v);
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
 }
 
 function stars(n) {
@@ -300,7 +300,7 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
     .nav-back:hover{color:#fff;border-color:#fff}
 
     /* HERO */
-    .hero{position:relative;min-height:90vh;display:flex;align-items:flex-end;overflow:hidden;background:var(--surface)}
+    .hero{position:relative;min-height:90vh;display:flex;align-items:flex-end;overflow:hidden;background:var(--surface);background-size:cover;background-position:center}
     .hero-bg{position:absolute;inset:0;background-size:cover;background-position:center}
     .hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.9) 0%,rgba(0,0,0,.4) 50%,rgba(0,0,0,.2) 100%)}
     .hero-content{position:relative;z-index:1;padding:3rem 1.5rem 4rem;width:100%;max-width:900px;margin:0 auto}

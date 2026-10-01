@@ -2621,8 +2621,8 @@ async function deleteCliente() {
 
 // ── formatters ─────────────────────────────────────────────────────────────────
 const SYM = { BRL:'R$', USD:'US$', EUR:'€' };
-function fmtR(v)       { return 'R$ ' + Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0}); }
-function fmtV(v, m='BRL') { return (SYM[m]||m) + ' ' + Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+function fmtR(v)       { return 'R$ ' + Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtV(v, m='BRL') { return (SYM[m]||m) + ' ' + Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function fmtD(d)       { if (!d) return ''; const [y,m,dd]=d.split('-'); return `${dd}/${m}/${y}`; }
 // Mês/ano fixado no fuso de Brasília (usado em "Desde" de clientes).
 function fmtDt(ts)     { if (!ts) return '—'; return new Date(ts * 1000).toLocaleDateString('pt-BR',{month:'short',year:'numeric',timeZone:'America/Sao_Paulo'}); }
