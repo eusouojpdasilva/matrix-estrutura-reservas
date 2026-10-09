@@ -442,6 +442,9 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .filter-btn:hover { border-color:var(--purple); color:var(--purple); background:var(--purple-soft); }
 .filter-btn.active { background:var(--grad); border-color:transparent; color:#fff; box-shadow:0 2px 10px rgba(15,27,45,.28); }
 .filter-count { margin-left:auto; font-size:12px; color:var(--ink-mute); font-family:var(--font-ui); }
+.periodo-data { padding:5px 10px; border-radius:var(--r-sm); border:1.5px solid var(--border);
+                background:#fff; color:var(--ink); font-size:12.5px; font-family:var(--font-body); }
+.periodo-data:focus { border-color:var(--purple); outline:none; }
 .c-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(288px,1fr)); gap:16px; }
 .c-card { background:var(--card); border:1px solid var(--border); border-radius:var(--r); box-shadow:var(--sh); padding:20px; display:flex; flex-direction:column; gap:13px; transition:box-shadow var(--tr), border-color var(--tr), transform var(--tr); border-top:3px solid transparent; }
 .c-card:hover { box-shadow:var(--sh-md); border-color:var(--purple); transform:translateY(-2px); }
@@ -741,7 +744,7 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
         </div>
         <div class="field">
           <label>Status</label>
-          <select id="m-status">
+          <select id="m-status" onchange="toggleFollowupTarefa()">
             <option value="novo">Novo</option>
             <option value="contato">Em Contato</option>
             <option value="proposta">Proposta</option>
@@ -769,8 +772,15 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
         </div>
         <div class="field">
           <label>Follow-up</label>
-          <input id="m-followup" type="date">
+          <input id="m-followup" type="date" oninput="toggleFollowupTarefa()">
         </div>
+      </div>
+
+      <!-- aparece junto com a data: data + descrição viram a tarefa -->
+      <div class="field" id="m-followup-wrap" style="display:none">
+        <label>O que fazer neste follow-up? <span style="color:var(--ink-mute);font-weight:400">— vira tarefa automaticamente</span></label>
+        <input id="m-followup-tarefa" type="text" placeholder="Ex: Ligar com a cotação do aéreo, enviar proposta revisada...">
+        <div class="fin-sub" id="m-followup-hint"></div>
       </div>
 
       <div class="row2">
@@ -1566,6 +1576,85 @@ async function api(path, opts = {}, _key) {
   return data;
 }
 
+// ── filtro de período ─────────────────────────────────────────────────────────
+// Um estado só, compartilhado por dashboard e pipeline: as duas telas respondem
+// à mesma pergunta ("como foi este período"), e tê-las em janelas diferentes
+// confundiria mais do que ajudaria.
+//
+// Dashboard e pipeline filtram leads por created_at (quando o lead entrou) e a
+// receita por vencimento. Os alertas de parcela ignoram a janela de propósito —
+// ver dashboard.js.
+let _periodo = { modo: 'tudo', from: null, to: null };
+
+const PERIODOS = [
+  { key: 'tudo',      label: 'Tudo' },
+  { key: 'quinzena',  label: 'Últimos 15 dias' },
+  { key: 'mes',       label: 'Este mês' },
+  { key: 'custom',    label: 'Personalizado' },
+];
+
+// Resolve o modo em datas concretas. 'custom' usa o que já está no estado.
+function periodoRange(modo) {
+  const hoje = new Date();
+  const ymd  = (d) => d.toISOString().slice(0, 10);
+  if (modo === 'quinzena') {
+    const ini = new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), hoje.getUTCDate() - 14));
+    return { from: ymd(ini), to: ymd(hoje) };
+  }
+  if (modo === 'mes') {
+    const ini = new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), 1));
+    const fim = new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth() + 1, 0));
+    return { from: ymd(ini), to: ymd(fim) };
+  }
+  return { from: null, to: null };
+}
+
+// Query string para os endpoints; vazia quando o filtro é "Tudo".
+function periodoQuery() {
+  const { from, to } = _periodo;
+  if (!from && !to) return '';
+  return [from ? `from=${from}` : '', to ? `to=${to}` : ''].filter(Boolean).join('&');
+}
+
+function buildPeriodoBar(extra = '') {
+  const botoes = PERIODOS.map(p =>
+    `<button class="filter-btn ${_periodo.modo === p.key ? 'active' : ''}"
+             onclick="setPeriodo('${p.key}')">${p.label}</button>`
+  ).join('');
+
+  const datas = _periodo.modo === 'custom' ? `
+    <input type="date" class="periodo-data" id="pd-from" value="${_periodo.from || ''}"
+           onchange="setPeriodoCustom()" aria-label="Data inicial">
+    <span style="color:var(--ink-mute);font-size:12px">até</span>
+    <input type="date" class="periodo-data" id="pd-to" value="${_periodo.to || ''}"
+           onchange="setPeriodoCustom()" aria-label="Data final">` : '';
+
+  const resumo = _periodo.from || _periodo.to
+    ? `<span class="filter-count">${fmtD(_periodo.from) || '…'} → ${fmtD(_periodo.to) || '…'}${extra ? ' · ' + extra : ''}</span>`
+    : (extra ? `<span class="filter-count">${extra}</span>` : '');
+
+  return `<div class="filter-bar">${botoes}${datas}${resumo}</div>`;
+}
+
+function setPeriodo(modo) {
+  _periodo = { modo, ...periodoRange(modo) };
+  if (modo === 'custom') {
+    // abre já com o mês corrente, para o filtro não nascer vazio
+    const m = periodoRange('mes');
+    _periodo.from = _periodo.from || m.from;
+    _periodo.to   = _periodo.to   || m.to;
+  }
+  load(S.mod);
+}
+
+function setPeriodoCustom() {
+  const from = document.getElementById('pd-from').value || null;
+  const to   = document.getElementById('pd-to').value   || null;
+  if (from && to && from > to) { toast('A data inicial não pode ser depois da final', 'err'); return; }
+  _periodo = { modo: 'custom', from, to };
+  load(S.mod);
+}
+
 // ── dashboard ──────────────────────────────────────────────────────────────────
 let _dashCharts = [];
 function _destroyDash() { _dashCharts.forEach(c => c.destroy()); _dashCharts = []; }
@@ -1574,9 +1663,10 @@ async function renderDash(el) {
   _destroyDash();
   let d, leads;
   try {
+    const q = periodoQuery();
     [d, leads] = await Promise.all([
-      api('/api/crm/dashboard'),
-      api('/api/crm/leads?limit=500'),
+      api(`/api/crm/dashboard${q ? '?' + q : ''}`),
+      api(`/api/crm/leads?limit=500${q ? '&' + q : ''}`),
     ]);
   } catch (e) {
     el.innerHTML = `<div class="empty">Erro ao carregar: ${esc(e.message)}</div>`;
@@ -1675,6 +1765,8 @@ async function renderDash(el) {
   if (S.mod !== 'dashboard') return;
   el.innerHTML = `
   <div class="dd-wrap">
+
+    ${buildPeriodoBar(`${(leads.leads || []).length} leads no período`)}
 
     <div class="dd-kpis">
       <div class="dd-kpi dd-kpi--g">
@@ -1891,7 +1983,8 @@ async function renderDash(el) {
 // ── pipeline ───────────────────────────────────────────────────────────────────
 async function renderPipeline(el) {
   try {
-    const r = await api('/api/crm/leads?limit=500');
+    const q = periodoQuery();
+    const r = await api(`/api/crm/leads?limit=500${q ? '&' + q : ''}`);
     S.leads = r.leads || [];
   } catch (e) {
     el.innerHTML = `<div class="empty">Erro: ${esc(e.message)}</div>`;
@@ -1914,7 +2007,13 @@ function buildKanban() {
   COLS.forEach(c => { groups[c.key] = []; });
   S.leads.forEach(l => { if (groups[l.status]) groups[l.status].push(l); });
 
-  return '<div class="pipeline">' + COLS.map(c => `
+  // pipeline estimado da janela: só leads ainda abertos
+  const estimado = S.leads
+    .filter(l => !['fechado', 'perdido'].includes(l.status))
+    .reduce((a, l) => a + (l.valor_estimado || 0), 0);
+
+  return buildPeriodoBar(`${S.leads.length} leads · estimado ${fmtR(estimado)}`)
+    + '<div class="pipeline">' + COLS.map(c => `
     <div class="p-col col-${c.key}">
       <div class="p-col-head">
         <span class="col-title">${c.label}</span>
@@ -2012,9 +2111,32 @@ function openModal(id) {
   document.getElementById('m-moeda').value    = l?.moeda      || 'BRL';
   document.getElementById('m-nicho').value    = l?.nicho      || '';
   document.getElementById('m-obs').value      = l?.obs        || '';
+  document.getElementById('m-followup-tarefa').value = l?.followup_tarefa || '';
+  toggleFollowupTarefa(!!l?.followup_tarefa);
   document.getElementById('m-del').style.display = l ? 'inline-flex' : 'none';
   document.getElementById('ov').classList.remove('hidden');
   setTimeout(() => document.getElementById('m-nome').focus(), 50);
+}
+
+// A descrição só faz sentido junto com a data — sem data não há quando fazer.
+// `jaTemTarefa` mantém o campo visível ao editar um lead cuja tarefa já existe,
+// mesmo que a data tenha sido limpa: a tarefa continua lá.
+function toggleFollowupTarefa(jaTemTarefa) {
+  const data  = document.getElementById('m-followup').value;
+  const wrap  = document.getElementById('m-followup-wrap');
+  const hint  = document.getElementById('m-followup-hint');
+  const mostra = !!data || !!jaTemTarefa;
+  wrap.style.display = mostra ? '' : 'none';
+  if (!mostra) return;
+
+  const status = document.getElementById('m-status').value;
+  if (['fechado', 'perdido'].includes(status)) {
+    hint.textContent = 'Lead ' + (status === 'fechado' ? 'fechado' : 'perdido') + ': nenhuma tarefa será criada.';
+  } else if (!data) {
+    hint.textContent = 'Sem data de follow-up a tarefa não é atualizada — a já criada continua na lista.';
+  } else {
+    hint.textContent = `Tarefa com entrega em ${fmtD(data)}.`;
+  }
 }
 
 function closeModal() {
@@ -2042,20 +2164,29 @@ async function saveLead() {
     moeda:          document.getElementById('m-moeda').value,
     nicho:          document.getElementById('m-nicho').value    || null,
     obs:            document.getElementById('m-obs').value      || null,
+    // vira tarefa no backend junto com followup — não é coluna do lead
+    followup_tarefa: document.getElementById('m-followup-tarefa').value.trim(),
   };
 
   try {
+    let r;
     if (id) {
-      const r = await api(`/api/crm/leads/${id}`, { method:'PUT', body: JSON.stringify(payload) });
+      r = await api(`/api/crm/leads/${id}`, { method:'PUT', body: JSON.stringify(payload) });
       const i = S.leads.findIndex(l => l.id === id);
-      if (i >= 0) S.leads[i] = r.lead;
+      if (i >= 0) S.leads[i] = { ...r.lead, followup_tarefa: payload.followup_tarefa };
     } else {
-      const r = await api('/api/crm/leads', { method:'POST', body: JSON.stringify(payload) });
-      S.leads.unshift(r.lead);
+      r = await api('/api/crm/leads', { method:'POST', body: JSON.stringify(payload) });
+      S.leads.unshift({ ...r.lead, followup_tarefa: payload.followup_tarefa });
     }
     closeModal();
     document.getElementById('content').innerHTML = buildKanban();
-    toast(id ? 'Lead atualizado ✓' : 'Lead criado ✓', 'ok');
+
+    const acao = r.followup_tarefa?.acao;
+    toast(
+      acao === 'criada'     ? 'Lead salvo e tarefa de follow-up criada ✓'
+    : acao === 'atualizada' ? 'Lead salvo e tarefa de follow-up atualizada ✓'
+    : id ? 'Lead atualizado ✓' : 'Lead criado ✓',
+      'ok');
   } catch (err) {
     toast('Erro: ' + err.message, 'err');
   }
@@ -2921,6 +3052,7 @@ function buildTarefaCard(t, today) {
       </div>
       <div class="t-meta">
         ${t.cliente_nome ? `<span class="t-meta-item">👤 ${esc(t.cliente_nome)}</span>` : ''}
+        ${t.lead_nome ? `<span class="t-meta-item" title="Tarefa de follow-up deste lead">🎯 ${esc(t.lead_nome)}</span>` : ''}
         ${t.data_entrega ? `<span class="t-meta-item t-due ${dueClass}">📅 ${fmtD(t.data_entrega)}</span>` : ''}
         ${cl.length ? `<span class="t-meta-item">☑ ${done}/${cl.length} itens</span>` : ''}
       </div>

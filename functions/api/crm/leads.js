@@ -3,6 +3,11 @@
 //
 // Filtros GET: status (optional), limit (1-500, default 200)
 // Campos extras de agência: destino, data_viagem, tipo (Pacote|Seguro|Hotel)
+//
+// followup_tarefa (POST): descrição do follow-up. Junto com followup, cria a
+// tarefa correspondente na mesma requisição — ver _followup.js
+
+import { syncTarefaFollowup } from './_followup.js';
 
 export async function onRequestGet(context) {
   const { request, env } = context;
@@ -11,17 +16,32 @@ export async function onRequestGet(context) {
 
   const status = url.searchParams.get('status') || '';
   const limit  = clamp(url.searchParams.get('limit'), 200, 1, 500);
+  // janela de entrada do lead (created_at), para o filtro de período do pipeline
+  const from   = isYmd(url.searchParams.get('from')) ? url.searchParams.get('from') : null;
+  const to     = isYmd(url.searchParams.get('to'))   ? url.searchParams.get('to')   : null;
+
+  // Traz a descrição do follow-up junto para o modal do lead já abrir com o
+  // campo preenchido, em vez de uma busca extra por tarefa a cada abertura.
+  const SELECT = `
+    SELECT l.*, (
+      SELECT t.titulo FROM crm_tarefas t
+      WHERE t.lead_id = l.id AND t.origem = 'followup' AND t.status != 'concluído'
+      ORDER BY t.created_at DESC LIMIT 1
+    ) AS followup_tarefa
+    FROM crm_leads l`;
+
+  const cond = [], binds = [];
+  if (status) { cond.push('l.status = ?');      binds.push(status); }
+  if (from)   { cond.push('l.created_at >= ?'); binds.push(startOfDay(from)); }
+  if (to)     { cond.push('l.created_at <= ?'); binds.push(endOfDay(to)); }
+  const where = cond.length ? `WHERE ${cond.join(' AND ')}` : '';
 
   try {
-    const rows = status
-      ? await env.DB.prepare(
-          'SELECT * FROM crm_leads WHERE status = ? ORDER BY created_at DESC LIMIT ?'
-        ).bind(status, limit).all()
-      : await env.DB.prepare(
-          'SELECT * FROM crm_leads ORDER BY created_at DESC LIMIT ?'
-        ).bind(limit).all();
+    const rows = await env.DB.prepare(
+      `${SELECT} ${where} ORDER BY l.created_at DESC LIMIT ?`
+    ).bind(...binds, limit).all();
 
-    return json({ leads: rows.results || [] });
+    return json({ leads: rows.results || [], from, to });
   } catch (err) {
     return json({ error: err.message }, 500);
   }
@@ -66,7 +86,9 @@ export async function onRequestPost(context) {
     ).run();
 
     const lead = await env.DB.prepare('SELECT * FROM crm_leads WHERE id = ?').bind(id).first();
-    return json({ lead }, 201);
+    // data de follow-up + descrição criam a tarefa junto, sem passo manual
+    const followupTarefa = await syncTarefaFollowup(env, lead, body.followup_tarefa);
+    return json({ lead, followup_tarefa: followupTarefa }, 201);
   } catch (err) {
     return json({ error: err.message }, 500);
   }
@@ -77,6 +99,20 @@ export async function onRequestOptions() {
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────
+
+function isYmd(s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s); }
+
+// crm_leads.created_at é unix em segundos, então os limites da janela são
+// calculados aqui em vez de depender das funções de data do SQLite.
+function startOfDay(ymd) {
+  const [y, m, d] = ymd.split('-').map(Number);
+  return Math.floor(Date.UTC(y, m - 1, d) / 1000);
+}
+
+function endOfDay(ymd) {
+  const [y, m, d] = ymd.split('-').map(Number);
+  return Math.floor(Date.UTC(y, m - 1, d, 23, 59, 59) / 1000);
+}
 
 function auth(url, env) {
   return env.DASH_KEY && url.searchParams.get('key') === env.DASH_KEY;

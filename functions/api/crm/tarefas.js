@@ -21,10 +21,13 @@ export async function onRequestGet(context) {
     const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
     binds.push(limit);
 
+    // lead_nome dá contexto às tarefas de follow-up, que nascem sem cliente —
+    // o lead só vira cliente quando fecha
     const rows = await env.DB.prepare(`
-      SELECT t.*, c.nome as cliente_nome
+      SELECT t.*, c.nome as cliente_nome, l.nome as lead_nome
       FROM crm_tarefas t
       LEFT JOIN crm_clientes c ON t.cliente_id = c.id
+      LEFT JOIN crm_leads    l ON t.lead_id    = l.id
       ${where}
       ORDER BY t.data_entrega ASC, t.created_at DESC
       LIMIT ?
