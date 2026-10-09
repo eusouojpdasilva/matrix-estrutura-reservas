@@ -3,7 +3,8 @@
 //          'pagar' aceita data_pagamento (YYYY-MM-DD) para registrar quando o
 //          dinheiro entrou de fato; sem ela, usa hoje.
 //          'parcelar' + num_parcelas divide um lançamento avulso em N parcelas
-//          mensais no mesmo contrato.
+//          mensais no mesmo contrato. valor_parcela (opcional) fixa o valor de
+//          cada uma — é como se cobra juros; sem ele, divide o valor original.
 //                                      or partial fields: { valor, vencimento, comissao,
 //                                      descricao, categoria, parcela_num, parcela_total,
 //                                      forma_pagamento, condicao_pagamento, status }
@@ -133,7 +134,15 @@ async function parcelar(env, id, body, now) {
              : isYmd(f.vencimento)    ? f.vencimento
              : `${f.mes}-01`;
 
-  const valores   = splitMoney(f.valor, n);
+  // valor_parcela manda quando vem: com juros a parcela não é o total dividido,
+  // e a soma passa a ser o que o cliente vai pagar de fato. Sem ele, divide o
+  // valor original com os centavos fechando exato.
+  const vParc = Number(body.valor_parcela);
+  const temValor = Number.isFinite(vParc) && vParc > 0;
+  if (body.valor_parcela != null && !temValor)
+    return json({ error: 'valor_parcela must be a positive number' }, 400);
+
+  const valores   = temValor ? Array(n).fill(round2(vParc)) : splitMoney(f.valor, n);
   const comissoes = splitProportional(f.comissao, valores);
   const baseDate  = parseYmd(base);
 
@@ -179,7 +188,7 @@ async function parcelar(env, id, body, now) {
 // ── helpers ───────────────────────────────────────────────────────────────────
 
 import {
-  splitMoney, splitProportional, isYmd, parseYmd, ymd, addMonthsUTC,
+  round2, splitMoney, splitProportional, isYmd, parseYmd, ymd, addMonthsUTC,
 } from '../_parcelas.js';
 
 function auth(url, env) {
