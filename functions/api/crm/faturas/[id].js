@@ -1,6 +1,9 @@
 // GET    /api/crm/faturas/:id?key=...
 // PUT    /api/crm/faturas/:id?key=...  body: { action: 'pagar'|'vencer'|'desfazer' }
-//                                      or partial fields: { valor, mes, status }
+//                                      or partial fields: { valor, vencimento, comissao,
+//                                      descricao, categoria, parcela_num, parcela_total,
+//                                      forma_pagamento, condicao_pagamento, status }
+//                                      Updating vencimento re-derives mes.
 // DELETE /api/crm/faturas/:id?key=...
 
 export async function onRequestGet(context) {
@@ -39,9 +42,21 @@ export async function onRequestPut(context) {
     updates = [['status', 'pendente'], ['data_pagamento', null], ['updated_at', now]];
   } else {
     // generic partial update
-    const UPDATABLE = ['valor', 'mes', 'status', 'data_pagamento', 'comissao', 'forma_pagamento', 'condicao_pagamento'];
+    const UPDATABLE = [
+      'valor', 'mes', 'vencimento', 'status', 'data_pagamento', 'comissao',
+      'descricao', 'categoria', 'parcela_num', 'parcela_total',
+      'forma_pagamento', 'condicao_pagamento',
+    ];
     updates = Object.entries(body).filter(([k]) => UPDATABLE.includes(k));
     if (!updates.length) return json({ error: 'No valid fields' }, 400);
+
+    // vencimento is the source of truth for the period: moving the due date
+    // moves the fatura's month, so the financeiro month view stays consistent.
+    if (Object.prototype.hasOwnProperty.call(body, 'vencimento')) {
+      if (!isYmd(body.vencimento)) return json({ error: 'vencimento must be YYYY-MM-DD' }, 400);
+      updates = updates.filter(([k]) => k !== 'mes');
+      updates.push(['mes', body.vencimento.slice(0, 7)]);
+    }
     updates.push(['updated_at', now]);
   }
 
@@ -80,6 +95,8 @@ export async function onRequestOptions() {
 }
 
 // ── helpers ───────────────────────────────────────────────────────────────────
+
+function isYmd(s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s); }
 
 function auth(url, env) {
   return env.DASH_KEY && url.searchParams.get('key') === env.DASH_KEY;

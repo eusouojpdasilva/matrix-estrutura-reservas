@@ -1,6 +1,11 @@
 // GET    /api/crm/leads/:id?key=...
 // PUT    /api/crm/leads/:id?key=...  body: partial lead fields
 // DELETE /api/crm/leads/:id?key=...
+//
+// followup_tarefa (PUT): descrição do follow-up. Junto com followup, cria ou
+// atualiza a tarefa correspondente na mesma requisição — ver _followup.js
+
+import { syncTarefaFollowup } from '../_followup.js';
 
 const UPDATABLE = [
   'nome', 'nicho', 'proj', 'status', 'valor_estimado', 'moeda',
@@ -30,22 +35,32 @@ export async function onRequestPut(context) {
   try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
 
   const updates = Object.entries(body).filter(([k]) => UPDATABLE.includes(k));
-  if (!updates.length) return json({ error: 'No valid fields to update' }, 400);
+  // followup_tarefa não é coluna de crm_leads: vira tarefa, não update de lead.
+  // Mas sozinha ela é um PUT válido — mudar só a descrição do follow-up.
+  const temTarefa = Object.prototype.hasOwnProperty.call(body, 'followup_tarefa');
+  if (!updates.length && !temTarefa) return json({ error: 'No valid fields to update' }, 400);
 
   const now = Math.floor(Date.now() / 1000);
   updates.push(['updated_at', now]);
 
-  const setClause = updates.map(([k]) => `${k} = ?`).join(', ');
-  const values    = updates.map(([, v]) => v);
-
   try {
-    const result = await env.DB.prepare(
-      `UPDATE crm_leads SET ${setClause} WHERE id = ?`
-    ).bind(...values, params.id).run();
+    if (updates.length > 1) {   // > 1 porque updated_at sempre entra
+      const setClause = updates.map(([k]) => `${k} = ?`).join(', ');
+      const values    = updates.map(([, v]) => v);
+      const result = await env.DB.prepare(
+        `UPDATE crm_leads SET ${setClause} WHERE id = ?`
+      ).bind(...values, params.id).run();
+      if (!result.meta.changes) return json({ error: 'Not found' }, 404);
+    }
 
-    if (!result.meta.changes) return json({ error: 'Not found' }, 404);
     const lead = await env.DB.prepare('SELECT * FROM crm_leads WHERE id = ?').bind(params.id).first();
-    return json({ lead });
+    if (!lead) return json({ error: 'Not found' }, 404);
+
+    const followupTarefa = temTarefa
+      ? await syncTarefaFollowup(env, lead, body.followup_tarefa)
+      : null;
+
+    return json({ lead, followup_tarefa: followupTarefa });
   } catch (err) {
     return json({ error: err.message }, 500);
   }

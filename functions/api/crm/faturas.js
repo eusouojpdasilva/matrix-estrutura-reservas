@@ -1,51 +1,80 @@
-// GET  /api/crm/faturas?key=...&mes=2026-06&status=pendente&cliente_id=...
+// GET  /api/crm/faturas?key=...
+//        &mes=2026-06                  month of reference (default: current)
+//        &from=2026-06-01&to=2026-06-15 due-date range; overrides `mes`
+//        &all=1                         no period filter at all (export / full ledger)
+//        &status=pendente &cliente_id=… &categoria=Passeios
 // POST /api/crm/faturas?key=...  body: fatura fields (manual creation)
 //
 // Actions via PUT /api/crm/faturas/:id — see [id].js
-// KPIs: a_receber, recebido, vencido for current month
+// KPIs always cover the same rows the filter returned, not a fixed month.
 
 export async function onRequestGet(context) {
   const { request, env } = context;
   const url = new URL(request.url);
   if (!auth(url, env)) return json({ error: 'Unauthorized' }, 401);
 
-  const mes        = url.searchParams.get('mes') || currentMes();
-  const status     = url.searchParams.get('status') || '';
-  const cliente_id = url.searchParams.get('cliente_id') || '';
+  const q          = url.searchParams;
+  const all        = q.get('all') === '1';
+  const from       = isYmd(q.get('from')) ? q.get('from') : null;
+  const to         = isYmd(q.get('to'))   ? q.get('to')   : null;
+  const mes        = q.get('mes') || currentMes();
+  const status     = q.get('status')     || '';
+  const cliente_id = q.get('cliente_id') || '';
+  const categoria  = q.get('categoria')  || '';
+
+  // Same filter, emitted twice: once qualified for the JOIN, once bare for the
+  // aggregate. `p` is the table prefix ('f.' or ''), so the two never drift.
+  // vencimento falls back to mes for rows migrated before the column existed.
+  const buildWhere = (p) => {
+    const c = [], b = [];
+    if (!all) {
+      if (from || to) {
+        if (from) { c.push(`COALESCE(${p}vencimento, ${p}mes || '-01') >= ?`); b.push(from); }
+        if (to)   { c.push(`COALESCE(${p}vencimento, ${p}mes || '-01') <= ?`); b.push(to);   }
+      } else {
+        c.push(`${p}mes = ?`); b.push(mes);
+      }
+    }
+    if (status)     { c.push(`${p}status = ?`);     b.push(status);     }
+    if (cliente_id) { c.push(`${p}cliente_id = ?`); b.push(cliente_id); }
+    if (categoria)  { c.push(`${p}categoria = ?`);  b.push(categoria);  }
+    return { where: c.length ? `WHERE ${c.join(' AND ')}` : '', binds: b };
+  };
+
+  const joined = buildWhere('f.');
+  const bare   = buildWhere('');
 
   try {
-    // build dynamic WHERE
-    const conditions = ['mes = ?'];
-    const binds      = [mes];
-    if (status)     { conditions.push('status = ?');     binds.push(status);     }
-    if (cliente_id) { conditions.push('cliente_id = ?'); binds.push(cliente_id); }
-
-    const where = conditions.join(' AND ');
-
     const rows = await env.DB.prepare(
       `SELECT f.*, c.nome as cliente_nome
        FROM crm_faturas f
        LEFT JOIN crm_clientes c ON f.cliente_id = c.id
-       WHERE ${where}
-       ORDER BY f.created_at DESC`
-    ).bind(...binds).all();
+       ${joined.where}
+       ORDER BY COALESCE(f.vencimento, f.mes || '-01') ASC, f.created_at DESC`
+    ).bind(...joined.binds).all();
 
-    // KPIs for the requested month
     const kpis = await env.DB.prepare(`
       SELECT
         COALESCE(SUM(CASE WHEN status IN ('pendente','vencido') THEN valor END), 0) as a_receber,
         COALESCE(SUM(CASE WHEN status = 'pago'    THEN valor END), 0) as recebido,
-        COALESCE(SUM(CASE WHEN status = 'vencido' THEN valor END), 0) as vencido
-      FROM crm_faturas WHERE mes = ?
-    `).bind(mes).first();
+        COALESCE(SUM(CASE WHEN status = 'vencido' THEN valor END), 0) as vencido,
+        COALESCE(SUM(valor), 0)                                       as bruto,
+        COALESCE(SUM(COALESCE(comissao, valor)), 0)                   as comissao,
+        COUNT(*)                                                      as lancamentos
+      FROM crm_faturas ${bare.where}
+    `).bind(...bare.binds).first();
 
     return json({
-      mes,
+      mes: (from || to || all) ? null : mes,
+      from, to,
       faturas: rows.results || [],
       kpis: {
-        a_receber: kpis?.a_receber || 0,
-        recebido:  kpis?.recebido  || 0,
-        vencido:   kpis?.vencido   || 0,
+        a_receber:   kpis?.a_receber   || 0,
+        recebido:    kpis?.recebido    || 0,
+        vencido:     kpis?.vencido     || 0,
+        bruto:       kpis?.bruto       || 0,
+        comissao:    kpis?.comissao    || 0,
+        lancamentos: kpis?.lancamentos || 0,
       },
     });
   } catch (err) {
@@ -62,12 +91,21 @@ export async function onRequestPost(context) {
   try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400); }
 
   const {
-    cliente_id, contrato_id, mes, valor, status = 'pendente',
+    cliente_id, contrato_id, valor, status = 'pendente',
     comissao, forma_pagamento, condicao_pagamento,
+    descricao, categoria, parcela_num, parcela_total,
   } = body;
 
-  if (!cliente_id || !contrato_id || !mes || !valor)
-    return json({ error: 'cliente_id, contrato_id, mes, valor are required' }, 400);
+  if (!cliente_id || !contrato_id || !valor)
+    return json({ error: 'cliente_id, contrato_id, valor are required' }, 400);
+
+  // vencimento is the source of truth; mes is derived from it.
+  // Accepts `mes` alone for callers that only know the month.
+  const vencimento = isYmd(body.vencimento) ? body.vencimento
+                   : isMonth(body.mes)      ? `${body.mes}-01`
+                   : null;
+  if (!vencimento) return json({ error: 'vencimento (YYYY-MM-DD) or mes (YYYY-MM) is required' }, 400);
+  const mes = vencimento.slice(0, 7);
 
   const id  = crypto.randomUUID();
   const now = Math.floor(Date.now() / 1000);
@@ -75,19 +113,21 @@ export async function onRequestPost(context) {
   try {
     await env.DB.prepare(`
       INSERT INTO crm_faturas
-        (id, cliente_id, contrato_id, mes, valor, comissao, forma_pagamento, condicao_pagamento, status, created_at, updated_at)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?)
+        (id, cliente_id, contrato_id, mes, vencimento, valor, comissao,
+         descricao, categoria, parcela_num, parcela_total,
+         forma_pagamento, condicao_pagamento, status, created_at, updated_at)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     `).bind(
-      id, cliente_id, contrato_id, mes, valor,
-      comissao ?? null, forma_pagamento ?? null, condicao_pagamento ?? null,
+      id, cliente_id, contrato_id, mes, vencimento, valor,
+      comissao ?? null, descricao ?? null, categoria ?? null,
+      parcela_num ?? 1, parcela_total ?? 1,
+      forma_pagamento ?? null, condicao_pagamento ?? null,
       status, now, now,
     ).run();
 
     const fatura = await env.DB.prepare('SELECT * FROM crm_faturas WHERE id = ?').bind(id).first();
     return json({ fatura }, 201);
   } catch (err) {
-    // UNIQUE (cliente_id, mes) violation
-    if (err.message?.includes('UNIQUE')) return json({ error: 'Fatura already exists for this client/month' }, 409);
     return json({ error: err.message }, 500);
   }
 }
@@ -98,9 +138,12 @@ export async function onRequestOptions() {
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
+function isYmd(s)   { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s); }
+function isMonth(s) { return typeof s === 'string' && /^\d{4}-\d{2}$/.test(s); }
+
 function currentMes() {
   const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
 }
 
 function auth(url, env) {
