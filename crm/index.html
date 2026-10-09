@@ -277,7 +277,7 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .fin-tab { padding:10px 18px; font-size:13px; font-weight:600; cursor:pointer; color:var(--muted); border-bottom:2px solid transparent; margin-bottom:-1px; transition:color var(--tr-fast), border-color var(--tr-fast); font-family:var(--font-ui); }
 .fin-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
 .fin-tab:hover:not(.active) { color:var(--text); }
-.fin-kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:24px; }
+.fin-kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(172px,1fr)); gap:14px; margin-bottom:24px; }
 .fin-kpi { background:linear-gradient(180deg,var(--card-2),var(--card)); border:1px solid var(--line); border-radius:var(--r); padding:20px 22px; box-shadow:var(--sh); transition:border-color var(--tr); }
 .fin-kpi:hover { border-color:rgba(255,255,255,.09); }
 .fin-kpi-label { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.9px; color:var(--muted); font-family:var(--font-ui); margin-bottom:10px; }
@@ -452,6 +452,48 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .dd-badge-blue  { display:inline-block;padding:3px 11px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(74,159,224,.12);color:#6FB4EA;box-shadow:inset 0 0 0 1px rgba(74,159,224,.22); }
 .dd-badge-gray  { display:inline-block;padding:3px 11px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(116,140,166,.1);color:#7A90A8;box-shadow:inset 0 0 0 1px rgba(116,140,166,.18); }
 .dd-empty { text-align:center;padding:30px;color:#6A6460;font-size:13px; }
+.dd-row2eq { grid-template-columns:1fr 1fr; }
+
+/* ── parcelas da proposta ─────────────────────────────────────────────────── */
+.parc-grid { display:grid; grid-template-columns:34px 1fr 1fr 1.5fr 32px; gap:9px; align-items:center; }
+.parc-head { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.7px;
+             color:var(--muted); font-family:var(--font-ui); margin-bottom:7px; }
+.parc-row { margin-bottom:8px; }
+.parc-row input { width:100%; }
+.parc-idx { font-size:12px; font-weight:700; color:var(--muted); font-family:var(--font-ui);
+            text-align:center; font-variant-numeric:tabular-nums; }
+.parc-del { background:none; border:none; color:var(--muted); cursor:pointer; font-size:17px;
+            line-height:1; padding:6px; border-radius:var(--r-sm); transition:color var(--tr-fast), background var(--tr-fast); }
+.parc-del:hover { color:var(--red); background:rgba(252,129,129,.1); }
+.parc-gen { display:flex; gap:9px; align-items:end; flex-wrap:wrap; padding:14px;
+            background:rgba(0,0,0,.22); border:1px solid var(--line); border-radius:var(--r); margin-bottom:14px; }
+.parc-gen .field { margin:0; }
+.parc-total { font-size:12.5px; font-weight:600; padding:10px 14px; border-radius:var(--r-sm); margin-top:10px; }
+.parc-total.ok   { background:rgba(74,222,128,.07);  border:1px solid rgba(74,222,128,.2);  color:var(--green); }
+.parc-total.warn { background:rgba(227,82,42,.07);   border:1px solid rgba(227,82,42,.25);  color:#F7B84B; }
+@media(max-width:700px){ .parc-grid{grid-template-columns:28px 1fr 1fr 28px;} .parc-grid .parc-obs{grid-column:2/4;} }
+
+/* ── financeiro: parcelas e receita por cliente ───────────────────────────── */
+.fin-venc { font-variant-numeric:tabular-nums; white-space:nowrap; }
+.fin-venc.late { color:var(--red); font-weight:700; }
+.fin-venc.soon { color:var(--amber); font-weight:600; }
+.fin-sub { font-size:11.5px; color:var(--muted); margin-top:3px; }
+.fin-parc { display:inline-flex; align-items:center; padding:2px 8px; border-radius:var(--r-full); font-size:10.5px; font-weight:700;
+            font-family:var(--font-ui); background:rgba(116,140,166,.1); color:#8497AC; box-shadow:inset 0 0 0 1px rgba(116,140,166,.18);
+            font-variant-numeric:tabular-nums; }
+.fin-num { font-variant-numeric:tabular-nums; white-space:nowrap; }
+.fin-bar { display:flex; height:8px; border-radius:var(--r-full); overflow:hidden; background:rgba(0,0,0,.4); margin-top:14px; }
+.fin-bar-seg { height:100%; }
+.hist-cats { display:flex; flex-direction:column; gap:10px; }
+.hist-cat { display:flex; align-items:center; gap:10px; font-size:12.5px; }
+.hist-cat-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; box-shadow:0 0 8px currentColor; }
+.hist-cat-lbl { color:var(--muted); flex:1; }
+.hist-cat-val { font-weight:700; color:var(--text); font-family:var(--font-ui); font-variant-numeric:tabular-nums; }
+.modal-hist { max-width:900px !important; display:flex; flex-direction:column; max-height:88vh; overflow:hidden; }
+.modal-hist .modal-body { flex:1; overflow-y:auto; min-height:0; }
+.modal-hist .modal-hd, .modal-hist .modal-ft { flex-shrink:0; }
+
+@media(max-width:900px) { .dd-row2eq{grid-template-columns:1fr;} }
 @media(max-width:1140px){ .dd-row3{grid-template-columns:1fr 1fr;} .dd-row3>.dd-panel:last-child{grid-column:span 2;} }
 @media(max-width:1100px) { .dd-kpis{grid-template-columns:repeat(3,1fr);} }
 @media(max-width:800px) { .dd-kpis{grid-template-columns:1fr 1fr;} .dd-row3,.dd-row2{grid-template-columns:1fr;} .dd-row3>.dd-panel:last-child{grid-column:auto;} }
@@ -641,46 +683,57 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
         </div>
         <div class="row2">
           <div class="field">
-            <label>Mês de referência *</label>
-            <input id="ff-mes" type="month">
+            <label>Descrição da receita</label>
+            <input id="ff-desc" type="text" placeholder="Ex: Consultoria Japão, Passeio Fushimi Inari...">
           </div>
           <div class="field">
-            <label>Valor bruto (faturamento) *</label>
-            <input id="ff-valor" type="number" min="0.01" step="0.01" placeholder="0,00">
+            <label>Categoria</label>
+            <!-- opções vêm de CATEGORIAS_RECEITA (populadas em openFinModal) -->
+            <select id="ff-categoria"></select>
           </div>
         </div>
         <div class="row2">
           <div class="field">
-            <label>Comissão (líquida)</label>
-            <input id="ff-comissao" type="number" min="0" step="0.01" placeholder="0,00">
+            <label>Valor bruto (faturamento) *</label>
+            <input id="ff-valor" type="number" min="0.01" step="0.01" placeholder="0,00">
           </div>
           <div class="field">
-            <label>Status</label>
-            <select id="ff-status">
-              <option value="pendente">Pendente</option>
-              <option value="pago">Pago</option>
-              <option value="vencido">Vencido</option>
-            </select>
+            <label>Comissão (líquida)</label>
+            <input id="ff-comissao" type="number" min="0" step="0.01" placeholder="0,00">
           </div>
         </div>
         <div class="row2">
           <div class="field">
             <label>Forma de pagamento</label>
-            <select id="ff-forma">
-              <option value="">—</option>
-              <option value="Pix">Pix</option>
-              <option value="Cartão">Cartão</option>
-              <option value="Boleto">Boleto</option>
-            </select>
+            <!-- opções vêm de FORMAS_PAGAMENTO (populadas em openFinModal) -->
+            <select id="ff-forma"></select>
           </div>
           <div class="field">
             <label>Condição</label>
-            <select id="ff-condicao">
-              <option value="">—</option>
+            <select id="ff-condicao" onchange="toggleParcelamento()">
               <option value="À vista">À vista</option>
               <option value="Parcelado">Parcelado</option>
             </select>
           </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label id="ff-venc-lbl">Vencimento *</label>
+            <input id="ff-venc" type="date" oninput="previewParcelas()">
+          </div>
+          <div class="field" id="ff-parcelas-wrap" style="display:none">
+            <label>Nº de parcelas *</label>
+            <input id="ff-parcelas" type="number" min="2" max="120" step="1" value="2" oninput="previewParcelas()">
+          </div>
+        </div>
+        <div class="margin-info hidden" id="ff-parc-preview"></div>
+        <div class="field" id="ff-status-wrap">
+          <label>Status</label>
+          <select id="ff-status">
+            <option value="pendente">Pendente</option>
+            <option value="pago">Pago</option>
+            <option value="vencido">Vencido</option>
+          </select>
         </div>
       </div>
 
@@ -720,6 +773,69 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
       <button class="btn btn-ghost" onclick="closeFinModal()">Cancelar</button>
       <button class="btn btn-danger btn-sm" id="fin-del" onclick="deleteFinItem()" style="display:none">Excluir</button>
       <button class="btn btn-primary" onclick="saveFinItem()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── LANÇAR PROPOSTA NO FINANCEIRO ──────────────────────────────────────────── -->
+<div class="overlay hidden" id="ov-sync">
+  <div class="modal">
+    <div class="modal-hd">
+      <h2>Lançar no financeiro</h2>
+      <button class="modal-close" onclick="closeSyncModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="sy-prop-id">
+      <div class="field">
+        <label>Cliente *</label>
+        <select id="sy-cliente"></select>
+        <div style="font-size:11.5px;color:var(--muted);margin-top:6px">
+          A receita precisa estar vinculada a um cliente do CRM. Se ainda não existe, dá pra criar agora com o nome da proposta.
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Descrição da receita</label>
+          <input id="sy-desc" type="text" placeholder="Usa o título da proposta">
+        </div>
+        <div class="field">
+          <label>Categoria</label>
+          <select id="sy-categoria"></select>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>Comissão estimada (total)</label>
+          <input id="sy-comissao" type="number" min="0" step="0.01" placeholder="0,00">
+          <div style="font-size:11.5px;color:var(--muted);margin-top:6px">Rateada entre as parcelas.</div>
+        </div>
+        <div class="field">
+          <label>Forma de pagamento</label>
+          <select id="sy-forma"></select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Parcelas que serão criadas</label>
+        <div id="sy-preview"></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeSyncModal()">Cancelar</button>
+      <button class="btn btn-primary" id="sy-confirm" onclick="confirmarSync()">Lançar no financeiro</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── HISTÓRICO DE RECEITAS DO CLIENTE ───────────────────────────────────────── -->
+<div class="overlay hidden" id="ov-hist">
+  <div class="modal modal-hist">
+    <div class="modal-hd">
+      <h2 id="hist-title">Histórico de receitas</h2>
+      <button class="modal-close" onclick="closeHistModal()">×</button>
+    </div>
+    <div class="modal-body" id="hist-body"></div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" onclick="closeHistModal()">Fechar</button>
     </div>
   </div>
 </div>
@@ -962,6 +1078,30 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
         <div class="field"><label>O que inclui</label><textarea id="mp-includes" rows="3" placeholder="Passagens, hotéis, transfers, café da manhã…"></textarea></div>
         <div class="field"><label>O que não inclui</label><textarea id="mp-excludes" rows="2" placeholder="Despesas pessoais, seguro viagem, refeições avulsas…"></textarea></div>
         <div class="field"><label>Condições de pagamento</label><textarea id="mp-payment" rows="2" placeholder="50% na confirmação + 50% 30 dias antes da viagem…"></textarea></div>
+
+        <div class="field">
+          <label>Parcelamento <span style="color:var(--muted);font-weight:400">— aparece na proposta e vai pro financeiro quando o cliente aceitar</span></label>
+          <div class="parc-gen">
+            <div class="field" style="width:110px">
+              <label>Parcelas</label>
+              <input id="mp-parc-n" type="number" min="1" max="60" step="1" value="3">
+            </div>
+            <div class="field" style="width:160px">
+              <label>1º vencimento</label>
+              <input id="mp-parc-venc" type="date">
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="gerarParcelas()">⚡ Gerar</button>
+            <span style="font-size:11.5px;color:var(--muted);flex:1;min-width:180px">
+              Divide o valor total em parcelas mensais. Depois dá pra editar cada uma.
+            </span>
+          </div>
+          <div class="parc-grid parc-head" id="mp-parc-head" style="display:none">
+            <div></div><div>Valor</div><div>Vencimento</div><div>Observação</div><div></div>
+          </div>
+          <div id="mp-parcelas"></div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:4px" onclick="addParcelaRow()">+ Adicionar parcela</button>
+          <div class="parc-total" id="mp-parc-total" style="display:none"></div>
+        </div>
         <div class="field"><label>Notas internas <span style="color:var(--muted);font-weight:400">(ocultas para o cliente)</span></label><textarea id="mp-notes" rows="2" placeholder="Markup do hotel, contato do fornecedor…"></textarea></div>
       </div>
       <!-- Pane 7: Capa -->
@@ -1083,6 +1223,13 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 <script>
 'use strict';
 
+// ── configuração por cliente ───────────────────────────────────────────────────
+// Único ponto de edição do CRM na personalização white-label. O resto do arquivo
+// consome estas listas — não repita opções de pagamento ou categoria em nenhum
+// select solto.
+const FORMAS_PAGAMENTO  = ['Pix', 'Cartão de crédito', 'Cartão de débito'];
+const CATEGORIAS_RECEITA = ['Consultoria', 'Passeios', 'Hospedagem', 'Aéreo', 'Seguro', 'Outro'];
+
 // ── state ──────────────────────────────────────────────────────────────────────
 const S = {
   key:    localStorage.getItem('crm_key') || '',
@@ -1091,19 +1238,20 @@ const S = {
   dragId: null,
 };
 
+// Geração de carregamento, usada por load() pra descartar renders obsoletos.
+let _loadGen = 0;
+
 // ── router ─────────────────────────────────────────────────────────────────────
 const TITLES   = { dashboard: 'Dashboard', pipeline: 'Pipeline de Leads', clientes: 'Clientes', tarefas: 'Tarefas', financeiro: 'Financeiro', propostas: 'Propostas', artigos: 'Artigos do Blog' };
 const ACTIONS  = {
   pipeline:   '<button class="btn btn-primary btn-sm" onclick="openModal()">+ Novo Lead</button>',
   clientes:   '<button class="btn btn-primary btn-sm" onclick="openClienteModal()">+ Novo Cliente</button>',
   tarefas:    '<button class="btn btn-primary btn-sm" onclick="openTarefaModal()">+ Nova Tarefa</button>',
-  financeiro: '<button class="btn btn-primary btn-sm" onclick="openFinModal()">+ Lançar</button>',
+  financeiro: '<button class="btn btn-ghost btn-sm" onclick="exportFinanceiroXlsx(this)">📊 Exportar Excel</button>'
+            + '<button class="btn btn-primary btn-sm" style="margin-left:8px" onclick="openFinModal()">+ Lançar</button>',
   propostas:  '<button class="btn btn-primary btn-sm" onclick="openProposalModal()">+ Nova Proposta</button>',
   artigos:    '<button class="btn btn-primary btn-sm" onclick="openArtigoModal()">+ Novo Artigo</button>',
 };
-
-// ── boot ───────────────────────────────────────────────────────────────────────
-if (S.key) showApp();
 
 // Recarrega conteúdo quando o Chrome restaura a página do bfcache (F5 / voltar)
 window.addEventListener('pageshow', function(event) {
@@ -1207,7 +1355,8 @@ async function renderDash(el) {
     return;
   }
 
-  const { kpis, funil, pipeline_estimado, followup_risco, mes, aniversariantes = [] } = d;
+  const { kpis, funil, pipeline_estimado, followup_risco, mes, aniversariantes = [],
+          parcelas = {} } = d;
   const today  = new Date().toISOString().slice(0, 10);
   const overdue = (leads.leads || [])
     .filter(l => l.followup && l.followup < today && !['fechado','perdido'].includes(l.status))
@@ -1236,6 +1385,44 @@ async function renderDash(el) {
         </tr>`;
       }).join('')
     : `<tr><td colspan="5" class="dd-empty">Nenhum follow-up atrasado</td></tr>`;
+
+  // ── alertas de parcela ──────────────────────────────────────────────────────
+  // `dias` vem calculado do backend: atraso em `vencidas`, prazo em `a_vencer`.
+  function parcRows(lista, modo) {
+    if (!lista.length) {
+      return `<tr><td colspan="5" class="dd-empty">${
+        modo === 'vencidas' ? 'Nada em atraso' : `Nada vencendo em ${parcelas.alerta_dias || 15} dias`
+      }</td></tr>`;
+    }
+    return lista.map(f => {
+      const badge = modo === 'vencidas'
+        ? `<span class="${f.dias > 7 ? 'dd-badge-red' : 'dd-badge-amber'}">${f.dias}d</span>`
+        : f.dias === 0 ? `<span class="dd-badge-red">Hoje!</span>`
+        : f.dias === 1 ? `<span class="dd-badge-amber">Amanhã</span>`
+        : `<span class="dd-badge-gray">${f.dias}d</span>`;
+      const quem = [
+        `<strong>${esc(f.cliente_nome || '—')}</strong>`,
+        f.descricao ? `<div class="fin-sub">${esc(f.descricao)}</div>` : '',
+      ].join('');
+      return `<tr>
+        <td>${quem}</td>
+        <td>${f.parcela_total > 1 ? `<span class="fin-parc">${f.parcela_num}/${f.parcela_total}</span>` : '—'}</td>
+        <td class="fin-num">${fmtR(f.valor)}</td>
+        <td>${badge}</td>
+        <td><button class="btn btn-ghost btn-sm" style="color:#6FE59B;border-color:#262220;font-size:11px"
+                    onclick="faturaPagarDash('${f.id}')">✓ Pagar</button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // "mostrando 12 de 14" — as listas vêm limitadas, os totais não
+  function parcHeader(titulo, qtd, total, mostrados, cls) {
+    const extra = qtd > mostrados ? ` <span style="color:#4A6278">(${mostrados} de ${qtd})</span>` : '';
+    return `<div class="dd-ph">
+      <span>${titulo}${extra}</span>
+      ${qtd > 0 ? `<span class="${cls}">${qtd} · ${fmtR(total)}</span>` : ''}
+    </div>`;
+  }
 
   const bRows = aniversariantes.length
     ? aniversariantes.map(c => {
@@ -1337,6 +1524,25 @@ async function renderDash(el) {
             </div>
           `).join('')}
         </div>
+      </div>
+    </div>
+
+    <div class="dd-row dd-row2eq">
+      <div class="dd-panel">
+        ${parcHeader('Parcelas Vencidas', parcelas.qtd_vencidas || 0, parcelas.total_vencidas || 0,
+                     (parcelas.vencidas || []).length, 'dd-badge-red')}
+        <table class="dd-table">
+          <thead><tr><th>Cliente / Receita</th><th>Parc.</th><th>Valor</th><th>Atraso</th><th></th></tr></thead>
+          <tbody>${parcRows(parcelas.vencidas || [], 'vencidas')}</tbody>
+        </table>
+      </div>
+      <div class="dd-panel">
+        ${parcHeader(`Vencendo em ${parcelas.alerta_dias || 15} dias`, parcelas.qtd_a_vencer || 0,
+                     parcelas.total_a_vencer || 0, (parcelas.a_vencer || []).length, 'dd-badge-amber')}
+        <table class="dd-table">
+          <thead><tr><th>Cliente / Receita</th><th>Parc.</th><th>Valor</th><th>Prazo</th><th></th></tr></thead>
+          <tbody>${parcRows(parcelas.a_vencer || [], 'a_vencer')}</tbody>
+        </table>
       </div>
     </div>
 
@@ -1681,10 +1887,17 @@ async function converterEmCliente(leadId) {
 }
 
 // ── financeiro ─────────────────────────────────────────────────────────────────
-let _finTab    = 'faturas';   // faturas | despesas
+let _finTab    = 'faturas';   // faturas | clientes | despesas
 let _finMes    = currentMesJS();
 let _faturas   = [];
 let _despesas  = [];
+let _receitas  = null;        // consolidado por cliente, da aba "Por Cliente"
+
+const FIN_TABS = [
+  { key: 'faturas',  label: 'Faturas' },
+  { key: 'clientes', label: 'Por Cliente' },
+  { key: 'despesas', label: 'Despesas' },
+];
 
 function currentMesJS() {
   const d = new Date();
@@ -1697,21 +1910,20 @@ async function renderFinanceiro(el) {
 }
 
 function buildFinShell() {
-  return `
-    <div class="fin-tabs">
-      <span class="fin-tab ${_finTab==='faturas'?'active':''}"  onclick="switchMainFinTab('faturas')">Faturas</span>
-      <span class="fin-tab ${_finTab==='despesas'?'active':''}" onclick="switchMainFinTab('despesas')">Despesas</span>
-    </div>
-    <div id="fin-body"></div>`;
+  const tabs = FIN_TABS.map(t =>
+    `<span class="fin-tab ${_finTab === t.key ? 'active' : ''}" data-ft="${t.key}"
+           onclick="switchMainFinTab('${t.key}')">${t.label}</span>`
+  ).join('');
+  return `<div class="fin-tabs">${tabs}</div><div id="fin-body"></div>`;
 }
 
 async function switchMainFinTab(tab) {
   _finTab = tab;
-  document.querySelectorAll('.fin-tab').forEach(t =>
-    t.classList.toggle('active', t.textContent.toLowerCase().startsWith(tab))
+  // marca pelo data-ft, não pelo texto do botão — "Por Cliente" não começa com "clientes"
+  document.querySelectorAll('.fin-tab[data-ft]').forEach(t =>
+    t.classList.toggle('active', t.dataset.ft === tab)
   );
-  document.getElementById('pg-actions').innerHTML =
-    `<button class="btn btn-primary btn-sm" onclick="openFinModal()">+ Lançar</button>`;
+  document.getElementById('pg-actions').innerHTML = ACTIONS.financeiro;
   await loadFinTab();
 }
 
@@ -1720,6 +1932,7 @@ async function loadFinTab() {
   if (!el) return;
   el.innerHTML = '<div class="loading">Carregando…</div>';
   if (_finTab === 'faturas')  await renderFaturas(el);
+  if (_finTab === 'clientes') await renderReceitasClientes(el);
   if (_finTab === 'despesas') await renderDespesas(el);
 }
 
@@ -1735,9 +1948,13 @@ async function renderFaturas(el) {
   }
 }
 
+// Vencimento de uma fatura, com fallback pro mês das faturas anteriores à 0024.
+function fVenc(f) { return f.vencimento || (f.mes ? `${f.mes}-01` : ''); }
+
 function buildFaturasView(faturas, kpis, mes) {
   const [y, m] = mes.split('-');
   const mesLabel = new Date(+y, +m-1, 1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  const hoje = new Date().toISOString().slice(0, 10);
 
   const rows = faturas.length
     ? faturas.map(f => {
@@ -1752,23 +1969,45 @@ function buildFaturasView(faturas, kpis, mes) {
              <button class="btn btn-ghost btn-sm" onclick="faturaDesfazer('${f.id}')">↩ Desfazer</button>`
           : `<button class="btn btn-ghost btn-sm" onclick="faturaDesfazer('${f.id}')">↩ Desfazer</button>`;
         const actions = `<button class="btn btn-ghost btn-sm" onclick="editFatura('${f.id}')">✏️ Editar</button> ${statusActions}`;
+
+        // só destaca atraso no que ainda não foi pago
+        const venc    = fVenc(f);
+        const atrasada = f.status !== 'pago' && venc && venc < hoje;
+        const vencCls = atrasada ? 'late' : '';
+
+        const sub = [
+          f.descricao ? esc(f.descricao) : '',
+          f.categoria ? `<span class="badge bg-gray" style="margin-left:6px">${esc(f.categoria)}</span>` : '',
+        ].filter(Boolean).join('');
+
         return `<tr>
-          <td><strong>${esc(f.cliente_nome || '—')}</strong></td>
-          <td>${fmtR(f.valor)}</td>
-          <td>${f.comissao != null ? fmtR(f.comissao) : '—'}</td>
+          <td class="fin-venc ${vencCls}">
+            ${venc ? fmtD(venc) : '—'}
+            ${atrasada ? `<div class="fin-sub" style="color:var(--red)">atrasada</div>` : ''}
+          </td>
+          <td>
+            <strong>${esc(f.cliente_nome || '—')}</strong>
+            ${sub ? `<div class="fin-sub">${sub}</div>` : ''}
+          </td>
+          <td>${f.parcela_total > 1 ? `<span class="fin-parc">${f.parcela_num}/${f.parcela_total}</span>` : '—'}</td>
+          <td class="fin-num">${fmtR2(f.valor)}</td>
+          <td class="fin-num">${f.comissao != null ? fmtR2(f.comissao) : '—'}</td>
           <td>${esc(pagamento)}</td>
-          <td><span class="badge ${stBadge}">${stLabel}</span></td>
-          <td>${f.data_pagamento ? fmtD(f.data_pagamento) : '—'}</td>
+          <td>
+            <span class="badge ${stBadge}">${stLabel}</span>
+            ${f.data_pagamento ? `<div class="fin-sub">${fmtD(f.data_pagamento)}</div>` : ''}
+          </td>
           <td><div class="fin-actions">${actions}</div></td>
         </tr>`;
       }).join('')
-    : `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Nenhuma fatura em ${mesLabel}</td></tr>`;
+    : `<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--muted)">Nenhum lançamento em ${mesLabel}</td></tr>`;
 
   return `
     <div class="month-nav">
       <button onclick="navMes(-1)">‹</button>
       <span class="month-label">${mesLabel.charAt(0).toUpperCase()+mesLabel.slice(1)}</span>
       <button onclick="navMes(1)">›</button>
+      <span class="filter-count">${kpis?.lancamentos || 0} lançamento${(kpis?.lancamentos || 0) === 1 ? '' : 's'}</span>
     </div>
     <div class="fin-kpis">
       <div class="fin-kpi">
@@ -1783,9 +2022,16 @@ function buildFaturasView(faturas, kpis, mes) {
         <div class="fin-kpi-label">Vencido</div>
         <div class="fin-kpi-value" style="color:var(--red)">${fmtR(kpis?.vencido||0)}</div>
       </div>
+      <div class="fin-kpi">
+        <div class="fin-kpi-label">Comissão do mês</div>
+        <div class="fin-kpi-value" style="color:#B983FF">${fmtR(kpis?.comissao||0)}</div>
+      </div>
     </div>
     <table class="fin-table">
-      <thead><tr><th>Cliente</th><th>Valor bruto</th><th>Comissão</th><th>Pagamento</th><th>Status</th><th>Pago em</th><th>Ações</th></tr></thead>
+      <thead><tr>
+        <th>Vencimento</th><th>Cliente / Receita</th><th>Parcela</th>
+        <th>Valor bruto</th><th>Comissão</th><th>Pagamento</th><th>Status</th><th>Ações</th>
+      </tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
 }
@@ -1797,27 +2043,197 @@ function navMes(delta) {
   loadFinTab();
 }
 
-async function faturaPagar(id) {
+// Ações de status. `recarregar` é false quando a chamada vem do dashboard, que
+// recarrega a si mesmo em vez da aba do financeiro.
+async function faturaAcao(id, action, msg, recarregar = true) {
   try {
-    await api(`/api/crm/faturas/${id}`, { method:'PUT', body: JSON.stringify({ action:'pagar' }) });
-    toast('Fatura marcada como paga ✓', 'ok');
-    loadFinTab();
-  } catch (e) { toast('Erro: '+e.message, 'err'); }
+    await api(`/api/crm/faturas/${id}`, { method:'PUT', body: JSON.stringify({ action }) });
+    _receitas = null;   // o consolidado por cliente depende do status
+    toast(msg, 'ok');
+    if (recarregar) loadFinTab();
+    return true;
+  } catch (e) { toast('Erro: '+e.message, 'err'); return false; }
 }
-async function faturaVencer(id) {
+
+const faturaPagar    = (id) => faturaAcao(id, 'pagar',    'Lançamento marcado como pago ✓');
+const faturaVencer   = (id) => faturaAcao(id, 'vencer',   'Lançamento marcado como vencido');
+const faturaDesfazer = (id) => faturaAcao(id, 'desfazer', 'Status desfeito');
+
+// usada pelos painéis de alerta do dashboard
+async function faturaPagarDash(id) {
+  if (await faturaAcao(id, 'pagar', 'Parcela marcada como paga ✓', false)) load('dashboard');
+}
+
+// ── RECEITA POR CLIENTE ───────────────────────────────────────────────────────
+// Consolida tudo que cada pessoa já gerou, atravessando meses e fontes. A aba
+// Faturas responde "o que entra neste mês"; esta responde "quanto vale o cliente".
+const CAT_CORES = ['#E3522A','#4A9FE0','#4ADE80','#B983FF','#F7B84B','#8497AC','#FC8181'];
+function catCor(nome) {
+  const i = CATEGORIAS_RECEITA.indexOf(nome);
+  return CAT_CORES[(i >= 0 ? i : String(nome||'').length) % CAT_CORES.length];
+}
+
+async function renderReceitasClientes(el) {
   try {
-    await api(`/api/crm/faturas/${id}`, { method:'PUT', body: JSON.stringify({ action:'vencer' }) });
-    toast('Fatura marcada como vencida', 'ok');
-    loadFinTab();
-  } catch (e) { toast('Erro: '+e.message, 'err'); }
+    _receitas = await api('/api/crm/receitas');
+    el.innerHTML = buildReceitasView(_receitas);
+  } catch (e) {
+    el.innerHTML = `<div class="empty">Erro: ${esc(e.message)}</div>`;
+  }
 }
-async function faturaDesfazer(id) {
+
+function buildReceitasView(d) {
+  const lista  = d.clientes || [];
+  const t      = d.totais   || {};
+  const comRec = lista.filter(c => c.lancamentos > 0);
+
+  const rows = comRec.length
+    ? lista.map(c => {
+        const zero = !c.lancamentos;
+        return `<tr style="${zero ? 'opacity:.45' : ''}">
+          <td>
+            <strong>${esc(c.nome)}</strong>
+            ${c.fontes > 1 ? `<div class="fin-sub">${c.fontes} fontes de receita</div>` : ''}
+          </td>
+          <td class="fin-num">${c.lancamentos}</td>
+          <td class="fin-num">${fmtR(c.bruto)}</td>
+          <td class="fin-num" style="color:#B983FF">${fmtR(c.comissao)}</td>
+          <td class="fin-num" style="color:var(--green)">${c.recebido  ? fmtR(c.recebido)  : '—'}</td>
+          <td class="fin-num" style="color:var(--amber)">${c.a_receber ? fmtR(c.a_receber) : '—'}</td>
+          <td class="fin-num" style="color:var(--red)">${c.vencido    ? fmtR(c.vencido)    : '—'}</td>
+          <td>${zero ? '' : `<button class="btn btn-ghost btn-sm" onclick="openHistorico('${c.id}')">📜 Histórico</button>`}</td>
+        </tr>`;
+      }).join('')
+    : `<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--muted)">Nenhuma receita registrada ainda</td></tr>`;
+
+  return `
+    <div class="fin-kpis">
+      <div class="fin-kpi">
+        <div class="fin-kpi-label">Faturamento Total</div>
+        <div class="fin-kpi-value">${fmtR(t.bruto||0)}</div>
+      </div>
+      <div class="fin-kpi">
+        <div class="fin-kpi-label">Comissão Total</div>
+        <div class="fin-kpi-value" style="color:#B983FF">${fmtR(t.comissao||0)}</div>
+      </div>
+      <div class="fin-kpi">
+        <div class="fin-kpi-label">Já Recebido</div>
+        <div class="fin-kpi-value" style="color:var(--green)">${fmtR(t.recebido||0)}</div>
+      </div>
+      <div class="fin-kpi">
+        <div class="fin-kpi-label">Ticket Médio</div>
+        <div class="fin-kpi-value">${fmtR(t.ticket_medio||0)}</div>
+        <div class="fin-kpi-label" style="margin:8px 0 0;letter-spacing:.3px;text-transform:none;font-weight:500">
+          ${t.clientes_com_receita||0} cliente${(t.clientes_com_receita||0)===1?'':'s'} com receita
+        </div>
+      </div>
+    </div>
+    <table class="fin-table">
+      <thead><tr>
+        <th>Cliente</th><th>Lanç.</th><th>Bruto</th><th>Comissão</th>
+        <th>Recebido</th><th>A receber</th><th>Vencido</th><th></th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+async function openHistorico(clienteId) {
+  const ov = document.getElementById('ov-hist');
+  document.getElementById('hist-body').innerHTML = '<div class="loading">Carregando…</div>';
+  document.getElementById('hist-title').textContent = 'Histórico de receitas';
+  ov.classList.remove('hidden');
   try {
-    await api(`/api/crm/faturas/${id}`, { method:'PUT', body: JSON.stringify({ action:'desfazer' }) });
-    toast('Status desfeito', 'ok');
-    loadFinTab();
-  } catch (e) { toast('Erro: '+e.message, 'err'); }
+    const d = await api(`/api/crm/receitas?cliente_id=${encodeURIComponent(clienteId)}`);
+    if (d.error) throw new Error(d.error);
+    document.getElementById('hist-title').textContent = `Receitas · ${d.cliente.nome}`;
+    document.getElementById('hist-body').innerHTML = buildHistoricoView(d);
+  } catch (e) {
+    document.getElementById('hist-body').innerHTML = `<div class="empty">Erro: ${esc(e.message)}</div>`;
+  }
 }
+
+function buildHistoricoView(d) {
+  const t     = d.totais || {};
+  const hoje  = new Date().toISOString().slice(0, 10);
+  const cats  = d.por_categoria || [];
+  const bruto = t.bruto || 0;
+
+  const barra = bruto
+    ? `<div class="fin-bar">${cats.map(c =>
+        `<div class="fin-bar-seg" style="width:${((c.bruto/bruto)*100).toFixed(2)}%;background:${catCor(c.categoria)}"
+              title="${esc(c.categoria)}: ${fmtR(c.bruto)}"></div>`).join('')}</div>`
+    : '';
+
+  const catList = cats.length
+    ? `<div class="hist-cats">${cats.map(c => `
+        <div class="hist-cat">
+          <div class="hist-cat-dot" style="background:${catCor(c.categoria)};color:${catCor(c.categoria)}"></div>
+          <div class="hist-cat-lbl">${esc(c.categoria)} <span style="color:#4A6278">· ${c.lancamentos}×</span></div>
+          <div class="hist-cat-val">${fmtR(c.bruto)}</div>
+        </div>`).join('')}</div>`
+    : '';
+
+  const rows = (d.faturas || []).map(f => {
+    const stBadge = { pendente:'bg-amber', pago:'bg-green', vencido:'bg-red' }[f.status] || 'bg-gray';
+    const stLabel = { pendente:'Pendente', pago:'Pago', vencido:'Vencido' }[f.status] || f.status;
+    const venc    = fVenc(f);
+    const atrasada = f.status !== 'pago' && venc && venc < hoje;
+    return `<tr>
+      <td class="fin-venc ${atrasada ? 'late' : ''}">${venc ? fmtD(venc) : '—'}</td>
+      <td>
+        ${esc(f.descricao || '—')}
+        ${f.categoria ? `<div class="fin-sub">${esc(f.categoria)}</div>` : ''}
+      </td>
+      <td>${f.parcela_total > 1 ? `<span class="fin-parc">${f.parcela_num}/${f.parcela_total}</span>` : '—'}</td>
+      <td class="fin-num">${fmtR2(f.valor)}</td>
+      <td class="fin-num">${f.comissao != null ? fmtR2(f.comissao) : '—'}</td>
+      <td><span class="badge ${stBadge}">${stLabel}</span></td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="fin-kpis" style="margin-bottom:18px">
+      <div class="fin-kpi">
+        <div class="fin-kpi-label">Bruto</div>
+        <div class="fin-kpi-value">${fmtR(t.bruto||0)}</div>
+      </div>
+      <div class="fin-kpi">
+        <div class="fin-kpi-label">Comissão</div>
+        <div class="fin-kpi-value" style="color:#B983FF">${fmtR(t.comissao||0)}</div>
+      </div>
+      <div class="fin-kpi">
+        <div class="fin-kpi-label">Recebido</div>
+        <div class="fin-kpi-value" style="color:var(--green)">${fmtR(t.recebido||0)}</div>
+      </div>
+      <div class="fin-kpi">
+        <div class="fin-kpi-label">Em aberto</div>
+        <div class="fin-kpi-value" style="color:var(--amber)">${fmtR((t.a_receber||0)+(t.vencido||0))}</div>
+      </div>
+    </div>
+
+    ${cats.length ? `
+    <div class="field">
+      <label>Fontes de receita</label>
+      ${barra}
+      <div style="margin-top:14px">${catList}</div>
+    </div>` : ''}
+
+    <div class="field">
+      <label>Lançamentos · ${t.lancamentos || 0}</label>
+      <table class="fin-table">
+        <thead><tr><th>Vencimento</th><th>Receita</th><th>Parcela</th><th>Bruto</th><th>Comissão</th><th>Status</th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Sem lançamentos</td></tr>`}</tbody>
+      </table>
+    </div>`;
+}
+
+function closeHistModal() {
+  document.getElementById('ov-hist').classList.add('hidden');
+}
+
+document.getElementById('ov-hist').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeHistModal();
+});
 
 // ── DESPESAS ──────────────────────────────────────────────────────────────────
 async function renderDespesas(el) {
@@ -1868,17 +2284,29 @@ async function openFinModal(type) {
   const cr = await api('/api/crm/clientes?limit=500').catch(()=>({clientes:[]}));
   const opts = (cr.clientes||[]).map(c=>`<option value="${c.id}">${esc(c.nome)}</option>`).join('');
   document.getElementById('ff-cliente').innerHTML = `<option value="">Selecione</option>${opts}`;
+  // opções de pagamento e categoria vindas da config
+  document.getElementById('ff-forma').innerHTML =
+    `<option value="">—</option>` + FORMAS_PAGAMENTO.map(f => `<option value="${esc(f)}">${esc(f)}</option>`).join('');
+  document.getElementById('ff-categoria').innerHTML =
+    `<option value="">—</option>` + CATEGORIAS_RECEITA.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
   // defaults
   document.getElementById('ff-id').value       = '';
   document.getElementById('ff-cliente').disabled = false;
-  document.getElementById('ff-mes').value      = _finMes;
-  document.getElementById('ff-mes').disabled   = false;
+  document.getElementById('ff-desc').value     = '';
+  document.getElementById('ff-categoria').value = '';
   document.getElementById('ff-valor').value    = '';
   document.getElementById('ff-comissao').value = '';
   document.getElementById('ff-status').value   = 'pendente';
   document.getElementById('ff-status').disabled = false;
   document.getElementById('ff-forma').value    = '';
-  document.getElementById('ff-condicao').value = '';
+  document.getElementById('ff-condicao').value = 'À vista';
+  document.getElementById('ff-condicao').disabled = false;
+  document.getElementById('ff-parcelas').value = '2';
+  // vencimento default: hoje se o mês aberto é o corrente, senão dia 1 daquele mês
+  document.getElementById('ff-venc').value = _finMes === currentMesJS()
+    ? new Date().toISOString().slice(0, 10)
+    : `${_finMes}-01`;
+  toggleParcelamento();
   document.getElementById('fd-id').value     = '';
   document.getElementById('fd-item').value   = '';
   document.getElementById('fd-valor').value  = '';
@@ -1908,19 +2336,69 @@ function editFatura(id) {
   const f = _faturas.find(x => x.id === id);
   if (!f) return;
   openFinModal('fatura').then(() => {
-    document.getElementById('ff-id').value        = f.id;
+    document.getElementById('ff-id').value         = f.id;
     document.getElementById('ff-cliente').value    = f.cliente_id;
     document.getElementById('ff-cliente').disabled = true;   // cliente não é editável depois de criada
-    document.getElementById('ff-mes').value        = f.mes;
-    document.getElementById('ff-mes').disabled      = true;   // mês não é editável aqui (usa ‹ › pra navegar)
+    document.getElementById('ff-desc').value       = f.descricao || '';
+    document.getElementById('ff-categoria').value  = f.categoria || '';
+    document.getElementById('ff-venc').value       = fVenc(f);
     document.getElementById('ff-valor').value      = f.valor;
     document.getElementById('ff-comissao').value   = f.comissao ?? '';
     document.getElementById('ff-status').value     = f.status;
     document.getElementById('ff-status').disabled  = true;    // status muda pelos botões ✓ Pagar / ⚠ Vencer / ↩ Desfazer
     document.getElementById('ff-forma').value      = f.forma_pagamento || '';
-    document.getElementById('ff-condicao').value   = f.condicao_pagamento || '';
-    document.getElementById('fin-title').textContent = 'Editar Fatura';
+    // editar altera UMA parcela — o parcelamento se define na criação
+    document.getElementById('ff-condicao').value    = f.condicao_pagamento || 'À vista';
+    document.getElementById('ff-condicao').disabled = true;
+    toggleParcelamento();
+    const titulo = f.parcela_total > 1
+      ? `Editar parcela ${f.parcela_num}/${f.parcela_total}`
+      : 'Editar lançamento';
+    document.getElementById('fin-title').textContent = titulo;
   });
+}
+
+// Parcelado só faz sentido na criação: mostra o nº de parcelas e troca o rótulo
+// do vencimento pro da primeira. Na edição o campo fica travado.
+function toggleParcelamento() {
+  const editando  = !!document.getElementById('ff-id').value;
+  const parcelado = document.getElementById('ff-condicao').value === 'Parcelado' && !editando;
+  document.getElementById('ff-parcelas-wrap').style.display = parcelado ? '' : 'none';
+  document.getElementById('ff-venc-lbl').textContent = parcelado ? '1º vencimento *' : 'Vencimento *';
+  // status inicial não se aplica a um parcelamento: tudo nasce pendente
+  document.getElementById('ff-status-wrap').style.display = parcelado ? 'none' : '';
+  previewParcelas();
+}
+
+function previewParcelas() {
+  const el = document.getElementById('ff-parc-preview');
+  const parcelado = document.getElementById('ff-condicao').value === 'Parcelado'
+                 && !document.getElementById('ff-id').value;
+  const total = parseFloat(document.getElementById('ff-valor').value) || 0;
+  const n     = parseInt(document.getElementById('ff-parcelas').value) || 0;
+  const venc  = document.getElementById('ff-venc').value;
+  if (!parcelado || !total || n < 2 || !venc) { el.classList.add('hidden'); return; }
+
+  // mesma divisão de centavos do backend (contratos.js): sobra nas primeiras
+  const cents = Math.round(total * 100);
+  const base  = Math.floor(cents / n);
+  const rest  = cents - base * n;
+  const v1    = (base + (rest > 0 ? 1 : 0)) / 100;
+  const vn    = base / 100;
+  const ultima = addMonthsYmd(venc, n - 1);
+
+  el.classList.remove('hidden');
+  el.textContent = rest > 0
+    ? `${n}× de ${fmtR2(vn)} · 1ª de ${fmtR2(v1)} · ${fmtD(venc)} → ${fmtD(ultima)}`
+    : `${n}× de ${fmtR2(vn)} · ${fmtD(venc)} → ${fmtD(ultima)}`;
+}
+
+// Soma n meses a 'YYYY-MM-DD' preservando o dia, caindo no último dia do mês
+// quando ele não existe — espelha addMonthsUTC do contratos.js.
+function addMonthsYmd(ymd, n) {
+  const [y, m, d] = ymd.split('-').map(Number);
+  const last = new Date(Date.UTC(y, m - 1 + n + 1, 0)).getUTCDate();
+  return new Date(Date.UTC(y, m - 1 + n, Math.min(d, last))).toISOString().slice(0, 10);
 }
 
 function switchFinTab(tab) {
@@ -1929,7 +2407,7 @@ function switchFinTab(tab) {
     document.getElementById(`ftab-${t}`)?.classList.toggle('active', t === tab);
     document.getElementById(`fin-${t}-fields`).style.display = t === tab ? '' : 'none';
   });
-  const titles = { fatura:'Nova Fatura', despesa:'Nova Despesa' };
+  const titles = { fatura:'Novo Lançamento', despesa:'Nova Despesa' };
   document.getElementById('fin-title').textContent = titles[tab];
 }
 
@@ -1946,33 +2424,56 @@ async function saveFinItem() {
     if (_finModalTab === 'fatura') {
       const editId      = document.getElementById('ff-id').value;
       const cliente_id  = document.getElementById('ff-cliente').value;
-      const mes         = document.getElementById('ff-mes').value;
+      const vencimento  = document.getElementById('ff-venc').value;
       const valor       = parseFloat(document.getElementById('ff-valor').value);
       const comissaoRaw = document.getElementById('ff-comissao').value;
       const comissao    = comissaoRaw !== '' ? parseFloat(comissaoRaw) : null;
       const status      = document.getElementById('ff-status').value;
+      const descricao   = document.getElementById('ff-desc').value.trim() || null;
+      const categoria   = document.getElementById('ff-categoria').value || null;
       const forma_pagamento    = document.getElementById('ff-forma').value    || null;
       const condicao_pagamento = document.getElementById('ff-condicao').value || null;
-      if (!cliente_id || !mes || !valor) { toast('Preencha todos os campos obrigatórios', 'err'); return; }
+      const parcelado   = !editId && condicao_pagamento === 'Parcelado';
+      const nParcelas   = parseInt(document.getElementById('ff-parcelas').value) || 0;
+
+      if (!cliente_id || !vencimento || !valor) { toast('Preencha cliente, vencimento e valor', 'err'); return; }
+      if (comissao != null && comissao > valor) { toast('A comissão não pode passar do valor bruto', 'err'); return; }
+      if (parcelado && nParcelas < 2) { toast('Um parcelamento precisa de pelo menos 2 parcelas', 'err'); return; }
+
       if (editId) {
-        // edit existing fatura: valor/comissão/forma/condição are directly updatable;
-        // cliente/mês/status are locked in the UI (status changes via ✓/⚠/↩ actions)
+        // edita UMA parcela: valor, comissão, vencimento, descrição, categoria e forma.
+        // cliente e condição ficam travados; status muda pelos botões ✓/⚠/↩.
         await api(`/api/crm/faturas/${editId}`, { method:'PUT', body: JSON.stringify({
-          valor, comissao, forma_pagamento, condicao_pagamento,
+          valor, comissao, vencimento, descricao, categoria, forma_pagamento,
         })});
-        toast('Fatura atualizada ✓', 'ok');
-      } else {
-        // create contrato (Único) which auto-generates a fatura as 'pendente'
+        toast('Lançamento atualizado ✓', 'ok');
+      } else if (parcelado) {
+        // um contrato Parcelado gera as N parcelas de uma vez, todas pendentes
         const rc = await api('/api/crm/contratos', { method:'POST', body: JSON.stringify({
-          cliente_id, valor, recorrencia:'Único', data_inicio: mes+'-01',
+          cliente_id, valor, recorrencia:'Parcelado', num_parcelas: nParcelas,
+          data_inicio: vencimento, descricao, categoria,
           comissao_estimada: comissao, forma_pagamento_prevista: forma_pagamento,
         })});
-        // apply condicao_pagamento and/or non-pending status on the just-created fatura
+        toast(`${rc.faturas_geradas} parcelas criadas ✓`, 'ok');
+        // leva a visão pro mês da primeira parcela, pra elas ficarem visíveis
+        _finMes = vencimento.slice(0, 7);
+      } else {
+        // lançamento à vista: contrato Único com uma fatura
+        const rc = await api('/api/crm/contratos', { method:'POST', body: JSON.stringify({
+          cliente_id, valor, recorrencia:'Único', data_inicio: vencimento,
+          descricao, categoria,
+          comissao_estimada: comissao, forma_pagamento_prevista: forma_pagamento,
+        })});
         const novaId = rc.faturas?.[0]?.id;
-        if (novaId && condicao_pagamento) await api(`/api/crm/faturas/${novaId}`, { method:'PUT', body: JSON.stringify({ condicao_pagamento }) }).catch(()=>{});
-        if (novaId && status !== 'pendente') await api(`/api/crm/faturas/${novaId}`, { method:'PUT', body: JSON.stringify({ action: status === 'pago' ? 'pagar' : 'vencer' }) }).catch(()=>{});
-        toast('Fatura criada ✓', 'ok');
+        if (novaId && status !== 'pendente') {
+          await api(`/api/crm/faturas/${novaId}`, { method:'PUT', body: JSON.stringify({
+            action: status === 'pago' ? 'pagar' : 'vencer',
+          })}).catch(()=>{});
+        }
+        toast('Lançamento criado ✓', 'ok');
+        _finMes = vencimento.slice(0, 7);
       }
+      _receitas = null;   // invalida o consolidado por cliente
     } else {
       const id     = document.getElementById('fd-id').value;
       const item   = document.getElementById('fd-item').value.trim();
@@ -2000,6 +2501,116 @@ async function deleteFinItem() {
     await loadFinTab();
     toast('Despesa excluída', 'ok');
   } catch (e) { toast('Erro: '+e.message, 'err'); }
+}
+
+// ── EXPORTAÇÃO PRA EXCEL ──────────────────────────────────────────────────────
+// Gera .xlsx de verdade no navegador. SheetJS (~900KB) é carregado só no clique
+// — não faz sentido pesar o carregamento do CRM por um botão usado uma vez por mês.
+let _xlsxLoading = null;
+
+function loadSheetJS() {
+  if (window.XLSX) return Promise.resolve();
+  if (_xlsxLoading) return _xlsxLoading;
+  _xlsxLoading = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+    s.onload  = () => resolve();
+    s.onerror = () => { _xlsxLoading = null; reject(new Error('Falha ao carregar a biblioteca de planilha')); };
+    document.head.appendChild(s);
+  });
+  return _xlsxLoading;
+}
+
+async function exportFinanceiroXlsx(btn) {
+  const original = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.innerHTML = 'Gerando…'; }
+  try {
+    const [, ledger, receitas, despesas] = await Promise.all([
+      loadSheetJS(),
+      api('/api/crm/faturas?all=1'),
+      api('/api/crm/receitas'),
+      api('/api/crm/despesas'),
+    ]);
+
+    const faturas = ledger.faturas || [];
+    const wb = XLSX.utils.book_new();
+
+    // 1. Receitas — a planilha que o contador vai ler de fato
+    add(wb, 'Receitas', faturas.map(f => ({
+      'Vencimento':   fVenc(f),
+      'Cliente':      f.cliente_nome || '',
+      'Descrição':    f.descricao || '',
+      'Categoria':    f.categoria || '',
+      'Parcela':      f.parcela_total > 1 ? `${f.parcela_num}/${f.parcela_total}` : '',
+      'Valor bruto':  f.valor,
+      'Comissão':     f.comissao,
+      'Forma de pagamento': f.forma_pagamento || '',
+      'Condição':     f.condicao_pagamento || '',
+      'Status':       { pago:'Pago', pendente:'Pendente', vencido:'Vencido' }[f.status] || f.status,
+      'Pago em':      f.data_pagamento || '',
+      'Mês de referência': f.mes || '',
+    })), [13, 24, 30, 15, 10, 14, 14, 20, 12, 12, 13, 18]);
+
+    // 2. Consolidado por cliente
+    add(wb, 'Por Cliente', (receitas.clientes || [])
+      .filter(c => c.lancamentos > 0)
+      .map(c => ({
+        'Cliente':      c.nome,
+        'Lançamentos':  c.lancamentos,
+        'Fontes':       c.fontes,
+        'Bruto':        c.bruto,
+        'Comissão':     c.comissao,
+        'Recebido':     c.recebido,
+        'A receber':    c.a_receber,
+        'Vencido':      c.vencido,
+        'Primeira receita': c.primeira || '',
+        'Última receita':   c.ultima   || '',
+      })), [24, 13, 9, 14, 14, 14, 13, 13, 18, 18]);
+
+    // 3. Despesas
+    add(wb, 'Despesas', (despesas.despesas || []).map(d => ({
+      'Data':      d.data || '',
+      'Item':      d.item,
+      'Categoria': d.categoria || '',
+      'Período':   d.periodo,
+      'Valor':     d.valor,
+      'Fim':       d.data_fim || '',
+    })), [13, 32, 18, 12, 14, 13]);
+
+    // 4. Resumo — usa os mesmos totais que a aba Despesas mostra na tela,
+    // pra planilha e CRM nunca divergirem
+    const k  = ledger.kpis || {};
+    const td = despesas.totais || {};
+    add(wb, 'Resumo', [
+      { 'Indicador': 'Lançamentos de receita',  'Valor': k.lancamentos || 0 },
+      { 'Indicador': 'Faturamento bruto',       'Valor': k.bruto || 0 },
+      { 'Indicador': 'Comissão (líquido)',      'Valor': k.comissao || 0 },
+      { 'Indicador': 'Recebido',                'Valor': k.recebido || 0 },
+      { 'Indicador': 'A receber',               'Valor': k.a_receber || 0 },
+      { 'Indicador': 'Vencido',                 'Valor': k.vencido || 0 },
+      { 'Indicador': 'Custo mensal fixo',       'Valor': td.mensal || 0 },
+      { 'Indicador': 'Total de despesas ativas','Valor': td.total || 0 },
+      { 'Indicador': 'Resultado (comissão − despesas)', 'Valor': (k.comissao || 0) - (td.total || 0) },
+      { 'Indicador': 'Gerado em',               'Valor': new Date().toLocaleString('pt-BR') },
+    ], [36, 22]);
+
+    XLSX.writeFile(wb, `financeiro-${new Date().toISOString().slice(0, 10)}.xlsx`);
+    toast('Planilha gerada ✓', 'ok');
+  } catch (e) {
+    toast('Erro ao exportar: ' + e.message, 'err');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = original; }
+  }
+
+  // Monta uma aba a partir de objetos. Larguras em caracteres; aba vazia ganha
+  // uma linha de aviso pra planilha não abrir com uma guia em branco.
+  function add(wb, nome, linhas, larguras) {
+    const ws = linhas.length
+      ? XLSX.utils.json_to_sheet(linhas)
+      : XLSX.utils.aoa_to_sheet([['Sem registros']]);
+    if (linhas.length && larguras) ws['!cols'] = larguras.map(w => ({ wch: w }));
+    XLSX.utils.book_append_sheet(wb, ws, nome);
+  }
 }
 
 // ── tarefas ────────────────────────────────────────────────────────────────────
@@ -2390,7 +3001,11 @@ async function deleteCliente() {
 
 // ── formatters ─────────────────────────────────────────────────────────────────
 const SYM = { BRL:'R$', USD:'US$', EUR:'€' };
+// fmtR arredonda — para KPIs, dashboard e totais, onde centavo é ruído.
+// fmtR2 mostra centavos — para linhas de lançamento, onde a parcela de
+// R$ 3.333,34 precisa bater exatamente com o que vai pro contador.
 function fmtR(v)       { return 'R$ ' + Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+function fmtR2(v)      { return 'R$ ' + Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function fmtV(v, m='BRL') { return (SYM[m]||m) + ' ' + Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0}); }
 function fmtD(d)       { if (!d) return ''; const [y,m,dd]=d.split('-'); return `${dd}/${m}/${y}`; }
 function fmtDt(ts)     { if (!ts) return '—'; const d = new Date(ts * 1000); return d.toLocaleDateString('pt-BR',{month:'short',year:'numeric'}); }
@@ -2425,10 +3040,22 @@ async function renderPropostas(el) {
       ? `${fmtD(p.travel_start)}${p.travel_end ? ' → ' + fmtD(p.travel_end) : ''}`
       : '—';
     const valor = p.price_total ? fmtV(p.price_total, p.currency || 'BRL') : '—';
+    let parcs = [];
+    try { parcs = JSON.parse(p.installments || '[]'); } catch {}
+    const sincronizada = !!p.synced_contrato_id;
+    // só lança o que tem cronograma definido; já lançada vira selo, não botão
+    const btnSync = sincronizada
+      ? `<span class="badge bg-green" title="Já lançada no financeiro">✓ No financeiro</span>`
+      : parcs.length
+      ? `<button class="btn btn-ghost btn-sm" style="color:#6FE59B"
+                 title="Criar o contrato e as parcelas no financeiro"
+                 onclick="openSyncModal(${p.id})">💰 Lançar</button>`
+      : '';
     return `<tr>
       <td>
         <div style="font-weight:700;color:var(--text)">${esc(p.title)}</div>
         ${p.client_name ? `<div style="font-size:12px;color:var(--muted)">${esc(p.client_name)}</div>` : ''}
+        ${parcs.length ? `<div class="fin-sub">${parcs.length}× parcelado</div>` : ''}
       </td>
       <td>${dests.map(d => `<span style="background:var(--bg);border-radius:12px;padding:2px 8px;font-size:11.5px;display:inline-block;margin:1px">${esc(d)}</span>`).join('') || '—'}</td>
       <td style="font-size:12.5px;white-space:nowrap">${period}</td>
@@ -2437,6 +3064,7 @@ async function renderPropostas(el) {
       <td style="font-size:13px;color:var(--muted);text-align:center">${p.views || 0}</td>
       <td>
         <div class="fin-actions">
+          ${btnSync}
           <button class="btn btn-ghost btn-sm" title="Copiar link" onclick="copyPropLinkById('${esc(p.slug)}')">🔗</button>
           <button class="btn btn-ghost btn-sm" onclick="openProposalModal(${p.id})">✏️ Editar</button>
           <button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="deleteProposal(${p.id})">🗑</button>
@@ -2480,6 +3108,10 @@ function openProposalModal(id, prefill) {
   document.getElementById('mp-activities-total').classList.add('hidden');
   document.getElementById('mp-days').innerHTML = '';
   document.getElementById('mp-covers').innerHTML = '';
+  document.getElementById('mp-parcelas').innerHTML = '';
+  document.getElementById('mp-parc-n').value = '3';
+  document.getElementById('mp-parc-venc').value = '';
+  calcParcelas();
   document.getElementById('mp-margin-info').classList.add('hidden');
   document.getElementById('mp-link-preview').innerHTML = '<span style="font-size:12px">Preencha o slug para ver o link</span>';
   document.getElementById('mp-title').textContent = id ? 'Editar Proposta' : 'Nova Proposta';
@@ -2518,6 +3150,7 @@ async function loadProposalData(id) {
     document.getElementById('mp-excludes').value    = p.excludes || '';
     document.getElementById('mp-payment').value     = p.payment_info || '';
     document.getElementById('mp-notes').value       = p.internal_notes || '';
+    JSON.parse(p.installments || '[]').forEach(x => addParcelaRow(x));
     JSON.parse(p.cover_images || '[]').forEach(u => addCoverRow(u));
     document.getElementById('mp-desc').value        = p.description || '';
     document.getElementById('mp-cta1-lbl').value    = p.cta_primary_label || 'Quero reservar';
@@ -2529,6 +3162,7 @@ async function loadProposalData(id) {
     document.getElementById('mp-status').value      = p.status || 'draft';
     updateLinkPreview();
     calcMarginProp();
+    calcParcelas();
   } catch (e) { toast('Erro ao carregar proposta: ' + e.message, 'err'); }
 }
 
@@ -2747,6 +3381,89 @@ function copyPropLinkById(slug) {
   toast('Link copiado!');
 }
 
+// ── parcelamento da proposta ──────────────────────────────────────────────────
+// Define o cronograma antes de ir pro financeiro. Cada linha vira uma fatura
+// quando a proposta é lançada, com a data exata que foi digitada aqui.
+function addParcelaRow(data) {
+  data = data || {};
+  const d = document.createElement('div');
+  d.className = 'parc-grid parc-row';
+  d.innerHTML = `
+    <div class="parc-idx"></div>
+    <input class="pc-valor" type="number" min="0" step="0.01" placeholder="0,00"
+           value="${data.valor ?? ''}" oninput="calcParcelas()">
+    <input class="pc-venc" type="date" value="${esc(data.vencimento || '')}" oninput="calcParcelas()">
+    <input class="pc-obs parc-obs" type="text" placeholder="Ex: Entrada, saldo final…"
+           value="${esc(data.obs || '')}">
+    <button class="parc-del" title="Remover parcela"
+            onclick="this.closest('.parc-row').remove();calcParcelas()">×</button>`;
+  document.getElementById('mp-parcelas').appendChild(d);
+  calcParcelas();
+}
+
+function gerarParcelas() {
+  const n     = parseInt(document.getElementById('mp-parc-n').value) || 0;
+  const venc  = document.getElementById('mp-parc-venc').value;
+  const total = parseFloat(document.getElementById('mp-price-total').value) || 0;
+
+  if (!total)   { toast('Preencha o valor total primeiro', 'err'); return; }
+  if (n < 1)    { toast('Informe quantas parcelas', 'err'); return; }
+  if (!venc)    { toast('Informe o 1º vencimento', 'err'); return; }
+  if (document.querySelectorAll('#mp-parcelas .parc-row').length &&
+      !confirm('Isso substitui as parcelas que já estão na lista. Continuar?')) return;
+
+  // mesma divisão de centavos do backend: a sobra vai pras primeiras parcelas
+  const cents = Math.round(total * 100);
+  const base  = Math.floor(cents / n);
+  const rest  = cents - base * n;
+
+  document.getElementById('mp-parcelas').innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    addParcelaRow({
+      valor: (base + (i < rest ? 1 : 0)) / 100,
+      vencimento: addMonthsYmd(venc, i),
+      obs: n > 1 && i === 0 ? 'Entrada' : '',
+    });
+  }
+}
+
+function collectParcelas() {
+  return Array.from(document.querySelectorAll('#mp-parcelas .parc-row')).map(r => ({
+    valor:      parseFloat(r.querySelector('.pc-valor').value) || 0,
+    vencimento: r.querySelector('.pc-venc').value,
+    obs:        r.querySelector('.pc-obs').value.trim(),
+  }));
+}
+
+function calcParcelas() {
+  const rows = Array.from(document.querySelectorAll('#mp-parcelas .parc-row'));
+  rows.forEach((r, i) => { r.querySelector('.parc-idx').textContent = i + 1; });
+
+  document.getElementById('mp-parc-head').style.display = rows.length ? '' : 'none';
+  const el = document.getElementById('mp-parc-total');
+  if (!rows.length) { el.style.display = 'none'; return; }
+
+  const parcelas = collectParcelas();
+  const soma  = parcelas.reduce((a, p) => a + p.valor, 0);
+  const total = parseFloat(document.getElementById('mp-price-total').value) || 0;
+  const semData = parcelas.filter(p => !p.vencimento).length;
+  const dif = Math.round((soma - total) * 100) / 100;
+
+  const problemas = [];
+  if (semData) problemas.push(`${semData} parcela${semData > 1 ? 's' : ''} sem data de vencimento`);
+  if (total && dif !== 0) {
+    problemas.push(dif > 0
+      ? `${fmtR2(dif)} acima do valor total`
+      : `faltam ${fmtR2(-dif)} para fechar o valor total`);
+  }
+
+  el.style.display = '';
+  el.className = `parc-total ${problemas.length ? 'warn' : 'ok'}`;
+  el.textContent = problemas.length
+    ? `${rows.length}× · soma ${fmtR2(soma)} — ${problemas.join(' · ')}`
+    : `${rows.length}× · soma ${fmtR2(soma)}${total ? ' — fecha com o valor total ✓' : ''}`;
+}
+
 function calcMarginProp() {
   const total = parseFloat(document.getElementById('mp-price-total').value) || 0;
   const cost  = parseFloat(document.getElementById('mp-cost').value) || 0;
@@ -2822,6 +3539,8 @@ function collectProposalData() {
     flights,
     activities,
     itinerary,
+    // só guarda parcelas com data — uma linha sem vencimento não vira fatura
+    installments:        collectParcelas().filter(p => p.vencimento && p.valor > 0),
     price_total:         parseFloat(document.getElementById('mp-price-total').value) || null,
     price_per_person:    parseFloat(document.getElementById('mp-price-pp').value) || null,
     currency:            document.getElementById('mp-currency').value,
@@ -2873,7 +3592,126 @@ function proposalFromLead(id) {
   openProposalModal(null, l || null);
 }
 
-let _loadGen = 0;
+// ── lançar proposta no financeiro ─────────────────────────────────────────────
+// A proposta já traz o cronograma; o que falta é amarrar num cliente do CRM.
+// Daí vira um contrato Parcelado, e o backend gera uma fatura por parcela com a
+// data exata que foi digitada na proposta.
+let _syncProp = null;
+
+async function openSyncModal(id) {
+  try {
+    const p = await api(`/loja/api/admin/proposals?id=${id}`);
+    if (p.synced_contrato_id) { toast('Esta proposta já foi lançada no financeiro', 'err'); load('propostas'); return; }
+    const parcelas = JSON.parse(p.installments || '[]').filter(x => x.vencimento && x.valor > 0);
+    if (!parcelas.length) { toast('Defina as parcelas na aba Investimento antes de lançar', 'err'); return; }
+    _syncProp = { ...p, parcelas };
+
+    const cr = await api('/api/crm/clientes?limit=500').catch(() => ({ clientes: [] }));
+    const nome = (p.client_name || p.title || '').trim();
+    // casa pelo nome pra não duplicar cliente que já existe
+    const existente = (cr.clientes || []).find(c => c.nome.trim().toLowerCase() === nome.toLowerCase());
+    const opts = (cr.clientes || []).map(c => `<option value="${c.id}">${esc(c.nome)}</option>`).join('');
+    document.getElementById('sy-cliente').innerHTML =
+      (nome ? `<option value="__novo__">➕ Criar cliente "${esc(nome)}"</option>` : '') + opts;
+    document.getElementById('sy-cliente').value = existente ? existente.id : (nome ? '__novo__' : '');
+
+    document.getElementById('sy-forma').innerHTML =
+      `<option value="">—</option>` + FORMAS_PAGAMENTO.map(f => `<option value="${esc(f)}">${esc(f)}</option>`).join('');
+    document.getElementById('sy-categoria').innerHTML =
+      CATEGORIAS_RECEITA.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+    document.getElementById('sy-categoria').value = 'Consultoria';
+
+    document.getElementById('sy-prop-id').value = p.id;
+    document.getElementById('sy-desc').value = p.title || '';
+    // margem da proposta é a melhor estimativa de comissão que temos
+    const margem = (p.price_total || 0) - (p.internal_cost || 0);
+    document.getElementById('sy-comissao').value = p.internal_cost && margem > 0 ? margem.toFixed(2) : '';
+
+    const soma = parcelas.reduce((a, x) => a + x.valor, 0);
+    document.getElementById('sy-preview').innerHTML = `
+      <table class="fin-table">
+        <thead><tr><th>#</th><th>Vencimento</th><th>Valor</th><th>Observação</th></tr></thead>
+        <tbody>${parcelas.map((x, i) => `<tr>
+          <td class="fin-num">${i + 1}</td>
+          <td class="fin-venc">${fmtD(x.vencimento)}</td>
+          <td class="fin-num">${fmtR2(x.valor)}</td>
+          <td>${esc(x.obs || '—')}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+      <div class="parc-total ok" style="display:block">Total: ${fmtR2(soma)} em ${parcelas.length} parcela${parcelas.length > 1 ? 's' : ''}</div>`;
+
+    document.getElementById('ov-sync').classList.remove('hidden');
+  } catch (e) { toast('Erro: ' + e.message, 'err'); }
+}
+
+function closeSyncModal() {
+  document.getElementById('ov-sync').classList.add('hidden');
+  _syncProp = null;
+}
+
+document.getElementById('ov-sync').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeSyncModal();
+});
+
+async function confirmarSync() {
+  if (!_syncProp) return;
+  const btn = document.getElementById('sy-confirm');
+  const escolha = document.getElementById('sy-cliente').value;
+  if (!escolha) { toast('Escolha ou crie um cliente', 'err'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Lançando…';
+  try {
+    // relê a proposta: evita lançar duas vezes se outra aba já lançou
+    const atual = await api(`/loja/api/admin/proposals?id=${_syncProp.id}`);
+    if (atual.synced_contrato_id) throw new Error('Esta proposta já foi lançada no financeiro');
+
+    let cliente_id = escolha;
+    if (escolha === '__novo__') {
+      const nome = (_syncProp.client_name || _syncProp.title || '').trim();
+      const cr = await api('/api/crm/clientes', { method: 'POST', body: JSON.stringify({
+        nome, status: 'Ativo',
+        observacao: `Criado a partir da proposta "${_syncProp.title}"`,
+      })});
+      cliente_id = cr.cliente.id;
+    }
+
+    const comissaoRaw = document.getElementById('sy-comissao').value;
+    const rc = await api('/api/crm/contratos', { method: 'POST', body: JSON.stringify({
+      cliente_id,
+      recorrencia:  'Parcelado',
+      moeda:        _syncProp.currency || 'BRL',
+      descricao:    document.getElementById('sy-desc').value.trim() || _syncProp.title,
+      categoria:    document.getElementById('sy-categoria').value || null,
+      comissao_estimada: comissaoRaw !== '' ? parseFloat(comissaoRaw) : null,
+      forma_pagamento_prevista: document.getElementById('sy-forma').value || null,
+      parcelas:     _syncProp.parcelas,
+    })});
+
+    try {
+      await api('/loja/api/admin/proposals', { method: 'PATCH', body: JSON.stringify({
+        id: _syncProp.id, synced_contrato_id: rc.contrato.id,
+      })});
+    } catch {
+      // o contrato existe; só a marcação na proposta falhou. Avisa com o que
+      // é preciso saber pra não lançar de novo por engano.
+      toast(`Parcelas criadas, mas a proposta não ficou marcada. Confira no financeiro antes de lançar de novo (contrato ${rc.contrato.id.slice(0, 8)}).`, 'err');
+      closeSyncModal();
+      load('propostas');
+      return;
+    }
+
+    _receitas = null;
+    closeSyncModal();
+    toast(`${rc.faturas_geradas} parcelas lançadas no financeiro ✓`, 'ok');
+    load('propostas');
+  } catch (e) {
+    toast('Erro: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Lançar no financeiro';
+  }
+}
 
 // ── artigos ────────────────────────────────────────────────────────────────────
 let artQuill = null;
@@ -3023,6 +3861,13 @@ function toast(msg, type='ok') {
   document.getElementById('toast').append(el);
   setTimeout(() => el.remove(), 3200);
 }
+
+// ── boot ───────────────────────────────────────────────────────────────────────
+// Fica no fim de propósito. showApp() chama load() na hora quando a chave já
+// está no localStorage, e load() toca em `let`s declarados ao longo do arquivo
+// (_loadGen, _dashCharts, _finMes…). Com o boot no topo, a temporal dead zone
+// derrubava a primeira renderização a cada F5 de quem já estava logado.
+if (S.key) showApp();
 </script>
 </body>
 </html>

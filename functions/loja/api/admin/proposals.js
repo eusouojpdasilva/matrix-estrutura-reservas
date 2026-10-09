@@ -22,7 +22,8 @@ export async function onRequest({ request, env }) {
     }
     const { results } = await env.DB.prepare(
       `SELECT id,title,slug,status,client_name,destinations,travel_start,travel_end,
-              price_total,currency,expires_at,views,created_at
+              price_total,currency,expires_at,views,created_at,
+              installments,synced_contrato_id
        FROM proposals ORDER BY created_at DESC`
     ).all();
     return Response.json(results);
@@ -36,8 +37,8 @@ export async function onRequest({ request, env }) {
          hotels,flights,activities,price_total,price_per_person,currency,includes,excludes,payment_info,
          internal_cost,internal_notes,cover_images,description,
          cta_primary_label,cta_primary_url,cta_secondary_label,cta_secondary_url,
-         itinerary,expires_at)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+         itinerary,installments,expires_at)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
     ).bind(
       b.lead_id || null, b.client_name || '', b.title, b.slug, b.status || 'draft',
       JSON.stringify(b.destinations || []),
@@ -49,9 +50,25 @@ export async function onRequest({ request, env }) {
       JSON.stringify(b.cover_images || []), b.description || '',
       b.cta_primary_label || 'Quero reservar', b.cta_primary_url || '',
       b.cta_secondary_label || 'Tenho dúvidas', b.cta_secondary_url || '',
-      JSON.stringify(b.itinerary || []), b.expires_at || null
+      JSON.stringify(b.itinerary || []), JSON.stringify(b.installments || []),
+      b.expires_at || null
     ).run();
     return Response.json({ id: r.meta.last_row_id });
+  }
+
+  // Atualização parcial. Hoje serve pra marcar a proposta como lançada no
+  // financeiro sem reenviar o corpo inteiro da proposta.
+  if (method === 'PATCH') {
+    const b = await request.json();
+    if (!b.id) return Response.json({ error: 'id is required' }, { status: 400 });
+    const CAMPOS = ['status', 'synced_contrato_id'];
+    const campos = Object.keys(b).filter(k => CAMPOS.includes(k));
+    if (!campos.length) return Response.json({ error: 'No valid fields' }, { status: 400 });
+    await env.DB.prepare(
+      `UPDATE proposals SET ${campos.map(k => `${k}=?`).join(',')},updated_at=datetime('now') WHERE id=?`
+    ).bind(...campos.map(k => b[k]), b.id).run();
+    const row = await env.DB.prepare('SELECT * FROM proposals WHERE id=?').bind(b.id).first();
+    return Response.json(row);
   }
 
   if (method === 'PUT') {
@@ -63,7 +80,7 @@ export async function onRequest({ request, env }) {
         price_total=?,price_per_person=?,currency=?,includes=?,excludes=?,payment_info=?,
         internal_cost=?,internal_notes=?,cover_images=?,description=?,
         cta_primary_label=?,cta_primary_url=?,cta_secondary_label=?,cta_secondary_url=?,
-        itinerary=?,expires_at=?,updated_at=datetime('now')
+        itinerary=?,installments=?,expires_at=?,updated_at=datetime('now')
        WHERE id=?`
     ).bind(
       b.lead_id || null, b.client_name || '', b.title, b.slug, b.status || 'draft',
@@ -76,7 +93,8 @@ export async function onRequest({ request, env }) {
       JSON.stringify(b.cover_images || []), b.description || '',
       b.cta_primary_label || 'Quero reservar', b.cta_primary_url || '',
       b.cta_secondary_label || 'Tenho dúvidas', b.cta_secondary_url || '',
-      JSON.stringify(b.itinerary || []), b.expires_at || null,
+      JSON.stringify(b.itinerary || []), JSON.stringify(b.installments || []),
+      b.expires_at || null,
       b.id
     ).run();
     return Response.json({ ok: true });

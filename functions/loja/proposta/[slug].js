@@ -16,6 +16,12 @@ function fmtBRL(v) {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(v);
 }
 
+// com centavos: numa parcela de R$ 3.333,34 o centavo importa pro cliente
+function fmtBRL2(v) {
+  if (!v && v !== 0) return '';
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2 }).format(v);
+}
+
 function stars(n) {
   return '★'.repeat(Math.min(5, Math.max(0, n || 0))) + '☆'.repeat(5 - Math.min(5, Math.max(0, n || 0)));
 }
@@ -167,14 +173,30 @@ function condicoesHtml(p) {
   </section>`;
 }
 
-function investimentoHtml(p) {
+function investimentoHtml(p, installments) {
   const hasIncludes = p.includes && p.includes.trim();
   const hasExcludes = p.excludes && p.excludes.trim();
   const hasPrice = p.price_total || p.price_per_person;
   const hasCta = p.cta_primary_url || p.cta_secondary_url;
   const hasPayment = p.payment_info && p.payment_info.trim();
 
-  if (!hasIncludes && !hasExcludes && !hasPrice && !hasCta && !hasPayment) return '';
+  // só mostra parcelas completas — linha sem data ou sem valor não vai pro ar
+  const parcelas = (installments || []).filter(x => x && x.vencimento && x.valor > 0);
+  const hasParcelas = parcelas.length > 0;
+
+  if (!hasIncludes && !hasExcludes && !hasPrice && !hasCta && !hasPayment && !hasParcelas) return '';
+
+  const parcelasHtml = hasParcelas ? `
+    <div class="parcelas">
+      <div class="parcelas-head">${parcelas.length > 1 ? `Em até ${parcelas.length}×` : 'Pagamento'}</div>
+      ${parcelas.map((x, i) => `
+        <div class="parcela-row">
+          <span class="parcela-n">${parcelas.length > 1 ? `${i + 1}ª` : '·'}</span>
+          <span class="parcela-data">${fmtDate(x.vencimento)}</span>
+          ${x.obs ? `<span class="parcela-obs">${esc(x.obs)}</span>` : '<span class="parcela-obs"></span>'}
+          <span class="parcela-valor">${fmtBRL2(x.valor)}</span>
+        </div>`).join('')}
+    </div>` : '';
 
   const inclLines = hasIncludes
     ? p.includes.split('\n').filter(Boolean).map(l => `<li>${esc(l.replace(/^[•\-*]\s*/, ''))}</li>`).join('')
@@ -196,10 +218,11 @@ function investimentoHtml(p) {
         ${hasIncludes ? `<div class="incl-col"><div class="incl-head incl-yes">✓ Incluso</div><ul class="incl-list">${inclLines}</ul></div>` : ''}
         ${hasExcludes ? `<div class="incl-col"><div class="incl-head incl-no">✗ Não incluso</div><ul class="incl-list excl-list">${exclLines}</ul></div>` : ''}
       </div>` : ''}
-      ${hasPrice ? `
+      ${(hasPrice || hasParcelas) ? `
       <div class="price-card">
         ${p.price_total ? `<div class="price-total">${fmtBRL(p.price_total)}</div>` : ''}
         ${p.price_per_person && p.travelers > 1 ? `<div class="price-pp">${fmtBRL(p.price_per_person)} por pessoa · ${p.travelers} viajantes</div>` : (p.price_per_person ? `<div class="price-pp">${fmtBRL(p.price_per_person)} por pessoa</div>` : '')}
+        ${parcelasHtml}
         ${hasCta ? `
         <div class="cta-row">
           ${p.cta_primary_url ? `<a href="${esc(p.cta_primary_url)}" class="cta-btn cta-primary" target="_blank" rel="noopener">${esc(p.cta_primary_label || 'Quero reservar')}</a>` : ''}
@@ -257,7 +280,7 @@ function itinerarioHtml(itinerary) {
   </section>`;
 }
 
-function renderPage(p, { destinations, hotels, flights, activities, coverImages, itinerary }) {
+function renderPage(p, { destinations, hotels, flights, activities, coverImages, itinerary, installments }) {
   const hero = coverImages[0] || '';
   const dateRange = p.travel_start && p.travel_end
     ? `${fmtDate(p.travel_start)} → ${fmtDate(p.travel_end)}`
@@ -416,6 +439,15 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
     .cta-secondary:hover{border-color:var(--amber);color:var(--amber)}
     .payment-info{border-top:1px solid var(--border);padding-top:1.25rem;margin-top:1.25rem}
     .pay-line{font-size:.8rem;color:var(--muted);margin-bottom:.375rem}
+    .parcelas{border-top:1px solid var(--border);padding-top:1.25rem;margin:1.25rem 0 .5rem;text-align:left}
+    .parcelas-head{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.875rem;text-align:center}
+    .parcela-row{display:grid;grid-template-columns:2.2rem 1fr auto auto;gap:.6rem;align-items:baseline;padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.82rem}
+    .parcela-row:last-child{border-bottom:none}
+    .parcela-n{color:var(--amber);font-weight:700;font-size:.75rem}
+    .parcela-data{color:var(--muted)}
+    .parcela-obs{color:var(--muted);font-size:.72rem;font-style:italic;text-align:right}
+    .parcela-valor{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+    @media(max-width:560px){.parcela-row{grid-template-columns:1.8rem 1fr auto;gap:.4rem}.parcela-obs{display:none}}
 
     /* ITINERARY */
     .itinerary{display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:.75rem;overflow:hidden}
@@ -492,7 +524,7 @@ ${flightsHtml(flights)}
 ${hotelsHtml(hotels)}
 ${activitiesHtml(activities)}
 ${itinerarioHtml(itinerary)}
-${investimentoHtml(p)}
+${investimentoHtml(p, installments)}
 ${condicoesHtml(p)}
 
 ${hasMobileCta ? `
@@ -559,8 +591,9 @@ export async function onRequest({ params, env }) {
   const activities = safeJson(proposal.activities, []);
   const coverImages = safeJson(proposal.cover_images, []);
   const itinerary = safeJson(proposal.itinerary, []);
+  const installments = safeJson(proposal.installments, []);
 
-  return new Response(renderPage(proposal, { destinations, hotels, flights, activities, coverImages, itinerary }), {
+  return new Response(renderPage(proposal, { destinations, hotels, flights, activities, coverImages, itinerary, installments }), {
     headers: { 'content-type': 'text/html;charset=utf-8' }
   });
 }
