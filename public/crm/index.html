@@ -205,6 +205,10 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .nav-item.soon { opacity:.35; cursor:default; pointer-events:none; }
 .nav-item .icon { width:20px; text-align:center; font-size:14px; opacity:.9; }
 .nav-item .badge-soon { margin-left:auto; font-size:8.5px; background:rgba(255,255,255,.15); color:#fff; padding:2px 7px; border-radius:var(--r-full); letter-spacing:.6px; text-transform:uppercase; font-weight:600; }
+/* links que saem do CRM: são <a>, então precisam anular o estilo de link */
+.nav-externo { text-decoration:none; }
+.nav-externo .nav-ext-ico { margin-left:auto; font-size:11px; opacity:.5; }
+.nav-externo:hover .nav-ext-ico { opacity:.9; }
 .nav-logout { color:rgba(255,255,255,.72); }
 .nav-logout:hover { background:rgba(255,110,110,.22); color:#fff; }
 .sb-footer { padding:16px 20px; border-top:1px solid rgba(255,255,255,.15); font-size:10.5px; color:rgba(255,255,255,.45); font-family:var(--font-ui); letter-spacing:.3px; }
@@ -700,6 +704,18 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
       <div class="nav-item" data-m="guias" onclick="go('guias')">
         <span class="icon">📚</span> Guias
       </div>
+
+      <!-- Saem do CRM: abrem em nova aba. "Ver loja" só aparece para quem tem
+           guias cadastrados — ver atualizarLinksExternos(). -->
+      <div style="height:1px;background:rgba(255,255,255,.2);margin:10px 16px"></div>
+      <a class="nav-item nav-externo hidden" id="nav-loja" href="/loja" target="_blank" rel="noopener">
+        <span class="icon">🛍️</span> Ver loja
+        <span class="nav-ext-ico" aria-hidden="true">↗</span>
+      </a>
+      <a class="nav-item nav-externo" id="nav-dash" href="/dash" target="_blank" rel="noopener">
+        <span class="icon">📈</span> Dashboard
+        <span class="nav-ext-ico" aria-hidden="true">↗</span>
+      </a>
 
       <div style="height:1px;background:rgba(255,255,255,.2);margin:10px 16px"></div>
       <div class="nav-item nav-logout" onclick="doLogout()">
@@ -1515,6 +1531,7 @@ function showApp() {
   document.getElementById('login').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
   go('dashboard');
+  atualizarLinksExternos();
   setInterval(function() { load(S.mod); }, 60000);
 }
 
@@ -1574,6 +1591,29 @@ async function api(path, opts = {}, _key) {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
   return data;
+}
+
+// ── links que saem do CRM ─────────────────────────────────────────────────────
+// Loja e dashboard ficam na mesma barra lateral para não precisar guardar URL
+// nem rechave em outro lugar. "Ver loja" some para quem não vende guias — um
+// link morto é pior que a ausência dele.
+async function atualizarLinksExternos() {
+  // /dash aceita a chave por query param (mesma convenção do CRM, ver AGENTS.md)
+  const dash = document.getElementById('nav-dash');
+  if (dash && S.key) dash.href = `/dash?key=${encodeURIComponent(S.key)}`;
+
+  const loja = document.getElementById('nav-loja');
+  if (!loja) return;
+  try {
+    // endpoint público: a loja existe se há pelo menos um guia cadastrado,
+    // mesmo que ainda esteja "em breve".
+    // no-store porque /loja/api/guias responde com max-age=60: sem isso, cadastrar
+    // ou excluir um guia só mudaria o link um minuto depois.
+    const guias = await (await fetch('/loja/api/guias', { cache: 'no-store' })).json();
+    loja.classList.toggle('hidden', !Array.isArray(guias) || guias.length === 0);
+  } catch {
+    loja.classList.add('hidden');   // sem resposta, não arrisca link quebrado
+  }
 }
 
 // ── filtro de período ─────────────────────────────────────────────────────────
@@ -1657,7 +1697,20 @@ function setPeriodoCustom() {
 
 // ── dashboard ──────────────────────────────────────────────────────────────────
 let _dashCharts = [];
-function _destroyDash() { _dashCharts.forEach(c => c.destroy()); _dashCharts = []; }
+// Destrói o que está em _dashCharts e também qualquer gráfico que o Chart.js
+// ainda tenha preso a estes canvas. Os gráficos nascem dentro de um
+// requestAnimationFrame, então uma re-renderização rápida (trocar de período,
+// trocar de módulo e voltar) pode deixar uma instância órfã presa ao canvas —
+// e a próxima criação falha com "Canvas is already in use".
+function _destroyDash() {
+  _dashCharts.forEach(c => c.destroy());
+  _dashCharts = [];
+  if (typeof Chart === 'undefined') return;
+  ['ddFunil', 'ddDonut'].forEach(id => {
+    const canvas = document.getElementById(id);
+    if (canvas) Chart.getChart(canvas)?.destroy();
+  });
+}
 
 async function renderDash(el) {
   _destroyDash();
@@ -1889,6 +1942,9 @@ async function renderDash(el) {
   </div>`;
 
   requestAnimationFrame(() => {
+    // o frame pode chegar depois de o usuário já ter saído do dashboard ou
+    // trocado o período: aí o canvas desta renderização não vale mais
+    if (S.mod !== 'dashboard') return;
     const CHART_DEFAULTS = {
       tooltip: {
         backgroundColor: '#14181D',
@@ -4294,6 +4350,7 @@ async function saveGuia() {
     closeGuiaModal();
     toast('Guia salvo');
     load('guias');
+    atualizarLinksExternos();   // o primeiro guia faz "Ver loja" aparecer
   } catch(e) { toast(e.message || 'Erro ao salvar', 'err'); }
   finally { btn.textContent = 'Salvar guia'; btn.disabled = false; }
 }
@@ -4304,6 +4361,7 @@ async function deleteGuia(id) {
     await api(`/loja/api/admin/guias?id=${id}`, { method:'DELETE' });
     toast('Guia excluído');
     load('guias');
+    atualizarLinksExternos();   // excluir o último esconde "Ver loja"
   } catch(e) { toast('Erro: ' + e.message, 'err'); }
 }
 
