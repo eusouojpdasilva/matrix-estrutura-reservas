@@ -213,13 +213,47 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .nav-logout:hover { background:rgba(255,110,110,.22); color:#fff; }
 .sb-footer { padding:16px 20px; border-top:1px solid rgba(255,255,255,.15); font-size:10.5px; color:rgba(255,255,255,.45); font-family:var(--font-ui); letter-spacing:.3px; }
 
+/* ── barra recolhível ───────────────────────────────────────────────────────── */
+/* Nasce oculta e volta pelo botão da topbar; a escolha fica salva. Em tela larga
+   ela empurra o conteúdo; em tela estreita sobrepõe, com fundo para fechar. */
+.sidebar { transform:translateX(0); transition:transform var(--tr); }
+body.sb-off .sidebar { transform:translateX(-100%); }
+body.sb-off .main    { margin-left:0; }
+/* sobreposta a barra flutua por cima: o conteúdo nunca cede espaço, senão numa
+   tela estreita sobraria uma faixa inútil de conteúdo espremido ao lado dela */
+body.sb-sobreposta .main { margin-left:0; }
+
+.sb-backdrop { display:none; position:fixed; inset:0; z-index:9;
+  background:rgba(15,27,45,.45); -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px); }
+body.sb-sobreposta:not(.sb-off) .sb-backdrop { display:block; animation:fadein var(--tr) both; }
+
+.sb-toggle { flex-shrink:0; width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center;
+  border:1.5px solid var(--border); background:#fff; border-radius:var(--r-sm); cursor:pointer;
+  transition:border-color var(--tr-fast), background var(--tr-fast); }
+.sb-toggle:hover { border-color:var(--purple); background:var(--purple-soft); }
+.sb-toggle:focus-visible { outline:none; box-shadow:var(--ring); }
+/* três traços que viram seta quando a barra está aberta */
+.sb-toggle-ico, .sb-toggle-ico::before, .sb-toggle-ico::after {
+  content:''; display:block; width:15px; height:1.5px; background:var(--ink); border-radius:2px;
+  transition:transform var(--tr-fast), width var(--tr-fast); }
+.sb-toggle-ico { position:relative; }
+.sb-toggle-ico::before { position:absolute; top:-5px; }
+.sb-toggle-ico::after  { position:absolute; top:5px; }
+body:not(.sb-off) .sb-toggle-ico::before { width:9px; transform:translateX(-3px) rotate(-45deg); transform-origin:left center; }
+body:not(.sb-off) .sb-toggle-ico::after  { width:9px; transform:translateX(-3px) rotate(45deg);  transform-origin:left center; }
+
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+  clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
 /* ── main ───────────────────────────────────────────────────────────────────── */
-.main { margin-left:var(--sidebar); flex:1; display:flex; flex-direction:column; min-width:0; }
+.main { margin-left:var(--sidebar); flex:1; display:flex; flex-direction:column; min-width:0;
+  transition:margin-left var(--tr); }
 .topbar { background:rgba(255,255,255,.85); -webkit-backdrop-filter:saturate(1.15) blur(14px); backdrop-filter:saturate(1.15) blur(14px);
   border-bottom:1px solid var(--border); box-shadow:0 1px 24px rgba(15,27,45,.05);
   padding:20px 36px; display:flex; align-items:center; justify-content:space-between; gap:16px;
   position:sticky; top:0; z-index:5; }
-.topbar h1 { font-family:'Cormorant Garamond',serif; font-size:23px; font-weight:600; letter-spacing:-.01em; color:var(--ink); }
+/* margin-right:auto agrupa botão + título à esquerda e manda as ações pra direita */
+.topbar h1 { font-family:'Cormorant Garamond',serif; font-size:23px; font-weight:600; letter-spacing:-.01em; color:var(--ink); margin-right:auto; }
 .content { padding:32px 36px 48px; flex:1; animation:rise var(--tr-slow) both; }
 
 /* ── buttons ────────────────────────────────────────────────────────────────── */
@@ -676,7 +710,9 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 
 <!-- ── APP ───────────────────────────────────────────────────────────────────── -->
 <div id="app" class="hidden">
-  <nav class="sidebar">
+  <!-- fecha a barra ao clicar fora dela quando está sobreposta (tela estreita) -->
+  <div class="sb-backdrop" id="sb-backdrop" onclick="toggleSidebar(false)"></div>
+  <nav class="sidebar" id="sidebar">
     <div class="sb-logo">
       <img class="sb-logo-img" src="/brand/logo-dark.png" alt="Scandia Travel">
       <div class="tag">CRM</div>
@@ -730,6 +766,11 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 
   <div class="main">
     <div class="topbar">
+      <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()"
+              aria-controls="sidebar" aria-expanded="false" title="Mostrar menu (Ctrl+B)">
+        <span class="sb-toggle-ico" aria-hidden="true"></span>
+        <span class="sr-only">Mostrar menu</span>
+      </button>
       <h1 id="pg-title">Dashboard</h1>
       <div id="pg-actions"></div>
     </div>
@@ -1545,6 +1586,7 @@ function doLogout() {
 function showApp() {
   document.getElementById('login').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
+  initSidebar();
   go('dashboard');
   atualizarLinksExternos();
   setInterval(function() { load(S.mod); }, 60000);
@@ -1552,6 +1594,8 @@ function showApp() {
 
 function go(mod) {
   S.mod = mod;
+  // sobreposta, a barra é gaveta: navegou, fecha, senão tapa o que foi aberto
+  if (sidebarSobreposta()) aplicarSidebar(false);
   document.querySelectorAll('.nav-item[data-m]').forEach(el =>
     el.classList.toggle('active', el.dataset.m === mod)
   );
@@ -1607,6 +1651,56 @@ async function api(path, opts = {}, _key) {
   if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
   return data;
 }
+
+// ── barra lateral recolhível ──────────────────────────────────────────────────
+// Nasce oculta para o conteúdo usar a tela inteira — as tabelas do financeiro
+// agradecem — e volta pelo botão da topbar. A escolha fica salva.
+//
+// Abaixo de SB_LARGURA_MIN a barra sobrepõe em vez de empurrar: empurrar numa
+// tela estreita espremeria o conteúdo a ponto de não sobrar nada útil. Nesse
+// modo ela fecha ao navegar, como qualquer gaveta.
+const SB_LARGURA_MIN = 1024;
+
+function sidebarSobreposta() { return window.innerWidth < SB_LARGURA_MIN; }
+
+function aplicarSidebar(aberta) {
+  document.body.classList.toggle('sb-off', !aberta);
+  document.body.classList.toggle('sb-sobreposta', sidebarSobreposta());
+  const btn = document.getElementById('sb-toggle');
+  if (btn) {
+    btn.setAttribute('aria-expanded', String(aberta));
+    btn.title = (aberta ? 'Ocultar menu' : 'Mostrar menu') + ' (Ctrl+B)';
+    btn.querySelector('.sr-only').textContent = aberta ? 'Ocultar menu' : 'Mostrar menu';
+  }
+}
+
+function toggleSidebar(forcar) {
+  const aberta = typeof forcar === 'boolean' ? forcar : document.body.classList.contains('sb-off');
+  // só grava a preferência no modo que empurra; sobreposta é sempre temporária
+  if (!sidebarSobreposta()) localStorage.setItem('crm_sidebar', aberta ? 'aberta' : 'oculta');
+  aplicarSidebar(aberta);
+}
+
+function initSidebar() {
+  // padrão oculta: é o "auto ocultada". Quem preferir deixar fixa, fica salvo.
+  const salva = localStorage.getItem('crm_sidebar');
+  aplicarSidebar(!sidebarSobreposta() && salva === 'aberta');
+}
+
+// Ctrl+B — mesmo atalho do editor, e não conflita com nenhum campo do CRM
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') { e.preventDefault(); toggleSidebar(); }
+  if (e.key === 'Escape' && sidebarSobreposta() && !document.body.classList.contains('sb-off')) toggleSidebar(false);
+});
+
+// Redimensionar pode trocar o modo: ao estreitar, recolhe para não sobrar a
+// barra empurrando um conteúdo que já não cabe.
+window.addEventListener('resize', () => {
+  const eraSobreposta = document.body.classList.contains('sb-sobreposta');
+  const agora = sidebarSobreposta();
+  if (eraSobreposta === agora) return;
+  aplicarSidebar(agora ? false : localStorage.getItem('crm_sidebar') === 'aberta');
+});
 
 // ── links que saem do CRM ─────────────────────────────────────────────────────
 // Loja e dashboard ficam na mesma barra lateral para não precisar guardar URL
