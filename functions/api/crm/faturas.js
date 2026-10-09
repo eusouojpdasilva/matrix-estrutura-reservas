@@ -44,6 +44,22 @@ export async function onRequestGet(context) {
   const joined = buildWhere('f.');
   const bare   = buildWhere('');
 
+  // Mesma janela, aplicada à data de caixa. Uma fatura marcada como paga sem
+  // data_pagamento cai de volta no vencimento: é a melhor informação que resta,
+  // e some-la da receita seria pior do que atribuí-la ao mês em que venceu.
+  const caixaFilter = (() => {
+    const c = [], b = [];
+    if (!all) {
+      const ini = from || (mes ? `${mes}-01` : null);
+      const fim = to   || (mes ? fimDoMes(mes) : null);
+      if (ini) { c.push(`${DATA_CAIXA} >= ?`); b.push(ini); }
+      if (fim) { c.push(`${DATA_CAIXA} <= ?`); b.push(fim); }
+    }
+    if (cliente_id) { c.push('cliente_id = ?'); b.push(cliente_id); }
+    if (categoria)  { c.push('categoria = ?');  b.push(categoria);  }
+    return { sql: c.length ? `AND ${c.join(' AND ')}` : '', binds: b };
+  })();
+
   try {
     const rows = await env.DB.prepare(
       `SELECT f.*, c.nome as cliente_nome
@@ -53,28 +69,43 @@ export async function onRequestGet(context) {
        ORDER BY COALESCE(f.vencimento, f.mes || '-01') ASC, f.created_at DESC`
     ).bind(...joined.binds).all();
 
+    // A janela se aplica ao vencimento: "o que vence neste mês".
     const kpis = await env.DB.prepare(`
       SELECT
         COALESCE(SUM(CASE WHEN status IN ('pendente','vencido') THEN valor END), 0) as a_receber,
-        COALESCE(SUM(CASE WHEN status = 'pago'    THEN valor END), 0) as recebido,
         COALESCE(SUM(CASE WHEN status = 'vencido' THEN valor END), 0) as vencido,
         COALESCE(SUM(valor), 0)                                       as bruto,
-        COALESCE(SUM(COALESCE(comissao, valor)), 0)                   as comissao,
         COUNT(*)                                                      as lancamentos
       FROM crm_faturas ${bare.where}
     `).bind(...bare.binds).first();
+
+    // Recebido é regime de caixa: conta pela DATA DE PAGAMENTO, não pelo
+    // vencimento. Uma parcela que vencia em setembro e foi paga em outubro é
+    // dinheiro que entrou em outubro — com parcelamento isso é rotina, não
+    // exceção, e contar pelo vencimento descasaria o CRM do extrato bancário.
+    const caixa = await env.DB.prepare(`
+      SELECT
+        COALESCE(SUM(valor), 0)                     as recebido,
+        COALESCE(SUM(COALESCE(comissao, valor)), 0) as comissao,
+        COUNT(*)                                    as pagamentos
+      FROM crm_faturas
+      WHERE status = 'pago' ${caixaFilter.sql}
+    `).bind(...caixaFilter.binds).first();
 
     return json({
       mes: (from || to || all) ? null : mes,
       from, to,
       faturas: rows.results || [],
       kpis: {
+        // por vencimento — o que vence na janela
         a_receber:   kpis?.a_receber   || 0,
-        recebido:    kpis?.recebido    || 0,
         vencido:     kpis?.vencido     || 0,
         bruto:       kpis?.bruto       || 0,
-        comissao:    kpis?.comissao    || 0,
         lancamentos: kpis?.lancamentos || 0,
+        // por data de pagamento — o que entrou no caixa na janela
+        recebido:    caixa?.recebido   || 0,
+        comissao:    caixa?.comissao   || 0,
+        pagamentos:  caixa?.pagamentos || 0,
       },
     });
   } catch (err) {
@@ -138,8 +169,18 @@ export async function onRequestOptions() {
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
+// Data que define o mês de caixa de uma fatura paga, com as quedas de volta
+// para dados antigos: pagamento → vencimento → mês de referência.
+export const DATA_CAIXA = "COALESCE(data_pagamento, vencimento, mes || '-01')";
+
 function isYmd(s)   { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s); }
 function isMonth(s) { return typeof s === 'string' && /^\d{4}-\d{2}$/.test(s); }
+
+// último dia de 'YYYY-MM', respeitando ano bissexto
+function fimDoMes(mes) {
+  const [y, m] = mes.split('-').map(Number);
+  return new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10);
+}
 
 function currentMes() {
   const d = new Date();

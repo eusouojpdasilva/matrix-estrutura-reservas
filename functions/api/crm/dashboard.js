@@ -34,11 +34,13 @@ export async function onRequestGet(context) {
   // leads: period filter applies to created_at (unix seconds)
   const leadFilter = periodo ? leadRange(from, to) : { sql: '', binds: [] };
 
-  // revenue: period filter applies to vencimento, falling back to mes for rows
-  // migrated before the column existed
+  // Receita: a janela se aplica à data de caixa (quando o dinheiro entrou), não
+  // ao vencimento. Fatura paga sem data_pagamento cai de volta no vencimento —
+  // some-la da receita seria pior que atribuí-la ao mês em que venceu.
+  const DATA_CAIXA = "COALESCE(data_pagamento, vencimento, mes || '-01')";
   const recFilter = periodo
-    ? rangeSql('COALESCE(vencimento, mes || \'-01\')', from, to)
-    : { sql: 'AND mes = ?', binds: [mes] };
+    ? rangeSql(DATA_CAIXA, from, to)
+    : { sql: `AND substr(${DATA_CAIXA}, 1, 7) = ?`, binds: [mes] };
 
   try {
     const [funil, clientes, receita, pipeline, risco, anivRes, vencidas, aVencer, totParc] =
@@ -54,7 +56,9 @@ export async function onRequestGet(context) {
           SELECT COUNT(*) as total FROM crm_clientes WHERE status = 'Ativo'
         `).first(),
 
-        // receita do período (faturas pagas): bruto = faturamento, líquido = comissão real
+        // Receita do período em regime de CAIXA: filtra por data_pagamento, não
+        // por vencimento. Parcela que vencia em setembro e foi paga em outubro é
+        // dinheiro de outubro — é assim que bate com o extrato da agência.
         // (COALESCE(comissao, valor) garante retrocompatibilidade com faturas antigas sem comissão)
         env.DB.prepare(`
           SELECT

@@ -1,5 +1,9 @@
 // GET    /api/crm/faturas/:id?key=...
-// PUT    /api/crm/faturas/:id?key=...  body: { action: 'pagar'|'vencer'|'desfazer' }
+// PUT    /api/crm/faturas/:id?key=...  body: { action: 'pagar'|'vencer'|'desfazer'|'parcelar' }
+//          'pagar' aceita data_pagamento (YYYY-MM-DD) para registrar quando o
+//          dinheiro entrou de fato; sem ela, usa hoje.
+//          'parcelar' + num_parcelas divide um lançamento avulso em N parcelas
+//          mensais no mesmo contrato.
 //                                      or partial fields: { valor, vencimento, comissao,
 //                                      descricao, categoria, parcela_num, parcela_total,
 //                                      forma_pagamento, condicao_pagamento, status }
@@ -32,10 +36,20 @@ export async function onRequestPut(context) {
   const today   = new Date().toISOString().slice(0, 10);
   const { action } = body;
 
+  // Divide um lançamento avulso em N parcelas mensais, no mesmo contrato.
+  // Fica antes do bloco de updates porque não é um UPDATE: substitui a linha.
+  if (action === 'parcelar') {
+    return parcelar(env, params.id, body, now);
+  }
+
   let updates;
 
   if (action === 'pagar') {
-    updates = [['status', 'pago'], ['data_pagamento', today], ['updated_at', now]];
+    // data_pagamento é o que define em que mês o dinheiro entrou no caixa,
+    // então aceita ser informada — uma parcela atrasada paga hoje pode ter
+    // caído na conta em outra data.
+    const quando = isYmd(body.data_pagamento) ? body.data_pagamento : today;
+    updates = [['status', 'pago'], ['data_pagamento', quando], ['updated_at', now]];
   } else if (action === 'vencer') {
     updates = [['status', 'vencido'], ['updated_at', now]];
   } else if (action === 'desfazer') {
@@ -94,9 +108,79 @@ export async function onRequestOptions() {
   return new Response(null, { status: 204, headers: corsHeaders() });
 }
 
+// ── parcelar um lançamento avulso ─────────────────────────────────────────────
+// Substitui a fatura única por N parcelas mensais no mesmo contrato, mantendo
+// o vínculo com o cliente. Mesma divisão de centavos da criação (_parcelas.js),
+// então a soma das parcelas bate exatamente com o valor original.
+async function parcelar(env, id, body, now) {
+  const n = Number(body.num_parcelas);
+  if (!Number.isInteger(n) || n < 2 || n > 120)
+    return json({ error: 'num_parcelas must be an integer between 2 and 120' }, 400);
+
+  const f = await env.DB.prepare('SELECT * FROM crm_faturas WHERE id = ?').bind(id).first();
+  if (!f) return json({ error: 'Not found' }, 404);
+
+  // Já parcelado: dividir de novo deixaria o cronograma incoerente com as
+  // outras parcelas do mesmo contrato.
+  if (f.parcela_total > 1)
+    return json({ error: 'Este lançamento já faz parte de um parcelamento' }, 409);
+
+  // Já pago: o dinheiro entrou, parcelar depois reescreveria o caixa.
+  if (f.status === 'pago')
+    return json({ error: 'Não dá para parcelar um lançamento já pago' }, 409);
+
+  const base = isYmd(body.vencimento) ? body.vencimento
+             : isYmd(f.vencimento)    ? f.vencimento
+             : `${f.mes}-01`;
+
+  const valores   = splitMoney(f.valor, n);
+  const comissoes = splitProportional(f.comissao, valores);
+  const baseDate  = parseYmd(base);
+
+  const novas = Array.from({ length: n }, (_, i) => {
+    const venc = ymd(addMonthsUTC(baseDate, i));
+    return {
+      id: crypto.randomUUID(),
+      mes: venc.slice(0, 7), vencimento: venc,
+      valor: valores[i], comissao: comissoes[i],
+      parcela_num: i + 1, parcela_total: n,
+    };
+  });
+
+  try {
+    const insert = env.DB.prepare(`
+      INSERT INTO crm_faturas
+        (id, cliente_id, contrato_id, mes, vencimento, valor, comissao,
+         descricao, categoria, parcela_num, parcela_total,
+         forma_pagamento, condicao_pagamento, status, created_at, updated_at)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    `);
+    // o DELETE entra no mesmo batch: ou a troca inteira acontece, ou nenhuma
+    // parte dela — não dá para ficar com a original e as parcelas ao mesmo tempo
+    await env.DB.batch([
+      ...novas.map(p => insert.bind(
+        p.id, f.cliente_id, f.contrato_id, p.mes, p.vencimento, p.valor, p.comissao,
+        f.descricao, f.categoria, p.parcela_num, p.parcela_total,
+        f.forma_pagamento, 'Parcelado', f.status, now, now,
+      )),
+      env.DB.prepare('DELETE FROM crm_faturas WHERE id = ?').bind(id),
+    ]);
+
+    const rows = await env.DB.prepare(
+      'SELECT * FROM crm_faturas WHERE contrato_id = ? AND parcela_total = ? ORDER BY parcela_num'
+    ).bind(f.contrato_id, n).all();
+
+    return json({ parcelas_criadas: n, faturas: rows.results || [] });
+  } catch (err) {
+    return json({ error: err.message }, 500);
+  }
+}
+
 // ── helpers ───────────────────────────────────────────────────────────────────
 
-function isYmd(s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s); }
+import {
+  splitMoney, splitProportional, isYmd, parseYmd, ymd, addMonthsUTC,
+} from '../_parcelas.js';
 
 function auth(url, env) {
   return env.DASH_KEY && url.searchParams.get('key') === env.DASH_KEY;
