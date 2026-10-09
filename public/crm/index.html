@@ -446,6 +446,9 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .filter-btn:hover { border-color:var(--purple); color:var(--purple); background:var(--purple-soft); }
 .filter-btn.active { background:var(--grad); border-color:transparent; color:#fff; box-shadow:0 2px 10px rgba(15,27,45,.28); }
 .filter-count { margin-left:auto; font-size:12px; color:var(--ink-mute); font-family:var(--font-ui); }
+/* vencimento + nº de parcelas + valor da parcela cabem em três colunas */
+.row2.row3 { grid-template-columns:1fr 1fr 1fr; }
+@media(max-width:640px){ .row2.row3 { grid-template-columns:1fr; } }
 .periodo-data { padding:5px 10px; border-radius:var(--r-sm); border:1.5px solid var(--border);
                 background:#fff; color:var(--ink); font-size:12.5px; font-family:var(--font-body); }
 .periodo-data:focus { border-color:var(--purple); outline:none; }
@@ -878,7 +881,7 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
         <div class="row2">
           <div class="field">
             <label>Valor bruto (faturamento) *</label>
-            <input id="ff-valor" type="number" min="0.01" step="0.01" placeholder="0,00">
+            <input id="ff-valor" type="number" min="0.01" step="0.01" placeholder="0,00" oninput="onNumParcelas()">
           </div>
           <div class="field">
             <label>Comissão (líquida)</label>
@@ -900,14 +903,20 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
             <div class="fin-sub" id="ff-condicao-hint"></div>
           </div>
         </div>
-        <div class="row2">
+        <div class="row2" id="ff-venc-row">
           <div class="field">
             <label id="ff-venc-lbl">Vencimento *</label>
-            <input id="ff-venc" type="date" oninput="previewParcelas()">
+            <input id="ff-venc" type="date" oninput="onVencimentoParcela()">
           </div>
           <div class="field" id="ff-parcelas-wrap" style="display:none">
             <label>Nº de parcelas *</label>
-            <input id="ff-parcelas" type="number" min="2" max="120" step="1" value="2" oninput="previewParcelas()">
+            <input id="ff-parcelas" type="number" min="2" max="120" step="1" value="2" oninput="onNumParcelas()">
+          </div>
+          <!-- editável: com juros a parcela não é o total dividido pelo nº -->
+          <div class="field" id="ff-parc-valor-wrap" style="display:none">
+            <label>Valor da parcela *</label>
+            <input id="ff-parc-valor" type="number" min="0.01" step="0.01" placeholder="0,00"
+                   oninput="onValorParcela()">
           </div>
         </div>
         <div class="margin-info hidden" id="ff-parc-preview"></div>
@@ -2740,6 +2749,8 @@ async function openFinModal(type) {
   document.getElementById('ff-pago-wrap').style.display = 'none';
   document.getElementById('ff-pago-em').value = '';
   document.getElementById('ff-parcelas').value = '2';
+  document.getElementById('ff-parc-valor').value = '';
+  _parcValorTocado = false;   // volta a sugerir o total dividido
   // vencimento default: hoje se o mês aberto é o corrente, senão dia 1 daquele mês
   document.getElementById('ff-venc').value = _finMes === currentMesJS()
     ? new Date().toISOString().slice(0, 10)
@@ -2814,6 +2825,24 @@ function editFatura(id) {
 
 // Parcelado só faz sentido na criação: mostra o nº de parcelas e troca o rótulo
 // do vencimento pro da primeira. Na edição o campo fica travado.
+// Enquanto o agente não digita o valor da parcela, ele acompanha o total
+// dividido. Assim que ele digita — para cobrar juros, por exemplo — paramos de
+// sobrescrever: o número dele passa a mandar.
+let _parcValorTocado = false;
+
+function onValorParcela()   { _parcValorTocado = true;  previewParcelas(); }
+function onVencimentoParcela() { previewParcelas(); }
+function onNumParcelas()    { autoValorParcela(); previewParcelas(); }
+
+// Recalcula a sugestão de valor da parcela a partir do valor bruto.
+function autoValorParcela() {
+  if (_parcValorTocado) return;
+  const total = parseFloat(document.getElementById('ff-valor').value) || 0;
+  const n     = parseInt(document.getElementById('ff-parcelas').value) || 0;
+  document.getElementById('ff-parc-valor').value =
+    (total && n >= 2) ? (Math.round((total / n) * 100) / 100).toFixed(2) : '';
+}
+
 function toggleParcelamento() {
   const cond      = document.getElementById('ff-condicao');
   // o próprio `disabled` do select já carrega a regra de quando dá para
@@ -2821,10 +2850,13 @@ function toggleParcelamento() {
   const parcelado = cond.value === 'Parcelado' && !cond.disabled;
   const editando  = !!document.getElementById('ff-id').value;
 
-  document.getElementById('ff-parcelas-wrap').style.display = parcelado ? '' : 'none';
+  document.getElementById('ff-parcelas-wrap').style.display   = parcelado ? '' : 'none';
+  document.getElementById('ff-parc-valor-wrap').style.display = parcelado ? '' : 'none';
+  document.getElementById('ff-venc-row').classList.toggle('row3', parcelado);
   document.getElementById('ff-venc-lbl').textContent = parcelado ? '1º vencimento *' : 'Vencimento *';
   // status inicial não se aplica a um parcelamento: tudo nasce pendente
   document.getElementById('ff-status-wrap').style.display = (parcelado || editando) ? 'none' : '';
+  if (parcelado) autoValorParcela();
   previewParcelas();
 }
 
@@ -2832,23 +2864,25 @@ function previewParcelas() {
   const el   = document.getElementById('ff-parc-preview');
   const cond = document.getElementById('ff-condicao');
   const parcelado = cond.value === 'Parcelado' && !cond.disabled;
-  const total = parseFloat(document.getElementById('ff-valor').value) || 0;
+  const venda = parseFloat(document.getElementById('ff-valor').value) || 0;
   const n     = parseInt(document.getElementById('ff-parcelas').value) || 0;
   const venc  = document.getElementById('ff-venc').value;
-  if (!parcelado || !total || n < 2 || !venc) { el.classList.add('hidden'); return; }
+  const vParc = parseFloat(document.getElementById('ff-parc-valor').value) || 0;
+  if (!parcelado || !venda || n < 2 || !venc || !vParc) { el.classList.add('hidden'); return; }
 
-  // mesma divisão de centavos do backend (contratos.js): sobra nas primeiras
-  const cents = Math.round(total * 100);
-  const base  = Math.floor(cents / n);
-  const rest  = cents - base * n;
-  const v1    = (base + (rest > 0 ? 1 : 0)) / 100;
-  const vn    = base / 100;
+  const soma   = Math.round(vParc * n * 100) / 100;
+  const juros  = Math.round((soma - venda) * 100) / 100;
   const ultima = addMonthsYmd(venc, n - 1);
 
   el.classList.remove('hidden');
-  el.textContent = rest > 0
-    ? `${n}× de ${fmtR(vn)} · 1ª de ${fmtR(v1)} · ${fmtD(venc)} → ${fmtD(ultima)}`
-    : `${n}× de ${fmtR(vn)} · ${fmtD(venc)} → ${fmtD(ultima)}`;
+  // Juros não é erro: é o agente cobrando a mais para parcelar. Mas a diferença
+  // precisa aparecer, senão "valor bruto" e soma das parcelas se contradizem
+  // em silêncio.
+  el.className = `margin-info${juros < 0 ? ' parc-total warn' : ''}`;
+  el.textContent =
+      juros === 0 ? `${n}× de ${fmtR(vParc)} · total ${fmtR(soma)} · ${fmtD(venc)} → ${fmtD(ultima)}`
+    : juros > 0   ? `${n}× de ${fmtR(vParc)} · total ${fmtR(soma)} · ${fmtR(juros)} de juros sobre ${fmtR(venda)} · ${fmtD(venc)} → ${fmtD(ultima)}`
+    :               `${n}× de ${fmtR(vParc)} · total ${fmtR(soma)} · ${fmtR(-juros)} ABAIXO do valor da venda (${fmtR(venda)})`;
 }
 
 // Soma n meses a 'YYYY-MM-DD' preservando o dia, caindo no último dia do mês
@@ -2895,10 +2929,12 @@ async function saveFinItem() {
       const podeParcelar = !document.getElementById('ff-condicao').disabled;
       const parcelado   = podeParcelar && condicao_pagamento === 'Parcelado';
       const nParcelas   = parseInt(document.getElementById('ff-parcelas').value) || 0;
+      const valorParc   = parseFloat(document.getElementById('ff-parc-valor').value) || 0;
 
       if (!cliente_id || !vencimento || !valor) { toast('Preencha cliente, vencimento e valor', 'err'); return; }
       if (comissao != null && comissao > valor) { toast('A comissão não pode passar do valor bruto', 'err'); return; }
       if (parcelado && nParcelas < 2) { toast('Um parcelamento precisa de pelo menos 2 parcelas', 'err'); return; }
+      if (parcelado && !valorParc)    { toast('Informe o valor da parcela', 'err'); return; }
 
       if (editId) {
         // grava primeiro os campos simples, para que as parcelas nasçam já com
@@ -2912,7 +2948,7 @@ async function saveFinItem() {
         if (parcelado) {
           // avulso virando parcelado: o backend substitui esta fatura por N
           const r = await api(`/api/crm/faturas/${editId}`, { method:'PUT', body: JSON.stringify({
-            action: 'parcelar', num_parcelas: nParcelas, vencimento,
+            action: 'parcelar', num_parcelas: nParcelas, vencimento, valor_parcela: valorParc,
           })});
           toast(`Lançamento dividido em ${r.parcelas_criadas} parcelas ✓`, 'ok');
           _finMes = vencimento.slice(0, 7);
@@ -2920,10 +2956,13 @@ async function saveFinItem() {
           toast('Lançamento atualizado ✓', 'ok');
         }
       } else if (parcelado) {
-        // um contrato Parcelado gera as N parcelas de uma vez, todas pendentes
+        // Cronograma explícito: cada parcela vale o que o agente digitou, que
+        // com juros não é o total dividido. O contrato passa a valer a soma.
+        const parcelas = Array.from({ length: nParcelas }, (_, i) => ({
+          valor: valorParc, vencimento: addMonthsYmd(vencimento, i),
+        }));
         const rc = await api('/api/crm/contratos', { method:'POST', body: JSON.stringify({
-          cliente_id, valor, recorrencia:'Parcelado', num_parcelas: nParcelas,
-          data_inicio: vencimento, descricao, categoria,
+          cliente_id, recorrencia:'Parcelado', parcelas, descricao, categoria,
           comissao_estimada: comissao, forma_pagamento_prevista: forma_pagamento,
         })});
         toast(`${rc.faturas_geradas} parcelas criadas ✓`, 'ok');
