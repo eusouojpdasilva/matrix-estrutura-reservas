@@ -13,7 +13,7 @@ function fmtDate(iso) {
 
 function fmtBRL(v) {
   if (!v && v !== 0) return '';
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(v);
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
 }
 
 // com centavos: numa parcela de R$ 3.333,34 o centavo importa pro cliente
@@ -304,32 +304,32 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>${esc(p.title)} · Scandia Travel</title>
   <meta name="robots" content="noindex,nofollow">
-  <link rel="icon" href="/assets/logo.png">
+  <link rel="icon" href="/brand/logo-light.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--amber:#E3522A;--dark:#0A1520;--surface:#12233A;--surface2:#182E4A;--border:#223652;--text:#E8EEF4;--muted:#7A90A8}
+    :root{--amber:#C9A24B;--dark:#0A1520;--surface:#12233A;--surface2:#182E4A;--border:#223652;--text:#E8EEF4;--muted:#7A90A8}
     html{scroll-behavior:smooth}
-    body{font-family:'Montserrat',sans-serif;background:var(--dark);color:var(--text);line-height:1.6}
+    body{font-family:'Lato',sans-serif;background:var(--dark);color:var(--text);line-height:1.6}
     a{color:inherit;text-decoration:none}
     img{max-width:100%;height:auto;display:block}
 
     /* NAV */
     .nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(0,0,0,.7),transparent)}
-    .nav-logo{height:36px;width:auto;object-fit:contain;filter:brightness(0) invert(1)}
+    .nav-logo{height:36px;width:auto;object-fit:contain;filter:none}
     .nav-back{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.2);padding:.375rem .875rem;border-radius:.375rem;transition:all .2s}
     .nav-back:hover{color:#fff;border-color:#fff}
 
     /* HERO */
-    .hero{position:relative;min-height:90vh;display:flex;align-items:flex-end;overflow:hidden;background:var(--surface)}
+    .hero{position:relative;min-height:90vh;display:flex;align-items:flex-end;overflow:hidden;background:var(--surface);background-size:cover;background-position:center}
     .hero-bg{position:absolute;inset:0;background-size:cover;background-position:center}
     .hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.9) 0%,rgba(0,0,0,.4) 50%,rgba(0,0,0,.2) 100%)}
     .hero-content{position:relative;z-index:1;padding:3rem 1.5rem 4rem;width:100%;max-width:900px;margin:0 auto}
     .dest-chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.25rem}
     .dest-chip{font-size:.6rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;background:rgba(227,82,42,.15);border:1px solid rgba(227,82,42,.4);color:var(--amber);padding:.3rem .875rem;border-radius:2rem}
-    .hero-title{font-family:'Playfair Display',serif;font-size:clamp(1.75rem,5vw,3.25rem);font-weight:700;color:#fff;line-height:1.2;margin-bottom:1rem}
+    .hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.75rem,5vw,3.25rem);font-weight:700;color:#fff;line-height:1.2;margin-bottom:1rem}
     .hero-meta{display:flex;flex-wrap:wrap;gap:1rem;font-size:.8rem;color:rgba(255,255,255,.65)}
     .hero-meta span{display:flex;align-items:center;gap:.375rem}
 
@@ -346,7 +346,7 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
     /* COUNTDOWN */
     .countdown-badge{display:inline-flex;align-items:center;gap:.75rem;margin-top:1.5rem;background:rgba(20,20,20,.6);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.12);border-radius:1rem;padding:.75rem 1.25rem}
     .cd-ico{font-size:1.4rem}
-    .cd-num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--amber);line-height:1}
+    .cd-num{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--amber);line-height:1}
     .cd-text{display:flex;flex-direction:column;font-size:.8rem;font-weight:600;color:#fff;line-height:1.3}
     .cd-label{font-size:.58rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
 
@@ -358,7 +358,7 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
     .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.875rem}
     .sum-card{background:var(--surface2);border:1px solid var(--border);border-radius:.75rem;padding:1.1rem}
     .sum-card .s-label{font-size:.58rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem}
-    .sum-card .s-value{font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;color:var(--text)}
+    .sum-card .s-value{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:var(--text)}
     @media(max-width:700px){.summary-grid{grid-template-columns:1fr 1fr}}
 
     /* HOTELS */
@@ -370,13 +370,13 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
     .h-details strong{color:var(--text);font-weight:600}
     .h-price{margin-top:.875rem;padding-top:.75rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:.15rem}
     .h-price-label{font-size:.58rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-    .h-price-value{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;color:var(--amber)}
+    .h-price-value{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:700;color:var(--amber)}
     .h-img{height:160px;overflow:hidden}
     .h-img img{width:100%;height:100%;object-fit:cover}
     .h-img-empty{display:flex;align-items:center;justify-content:center;font-size:2rem;background:var(--border)}
     .h-body{padding:1.25rem}
     .h-city{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:.25rem}
-    .h-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:600;margin-bottom:.375rem}
+    .h-name{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;margin-bottom:.375rem}
     .h-stars{color:var(--amber);font-size:.75rem;letter-spacing:.1em;margin-bottom:.5rem}
     .h-meta{font-size:.78rem;color:var(--muted);display:flex;gap:.375rem;flex-wrap:wrap;align-items:center}
     .h-desc{font-size:.8rem;color:var(--muted);margin-top:.625rem;line-height:1.6}
@@ -390,7 +390,7 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
     .fl-no{font-size:.7rem;color:var(--muted)}
     .fl-route{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem}
     .fl-airport{text-align:center}
-    .fl-code{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;color:var(--text);line-height:1.1}
+    .fl-code{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:700;color:var(--text);line-height:1.1}
     .fl-city{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.15rem}
     .fl-time{font-size:.9rem;font-weight:600;margin-top:.35rem}
     .fl-date{font-size:.68rem;color:var(--muted)}
@@ -406,9 +406,9 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
     /* ACTIVITIES */
     .activities-list{display:flex;flex-direction:column;gap:.75rem}
     .act-card{display:flex;align-items:center;justify-content:space-between;gap:1.25rem;background:var(--surface2);border:1px solid var(--border);border-radius:.75rem;padding:1rem 1.25rem}
-    .act-name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:600}
+    .act-name{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600}
     .act-desc{font-size:.78rem;color:var(--muted);margin-top:.3rem;line-height:1.6}
-    .act-price{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--amber);white-space:nowrap;flex-shrink:0}
+    .act-price{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:var(--amber);white-space:nowrap;flex-shrink:0}
     @media(max-width:520px){.act-card{flex-direction:column;align-items:flex-start;gap:.5rem}}
 
     /* CONDIÇÕES */
@@ -429,7 +429,7 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
     @media(max-width:520px){.incl-grid{grid-template-columns:1fr}}
 
     .price-card{background:var(--surface2);border:1px solid var(--border);border-radius:.875rem;padding:2rem;text-align:center}
-    .price-total{font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:700;color:var(--amber);margin-bottom:.25rem}
+    .price-total{font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:700;color:var(--amber);margin-bottom:.25rem}
     .price-pp{font-size:.8rem;color:var(--muted);margin-bottom:1.5rem}
     .cta-row{display:flex;gap:.875rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.25rem}
     .cta-btn{display:inline-flex;align-items:center;justify-content:center;font-family:inherit;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.875rem 2rem;border-radius:.5rem;cursor:pointer;transition:all .2s;min-width:160px}
@@ -478,7 +478,7 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
 
     /* FOOTER */
     .footer{background:#000;border-top:1px solid var(--border);padding:2rem 1.5rem;text-align:center}
-    .footer img{height:36px;filter:brightness(0) invert(1);opacity:.5;margin:0 auto .875rem}
+    .footer img{height:36px;filter:none;opacity:.5;margin:0 auto .875rem}
     .footer p{font-size:.72rem;color:var(--muted)}
 
     .dot{opacity:.5}
@@ -490,7 +490,7 @@ function renderPage(p, { destinations, hotels, flights, activities, coverImages,
 ${p.expires_at ? `<div class="validity-bar">Proposta Nº ${propNum} · válida até <strong>${fmtDate(p.expires_at)}</strong> · valores sujeitos a disponibilidade</div>` : `<div class="validity-bar">Proposta Nº ${propNum} · valores sujeitos a disponibilidade</div>`}
 
 <nav class="nav" style="top:2.2rem">
-  <a href="/consultoria"><img src="/assets/logo.png" alt="Scandia Travel" class="nav-logo"></a>
+  <a href="/consultoria"><img src="/brand/logo-light.png" alt="Scandia Travel" class="nav-logo"></a>
 </nav>
 
 <div class="hero" ${hero ? `style="background-image:url('${esc(hero)}')"` : ''}>
@@ -533,8 +533,8 @@ ${hasMobileCta ? `
 </div>` : ''}
 
 <footer class="footer">
-  <img src="/assets/logo.png" alt="Scandia Travel">
-  <p>Proposta preparada por Scandia Travel &nbsp;·&nbsp; <a href="/consultoria" style="color:var(--amber)">SEUDOMINIO.com.br</a></p>
+  <img src="/brand/logo-light.png" alt="Scandia Travel">
+  <p>Proposta preparada por Scandia Travel &nbsp;·&nbsp; <a href="/#formulario" style="color:var(--amber)">Fale conosco</a></p>
 </footer>
 
 <script>
@@ -559,7 +559,7 @@ ${hasMobileCta ? `
 }
 
 function expiredHtml(p) {
-  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Proposta expirada · Scandia Travel</title><link rel="icon" href="/assets/logo.png"><style>body{font-family:sans-serif;background:#0A1520;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:2rem}h1{font-size:1.5rem;margin-bottom:.75rem}p{opacity:.6;font-size:.9rem}</style></head><body><div><h1>Esta proposta expirou</h1><p>O prazo de validade desta proposta foi encerrado.</p><p style="margin-top:1rem"><a href="/consultoria" style="color:#E3522A">Fale com a Scandia Travel →</a></p></div></body></html>`;
+  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Proposta expirada · Scandia Travel</title><link rel="icon" href="/brand/logo-light.png"><style>body{font-family:sans-serif;background:#0A1520;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:2rem}h1{font-size:1.5rem;margin-bottom:.75rem}p{opacity:.6;font-size:.9rem}</style></head><body><div><h1>Esta proposta expirou</h1><p>O prazo de validade desta proposta foi encerrado.</p><p style="margin-top:1rem"><a href="/consultoria" style="color:#C9A24B">Fale com a Scandia Travel →</a></p></div></body></html>`;
 }
 
 export async function onRequest({ params, env }) {

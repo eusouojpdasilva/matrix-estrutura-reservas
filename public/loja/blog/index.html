@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Blog de Viagens | Scandia Travel</title>
+  <meta name="description" content="Ideias e orientações para viajar pela Islândia, Noruega, Suécia e Finlândia com calma e boas escolhas.">
+  <link rel="canonical" href="https://matrix-estrutura-reservas.pages.dev/loja/blog/">
+  <link rel="icon" href="/brand/logo-light.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--amber:#C9A24B;--amber2:#4A6278;--dark:#14181D;--gray:#5A5A5A;--light:#F4F1EC;--border:#DFDDD8}
+    html{scroll-behavior:smooth}
+    body{font-family:'Lato',sans-serif;color:var(--dark);background:#fff;line-height:1.6}
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%;height:auto;display:block}
+
+    /* NAV */
+    .nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;background:rgba(15,27,45,.97);backdrop-filter:blur(8px)}
+    .nav-logo{height:40px;width:auto;object-fit:contain;filter:none}
+    .nav-links{display:flex;align-items:center;gap:2rem}
+    .nav-links a{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#fff;opacity:.8;transition:opacity .2s}
+    .nav-links a:hover,.nav-links a.active{opacity:1;color:var(--amber)}
+    .nav-cta{border:1.5px solid var(--amber);color:var(--amber)!important;padding:.5rem 1.25rem;border-radius:.375rem;opacity:1!important}
+    .nav-cta:hover{background:var(--amber)!important;color:#fff!important}
+    @media(max-width:640px){.nav{padding:.75rem 1.25rem}.nav-links{gap:1.25rem}}
+
+    /* HERO */
+    .hero{background:linear-gradient(135deg,#0F1B2D 0%,#233B51 55%,#4A6278 100%);padding:7rem 1.5rem 4rem;text-align:center;color:#fff}
+    .hero-eyebrow{font-size:.65rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--amber);margin-bottom:1rem}
+    .hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,5vw,3.25rem);font-weight:700;margin-bottom:1rem;line-height:1.2}
+    .hero-sub{font-size:1rem;opacity:.65;max-width:520px;margin:0 auto;line-height:1.8}
+
+    /* GRID */
+    .main{max-width:1140px;margin:0 auto;padding:4rem 1.5rem 5rem}
+    .articles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:2rem}
+
+    /* FEATURED */
+    .featured-card{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;border-radius:.875rem;overflow:hidden;border:1px solid var(--border);transition:box-shadow .2s}
+    .featured-card:hover{box-shadow:0 16px 48px rgba(0,0,0,.1)}
+    .featured-img{height:340px;overflow:hidden}
+    .featured-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+    .featured-card:hover .featured-img img{transform:scale(1.04)}
+    .featured-body{padding:2.5rem;display:flex;flex-direction:column;justify-content:center;background:#fff}
+    .featured-label{font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);margin-bottom:.875rem}
+    .featured-title{font-family:'Cormorant Garamond',serif;font-size:1.75rem;color:var(--dark);line-height:1.3;margin-bottom:1rem}
+    .featured-excerpt{font-size:.9rem;color:var(--gray);line-height:1.8;margin-bottom:1.5rem}
+    .featured-cta{display:inline-flex;align-items:center;gap:.5rem;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);border-bottom:1.5px solid var(--amber);padding-bottom:.125rem}
+    @media(max-width:680px){.featured-card{grid-template-columns:1fr}.featured-img{height:220px}.featured-body{padding:1.5rem}}
+
+    /* CARDS */
+    .article-card{display:block;border-radius:.75rem;overflow:hidden;border:1px solid var(--border);transition:box-shadow .2s,transform .2s;background:#fff}
+    .article-card:hover{box-shadow:0 12px 40px rgba(0,0,0,.08);transform:translateY(-4px)}
+    .article-img{height:210px;overflow:hidden;background:#eee}
+    .article-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+    .article-card:hover .article-img img{transform:scale(1.05)}
+    .article-body{padding:1.375rem 1.5rem 1.75rem}
+    .article-title{font-family:'Cormorant Garamond',serif;font-size:1.125rem;color:var(--dark);line-height:1.4;margin-bottom:.75rem}
+    .article-excerpt{font-size:.8125rem;color:var(--gray);line-height:1.75;margin-bottom:1rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+    .article-meta{display:flex;align-items:center;gap:.625rem;font-size:.7rem;color:#9A9A9A}
+    .article-meta .dot{width:3px;height:3px;border-radius:50%;background:currentColor}
+
+    /* LOAD MORE */
+    .load-more-wrap{text-align:center;margin-top:3rem}
+    .btn-load{font-family:inherit;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1.5px solid var(--dark);background:transparent;color:var(--dark);padding:.75rem 2rem;border-radius:.375rem;cursor:pointer;transition:all .2s}
+    .btn-load:hover{background:var(--dark);color:#fff}
+    .btn-load:disabled{opacity:.4;cursor:default}
+
+    /* EMPTY / LOADING */
+    .state-msg{grid-column:1/-1;text-align:center;padding:5rem 2rem;color:var(--gray)}
+    .state-msg h3{font-family:'Cormorant Garamond',serif;font-size:1.375rem;margin-bottom:.5rem;color:var(--dark)}
+    .state-msg p{font-size:.875rem;line-height:1.7}
+
+    /* FOOTER */
+    .footer{background:linear-gradient(135deg,#0F1B2D 0%,#4A6278 100%);color:rgba(255,255,255,.65);padding:3rem 1.5rem;text-align:center}
+    .footer img{height:44px;filter:none;opacity:.7;margin:0 auto 1rem}
+    .footer p{font-size:.8rem}
+    .footer a{color:var(--amber);margin:0 .5rem}
+  </style>
+  <link rel="stylesheet" href="/loja/assets/blog-editorial.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="/"><img src="/brand/logo-light.png" alt="Scandia Travel" class="nav-logo"></a>
+    <div class="nav-links">
+      <a href="/loja/blog" class="active">Blog</a>
+      <a href="/#formulario" class="nav-cta">Planejar viagem</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-eyebrow">Blog de Viagens</div>
+    <h1 class="hero-title">O norte começa<br>antes da partida</h1>
+    <p class="hero-sub">Escolhas de época, destinos e ritmo para viver a Islândia e a Escandinávia com calma.</p>
+  </div>
+
+  <main class="main">
+    <div class="articles-grid" id="articles-grid">
+      <div class="state-msg"><p>Carregando artigos...</p></div>
+    </div>
+    <div class="load-more-wrap" id="load-more-wrap" style="display:none">
+      <button class="btn-load" id="load-more-btn">Carregar mais artigos</button>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <img src="/brand/logo-light.png" alt="Scandia Travel">
+    <p>&copy; <span id="yr"></span> Scandia Travel &nbsp;&middot;&nbsp; <a href="/loja/blog">Blog</a><a href="/">Consultoria</a></p>
+  </footer>
+
+  <script>
+    document.getElementById('yr').textContent = new Date().getFullYear();
+
+    let page = 1;
+    const PER_PAGE = 9;
+    let allArticles = [];
+
+    function fmtDate(iso) {
+      if (!iso) return '';
+      return new Date(iso.length === 10 ? iso + 'T12:00:00' : iso).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    const DEFAULT_COVERS = [
+      'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800&q=70',
+      'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=70',
+      'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=70',
+    ];
+
+    function buildFeatured(a, idx) {
+      const cover = a.cover_image || DEFAULT_COVERS[idx % DEFAULT_COVERS.length];
+      return `
+      <a href="/loja/blog/${a.slug}" class="featured-card">
+        <div class="featured-img"><img src="${cover}" alt="${a.title}" loading="lazy"></div>
+        <div class="featured-body">
+          <div class="featured-label">${a.category || 'Destaque editorial'}</div>
+          <h2 class="featured-title">${a.title}</h2>
+          ${a.excerpt ? `<p class="featured-excerpt">${a.excerpt}</p>` : ''}
+          <div class="article-meta" style="margin-bottom:1.25rem">
+            <span>${a.read_time_min} min de leitura</span>
+            ${a.published_at ? `<span class="dot"></span><span>${fmtDate(a.published_at)}</span>` : ''}
+          </div>
+          <span class="featured-cta">Ler artigo completo &rarr;</span>
+        </div>
+      </a>`;
+    }
+
+    function buildCard(a, idx) {
+      const cover = a.cover_image || DEFAULT_COVERS[idx % DEFAULT_COVERS.length];
+      return `
+      <a href="/loja/blog/${a.slug}" class="article-card">
+        <div class="article-img"><img src="${cover}" alt="${a.title}" loading="lazy"></div>
+        <div class="article-body">
+          <div class="featured-label">${a.category || 'Caderno de viagem'}</div>
+          <h2 class="article-title">${a.title}</h2>
+          ${a.excerpt ? `<p class="article-excerpt">${a.excerpt}</p>` : ''}
+          <div class="article-meta">
+            <span>${a.read_time_min} min de leitura</span>
+            ${a.published_at ? `<span class="dot"></span><span>${fmtDate(a.published_at)}</span>` : ''}
+          </div>
+        </div>
+      </a>`;
+    }
+
+    function renderArticles() {
+      const grid = document.getElementById('articles-grid');
+      const slice = allArticles.slice(0, page * PER_PAGE);
+
+      if (!slice.length) {
+        grid.innerHTML = `<div class="state-msg"><h3>Nenhum artigo publicado ainda</h3><p>Volte em breve &mdash; o blog está sendo preparado.</p></div>`;
+        document.getElementById('load-more-wrap').style.display = 'none';
+        return;
+      }
+
+      grid.innerHTML = slice.map((a, i) =>
+        i === 0 && page === 1 ? buildFeatured(a, i) : buildCard(a, i)
+      ).join('');
+
+      const showMore = slice.length < allArticles.length;
+      document.getElementById('load-more-wrap').style.display = showMore ? 'block' : 'none';
+      document.getElementById('load-more-btn').disabled = false;
+    }
+
+    async function loadArticles() {
+      try {
+        const res = await fetch('/loja/api/articles?limit=50');
+        allArticles = res.ok ? await res.json() : [];
+      } catch { allArticles = []; }
+      renderArticles();
+    }
+
+    document.getElementById('load-more-btn').addEventListener('click', () => {
+      page++;
+      document.getElementById('load-more-btn').disabled = true;
+      renderArticles();
+    });
+
+    fetch('/tracker', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event_name: 'PageView', event_id: crypto.randomUUID() }) }).catch(() => {});
+
+    loadArticles();
+  </script>
+</body>
+</html>

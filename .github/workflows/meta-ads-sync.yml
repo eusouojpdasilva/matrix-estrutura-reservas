@@ -1,0 +1,24 @@
+name: Sync Meta Ads Spend
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
+      SYNC_SECRET: ${{ secrets.SYNC_SECRET }}
+    steps:
+      - name: Sincronizar conta configurada
+        run: |
+          if [ -z "$PAGES_BASE_URL" ] || [ -z "$SYNC_SECRET" ]; then
+            echo "Sync inativo: configure PAGES_BASE_URL e SYNC_SECRET para este cliente."
+            exit 0
+          fi
+          curl --fail --show-error --silent -X POST \
+            -H "x-sync-secret: $SYNC_SECRET" \
+            -H "Content-Type: application/json" \
+            -d '{}' "${PAGES_BASE_URL%/}/api/sync/meta-ads"
