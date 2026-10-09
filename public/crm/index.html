@@ -897,6 +897,7 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
               <option value="À vista">À vista</option>
               <option value="Parcelado">Parcelado</option>
             </select>
+            <div class="fin-sub" id="ff-condicao-hint"></div>
           </div>
         </div>
         <div class="row2">
@@ -910,6 +911,11 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
           </div>
         </div>
         <div class="margin-info hidden" id="ff-parc-preview"></div>
+        <!-- só aparece em lançamento já pago: é a data que define o mês de caixa -->
+        <div class="field" id="ff-pago-wrap" style="display:none">
+          <label>Pago em <span style="color:var(--ink-mute);font-weight:400">— define em que mês entrou no caixa</span></label>
+          <input id="ff-pago-em" type="date">
+        </div>
         <div class="field" id="ff-status-wrap">
           <label>Status</label>
           <select id="ff-status">
@@ -2730,6 +2736,9 @@ async function openFinModal(type) {
   document.getElementById('ff-forma').value    = '';
   document.getElementById('ff-condicao').value = 'À vista';
   document.getElementById('ff-condicao').disabled = false;
+  document.getElementById('ff-condicao-hint').textContent = '';
+  document.getElementById('ff-pago-wrap').style.display = 'none';
+  document.getElementById('ff-pago-em').value = '';
   document.getElementById('ff-parcelas').value = '2';
   // vencimento default: hoje se o mês aberto é o corrente, senão dia 1 daquele mês
   document.getElementById('ff-venc').value = _finMes === currentMesJS()
@@ -2776,9 +2785,25 @@ function editFatura(id) {
     document.getElementById('ff-status').value     = f.status;
     document.getElementById('ff-status').disabled  = true;    // status muda pelos botões ✓ Pagar / ⚠ Vencer / ↩ Desfazer
     document.getElementById('ff-forma').value      = f.forma_pagamento || '';
-    // editar altera UMA parcela — o parcelamento se define na criação
-    document.getElementById('ff-condicao').value    = f.condicao_pagamento || 'À vista';
-    document.getElementById('ff-condicao').disabled = true;
+    document.getElementById('ff-condicao').value   = f.condicao_pagamento || 'À vista';
+
+    // Só dá para parcelar um lançamento avulso e ainda não pago:
+    //  • já é parcela de um parcelamento → mudar a condição deixaria as outras
+    //    parcelas órfãs de sentido
+    //  • já pago → o dinheiro entrou; parcelar depois reescreveria o caixa
+    const podeParcelar = f.parcela_total <= 1 && f.status !== 'pago';
+    document.getElementById('ff-condicao').disabled = !podeParcelar;
+    document.getElementById('ff-condicao-hint').textContent = podeParcelar
+      ? 'Mudar para Parcelado divide este lançamento em N parcelas mensais.'
+      : f.parcela_total > 1
+        ? `Parcela ${f.parcela_num} de ${f.parcela_total} — o parcelamento se altera no conjunto, não numa parcela.`
+        : 'Lançamento já pago: o valor entrou no caixa e não pode ser parcelado.';
+
+    // data de pagamento define o mês de caixa, então é editável no que já foi pago
+    const wrapPg = document.getElementById('ff-pago-wrap');
+    wrapPg.style.display = f.status === 'pago' ? '' : 'none';
+    document.getElementById('ff-pago-em').value = f.data_pagamento || '';
+
     toggleParcelamento();
     const titulo = f.parcela_total > 1
       ? `Editar parcela ${f.parcela_num}/${f.parcela_total}`
@@ -2790,19 +2815,23 @@ function editFatura(id) {
 // Parcelado só faz sentido na criação: mostra o nº de parcelas e troca o rótulo
 // do vencimento pro da primeira. Na edição o campo fica travado.
 function toggleParcelamento() {
+  const cond      = document.getElementById('ff-condicao');
+  // o próprio `disabled` do select já carrega a regra de quando dá para
+  // parcelar (criação sempre; edição só em lançamento avulso e não pago)
+  const parcelado = cond.value === 'Parcelado' && !cond.disabled;
   const editando  = !!document.getElementById('ff-id').value;
-  const parcelado = document.getElementById('ff-condicao').value === 'Parcelado' && !editando;
+
   document.getElementById('ff-parcelas-wrap').style.display = parcelado ? '' : 'none';
   document.getElementById('ff-venc-lbl').textContent = parcelado ? '1º vencimento *' : 'Vencimento *';
   // status inicial não se aplica a um parcelamento: tudo nasce pendente
-  document.getElementById('ff-status-wrap').style.display = parcelado ? 'none' : '';
+  document.getElementById('ff-status-wrap').style.display = (parcelado || editando) ? 'none' : '';
   previewParcelas();
 }
 
 function previewParcelas() {
-  const el = document.getElementById('ff-parc-preview');
-  const parcelado = document.getElementById('ff-condicao').value === 'Parcelado'
-                 && !document.getElementById('ff-id').value;
+  const el   = document.getElementById('ff-parc-preview');
+  const cond = document.getElementById('ff-condicao');
+  const parcelado = cond.value === 'Parcelado' && !cond.disabled;
   const total = parseFloat(document.getElementById('ff-valor').value) || 0;
   const n     = parseInt(document.getElementById('ff-parcelas').value) || 0;
   const venc  = document.getElementById('ff-venc').value;
@@ -2862,7 +2891,9 @@ async function saveFinItem() {
       const categoria   = document.getElementById('ff-categoria').value || null;
       const forma_pagamento    = document.getElementById('ff-forma').value    || null;
       const condicao_pagamento = document.getElementById('ff-condicao').value || null;
-      const parcelado   = !editId && condicao_pagamento === 'Parcelado';
+      // o `disabled` do select carrega a regra de quando dá para parcelar
+      const podeParcelar = !document.getElementById('ff-condicao').disabled;
+      const parcelado   = podeParcelar && condicao_pagamento === 'Parcelado';
       const nParcelas   = parseInt(document.getElementById('ff-parcelas').value) || 0;
 
       if (!cliente_id || !vencimento || !valor) { toast('Preencha cliente, vencimento e valor', 'err'); return; }
@@ -2870,12 +2901,24 @@ async function saveFinItem() {
       if (parcelado && nParcelas < 2) { toast('Um parcelamento precisa de pelo menos 2 parcelas', 'err'); return; }
 
       if (editId) {
-        // edita UMA parcela: valor, comissão, vencimento, descrição, categoria e forma.
-        // cliente e condição ficam travados; status muda pelos botões ✓/⚠/↩.
+        // grava primeiro os campos simples, para que as parcelas nasçam já com
+        // o valor e a descrição corretos se houver divisão em seguida
+        const pagoEm = document.getElementById('ff-pago-em').value;
         await api(`/api/crm/faturas/${editId}`, { method:'PUT', body: JSON.stringify({
           valor, comissao, vencimento, descricao, categoria, forma_pagamento,
+          ...(pagoEm ? { data_pagamento: pagoEm } : {}),
         })});
-        toast('Lançamento atualizado ✓', 'ok');
+
+        if (parcelado) {
+          // avulso virando parcelado: o backend substitui esta fatura por N
+          const r = await api(`/api/crm/faturas/${editId}`, { method:'PUT', body: JSON.stringify({
+            action: 'parcelar', num_parcelas: nParcelas, vencimento,
+          })});
+          toast(`Lançamento dividido em ${r.parcelas_criadas} parcelas ✓`, 'ok');
+          _finMes = vencimento.slice(0, 7);
+        } else {
+          toast('Lançamento atualizado ✓', 'ok');
+        }
       } else if (parcelado) {
         // um contrato Parcelado gera as N parcelas de uma vez, todas pendentes
         const rc = await api('/api/crm/contratos', { method:'POST', body: JSON.stringify({

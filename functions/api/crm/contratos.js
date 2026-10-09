@@ -12,6 +12,11 @@
 //
 // Every fatura carries a real `vencimento` date; `mes` is always derived from it.
 
+import {
+  round2, splitMoney, splitProportional,
+  isYmd, parseYmd, ymd, todayUTC, clampDia, firstDue, addMonthsUTC,
+} from './_parcelas.js';
+
 export async function onRequestGet(context) {
   const { request, env } = context;
   const url = new URL(request.url);
@@ -209,77 +214,6 @@ function makeFatura(f) {
     condicao_pagamento: f.condicao_pagamento ?? null,
     status: 'pendente',
   };
-}
-
-// ── money ─────────────────────────────────────────────────────────────────────
-
-function round2(v) { return Math.round(v * 100) / 100; }
-
-// Splits a total into n parts that sum back to it exactly, to the cent.
-// Leftover cents go to the first parcelas.
-function splitMoney(total, n) {
-  const cents = Math.round(total * 100);
-  const base  = Math.floor(cents / n);
-  const rest  = cents - base * n;
-  return Array.from({ length: n }, (_, i) => (base + (i < rest ? 1 : 0)) / 100);
-}
-
-// Splits a total proportionally to `weights`, summing back exactly. Returns
-// nulls when there is no total to split (commission is optional).
-function splitProportional(total, weights) {
-  if (total == null || total === '') return weights.map(() => null);
-  const t = Number(total);
-  if (!Number.isFinite(t)) return weights.map(() => null);
-  const sumW = weights.reduce((a, b) => a + b, 0);
-  if (!sumW) return splitMoney(t, weights.length);
-  const cents = Math.round(t * 100);
-  let acc = 0;
-  return weights.map((w, i) => {
-    if (i === weights.length - 1) return (cents - acc) / 100;
-    const v = Math.round(cents * (w / sumW));
-    acc += v;
-    return v / 100;
-  });
-}
-
-// ── dates (UTC-explicit: workers run on UTC, and so should the arithmetic) ────
-
-function isYmd(s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s); }
-
-function parseYmd(s) {
-  const [y, m, d] = s.split('-').map(Number);
-  return new Date(Date.UTC(y, m - 1, d));
-}
-
-function ymd(date) { return date.toISOString().slice(0, 10); }
-
-function todayUTC() {
-  const n = new Date();
-  return new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate()));
-}
-
-function clampDia(d) {
-  const n = Number(d);
-  return Number.isInteger(n) && n >= 1 && n <= 31 ? n : null;
-}
-
-// First billing date on or after `base`. Without dia_vencimento the contract
-// starts billing on its start date; with it, on the next occurrence of that day
-// — so data_inicio 15/01 with dia_vencimento 10 bills 10/02, never 10/01.
-function firstDue(base, dia) {
-  if (!dia) return base;
-  const d = addMonthsUTC(base, 0, dia);
-  return d >= base ? d : addMonthsUTC(base, 1, dia);
-}
-
-// Adds n months, landing on `dia` when given. Clamps to the last day of the
-// target month, so day 31 + one month from January lands on Feb 28/29.
-function addMonthsUTC(date, n, dia) {
-  const y = date.getUTCFullYear();
-  const m = date.getUTCMonth();
-  const d = dia || date.getUTCDate();
-  const last = new Date(Date.UTC(y, m + n + 1, 0)).getUTCDate();
-  return new Date(Date.UTC(y, m + n, Math.min(d, last)));
 }
 
 // ── helpers ───────────────────────────────────────────────────────────────────
