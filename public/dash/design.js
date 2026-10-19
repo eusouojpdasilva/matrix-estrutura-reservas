@@ -17,6 +17,10 @@
     dots.forEach((dot, i) => dot.setAttribute('aria-pressed', String(i === index)));
     credit.textContent = `${slide.dataset.author} / Unsplash`;
     credit.href = slide.dataset.credit;
+      // a legenda do local acompanha o slide; fixa no HTML, ela passa a
+      // contradizer a foto assim que o clone troca as imagens
+      const local = document.querySelector('#photo-local');
+      if (local && slide.dataset.local) local.textContent = slide.dataset.local;
   }
   function schedule() {
     clearInterval(timer);
