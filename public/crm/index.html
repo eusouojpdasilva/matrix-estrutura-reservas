@@ -562,6 +562,18 @@ body:not(.sb-off) .sb-toggle-ico::after  { width:9px; transform:translateX(-3px)
 .dd-kpi-lbl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-mute); margin-top:12px; font-family:var(--font-ui); }
 .dd-kpi-sub { font-size:11.5px; color:var(--ink-mute); margin-top:5px; }
 .dd-row { display:grid; gap:18px; margin-bottom:18px; }
+
+/* ── conversa do WhatsApp dentro do modal do lead ── */
+.wa-box { border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-top:8px; }
+.wa-fio { max-height:320px; overflow-y:auto; padding:14px; background:var(--purple-soft); display:flex; flex-direction:column; gap:8px; }
+.wa-bolha { max-width:76%; padding:8px 11px; border-radius:12px; font-size:13px; line-height:1.45; word-break:break-word; }
+.wa-bolha.ent { align-self:flex-start; background:#fff; border:1px solid var(--border); border-bottom-left-radius:3px; }
+.wa-bolha.sai { align-self:flex-end; background:#dcf8c6; border-bottom-right-radius:3px; }
+.wa-meta { font-size:10px; color:var(--ink-mute); margin-top:3px; text-align:right; }
+.wa-vazio { text-align:center; color:var(--ink-mute); font-size:12px; padding:22px 0; }
+.wa-envio { display:flex; gap:8px; padding:10px; border-top:1px solid var(--border); background:#fff; }
+.wa-envio input { flex:1; }
+.wa-aviso { font-size:12px; padding:9px 12px; background:var(--amber-soft); color:#7a4a00; border-top:1px solid var(--border); }
 .dd-row3 { grid-template-columns:1.5fr 0.85fr 1fr; }
 .dd-row2 { grid-template-columns:1.7fr 1fr; }
 .dd-panel { background:var(--card); border:1px solid var(--border); border-radius:var(--r-lg); padding:24px 26px; box-shadow:var(--sh); transition:border-color var(--tr), box-shadow var(--tr); }
@@ -875,6 +887,20 @@ body:not(.sb-off) .sb-toggle-ico::after  { width:9px; transform:translateX(-3px)
       <div class="field">
         <label>Observações</label>
         <textarea id="m-obs" placeholder="Notas internas..."></textarea>
+      </div>
+
+      <!-- A conversa só aparece em lead já salvo e com telefone: antes disso
+           não há com quem conversar. -->
+      <div class="field" id="wa-conversa" style="display:none">
+        <label>WhatsApp</label>
+        <div class="wa-box">
+          <div class="wa-fio" id="wa-fio"></div>
+          <div class="wa-aviso" id="wa-aviso" style="display:none"></div>
+          <div class="wa-envio">
+            <input id="wa-texto" type="text" placeholder="Escreva a resposta..." onkeydown="if(event.key==='Enter'){event.preventDefault();enviarWhats()}">
+            <button class="btn btn-primary btn-sm" id="wa-btn" onclick="enviarWhats()">Enviar</button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="modal-ft">
@@ -1602,7 +1628,7 @@ function go(mod) {
   );
   document.getElementById('pg-title').textContent    = TITLES[mod]  || mod;
   document.getElementById('pg-actions').innerHTML    = ACTIONS[mod] || '';
-  load(mod);
+  return load(mod);
 }
 
 async function load(mod) {
@@ -1867,6 +1893,29 @@ async function renderDash(el) {
       }).join('')
     : `<tr><td colspan="5" class="dd-empty">Nenhum follow-up atrasado</td></tr>`;
 
+  // ── WhatsApp esperando resposta ───────────────────────────────────────────
+  // A conversa mora dentro do modal do lead. Sem este aviso o agente só
+  // descobriria a mensagem abrindo o lead certo por acaso, e continuaria
+  // respondendo pelo celular — com o CRM virando arquivo morto.
+  const semResposta = d.whatsapp_sem_resposta || [];
+  const waRows = semResposta.length
+    ? semResposta.map(m => {
+        const h = m.horas_esperando || 0;
+        const espera = h < 1 ? 'agora' : h < 24 ? `${h}h` : `${Math.floor(h / 24)}d`;
+        const cor = h >= 24 ? 'dd-badge-red' : h >= 4 ? 'dd-badge-amber' : 'dd-badge-green';
+        const trecho = (m.texto || '').length > 90 ? m.texto.slice(0, 90) + '…' : (m.texto || '');
+        return `<tr>
+          <td style="max-width:0">
+            <strong style="white-space:nowrap">${esc(m.lead_nome || m.contato_nome || m.telefone || '—')}</strong>
+            <div style="font-size:11px;color:var(--ink-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(trecho)}</div>
+          </td>
+          <td><span class="${cor}">${espera}</span></td>
+          <td>${stBadge(m.lead_status)}</td>
+          <td><button class="btn btn-ghost btn-sm" style="color:#4A4540;border-color:#262220;font-size:11px" onclick="abrirConversa('${m.lead_id}')">Responder</button></td>
+        </tr>`;
+      }).join('')
+    : `<tr><td colspan="4" class="dd-empty">Nenhuma mensagem esperando resposta</td></tr>`;
+
   // ── alertas de parcela ──────────────────────────────────────────────────────
   // `dias` vem calculado do backend: atraso em `vencidas`, prazo em `a_vencer`.
   function parcRows(lista, modo) {
@@ -2025,6 +2074,19 @@ async function renderDash(el) {
         <table class="dd-table">
           <thead><tr><th>Cliente / Receita</th><th>Parc.</th><th>Valor</th><th>Prazo</th><th></th></tr></thead>
           <tbody>${parcRows(parcelas.a_vencer || [], 'a_vencer')}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="dd-row">
+      <div class="dd-panel">
+        <div class="dd-ph">
+          <span>WhatsApp sem resposta</span>
+          ${semResposta.length > 0 ? `<span class="dd-badge-green">${semResposta.length} esperando</span>` : ''}
+        </div>
+        <table class="dd-table">
+          <thead><tr><th>Lead / mensagem</th><th>Espera</th><th>Status</th><th></th></tr></thead>
+          <tbody>${waRows}</tbody>
         </table>
       </div>
     </div>
@@ -2281,6 +2343,7 @@ function openModal(id) {
   toggleFollowupTarefa(!!l?.followup_tarefa);
   document.getElementById('m-del').style.display = l ? 'inline-flex' : 'none';
   document.getElementById('ov').classList.remove('hidden');
+  carregarConversa(l);
   setTimeout(() => document.getElementById('m-nome').focus(), 50);
 }
 
@@ -2312,6 +2375,98 @@ function closeModal() {
 document.getElementById('ov').addEventListener('click', e => {
   if (e.target === e.currentTarget) closeModal();
 });
+
+// Do aviso do dashboard direto para a conversa: sem isto o botão largava o
+// agente no pipeline para procurar o lead na mão.
+async function abrirConversa(leadId) {
+  await go('pipeline');
+
+  // O pipeline respeita o filtro de período, então o lead do aviso pode não
+  // estar na lista carregada. Nesse caso busco ele direto e injeto, senão o
+  // modal abriria vazio.
+  if (!S.leads.some(l => l.id === leadId)) {
+    try {
+      const r = await api(`/api/crm/leads/${encodeURIComponent(leadId)}`);
+      if (r.lead) S.leads.push(r.lead);
+    } catch { /* sem o lead, openModal abre em branco e o agente percebe */ }
+  }
+  openModal(leadId);
+}
+
+// ── conversa do WhatsApp ─────────────────────────────────────────────────────
+// O histórico vem do banco, não do aparelho: tudo que entrou pelo webhook e
+// tudo que saiu por aqui. O link wa.me do card continua existindo para quem
+// preferir responder pelo celular.
+let waLeadAtual = null;
+
+async function carregarConversa(lead) {
+  const caixa = document.getElementById('wa-conversa');
+  waLeadAtual = (lead && lead.id && lead.telefone) ? lead : null;
+
+  // sem lead salvo ou sem telefone não há conversa possível
+  if (!waLeadAtual) { caixa.style.display = 'none'; return; }
+  caixa.style.display = '';
+  document.getElementById('wa-aviso').style.display = 'none';
+  document.getElementById('wa-fio').innerHTML = '<div class="wa-vazio">Carregando...</div>';
+
+  try {
+    const j = await api(`/api/crm/whatsapp/mensagens?lead_id=${encodeURIComponent(lead.id)}`);
+    desenharConversa(j.mensagens || []);
+  } catch {
+    document.getElementById('wa-fio').innerHTML = '<div class="wa-vazio">Não consegui carregar a conversa.</div>';
+  }
+}
+
+function desenharConversa(msgs) {
+  const fio = document.getElementById('wa-fio');
+  if (!msgs.length) {
+    fio.innerHTML = '<div class="wa-vazio">Nenhuma mensagem ainda.</div>';
+    return;
+  }
+  const ICONE = { sent: '✓', delivered: '✓✓', read: '✓✓', failed: '⚠ falhou', received: '' };
+  fio.innerHTML = msgs.map(m => {
+    const saiu = m.direcao === 'saida';
+    const hora = m.enviado_em
+      ? new Date(m.enviado_em * 1000).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+      : '';
+    // tique azul só quando foi lido, como no WhatsApp
+    const cor = m.status === 'read' ? 'color:#2d6eb5' : m.status === 'failed' ? 'color:var(--red-col)' : '';
+    return `<div class="wa-bolha ${saiu ? 'sai' : 'ent'}">
+      ${esc(m.texto || '')}
+      <div class="wa-meta" style="${cor}">${hora}${saiu ? ' ' + (ICONE[m.status] || '') : ''}</div>
+    </div>`;
+  }).join('');
+  fio.scrollTop = fio.scrollHeight;
+}
+
+async function enviarWhats() {
+  if (!waLeadAtual) return;
+  const campo = document.getElementById('wa-texto');
+  const btn   = document.getElementById('wa-btn');
+  const aviso = document.getElementById('wa-aviso');
+  const texto = campo.value.trim();
+  if (!texto) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+  aviso.style.display = 'none';
+
+  try {
+    await api('/api/crm/whatsapp/enviar', {
+      method: 'POST',
+      body: JSON.stringify({ lead_id: waLeadAtual.id, texto }),
+    });
+    campo.value = '';
+    await carregarConversa(waLeadAtual);
+  } catch (e) {
+    // a janela de 24h é o caso mais comum; a mensagem do servidor explica
+    aviso.textContent = e.message || 'Não consegui enviar.';
+    aviso.style.display = '';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Enviar';
+  }
+}
 
 async function saveLead() {
   const id   = document.getElementById('m-id').value;
