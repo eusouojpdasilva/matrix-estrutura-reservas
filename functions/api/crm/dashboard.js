@@ -43,7 +43,7 @@ export async function onRequestGet(context) {
     : { sql: `AND substr(${DATA_CAIXA}, 1, 7) = ?`, binds: [mes] };
 
   try {
-    const [funil, clientes, receita, pipeline, risco, anivRes, vencidas, aVencer, totParc] =
+    const [funil, clientes, receita, pipeline, risco, anivRes, vencidas, aVencer, totParc, semResposta] =
       await Promise.all([
         // leads por status
         env.DB.prepare(`
@@ -127,6 +127,29 @@ export async function onRequestGet(context) {
             FROM crm_faturas WHERE status != 'pago'
           )
         `).bind(hoje, hoje, hoje, limite, hoje, limite).first(),
+
+          // WhatsApp esperando resposta: leads cuja última mensagem veio de
+          // fora. Sem isto a conversa só existe dentro do modal do lead, e o
+          // agente só descobre a mensagem se abrir o lead certo por acaso.
+          //
+          // Ignora o filtro de período pela mesma razão das parcelas: "quem
+          // está esperando resposta" é pergunta sobre agora, não sobre a
+          // janela que o agente escolheu olhar.
+          env.DB.prepare(`
+            SELECT m.lead_id, m.texto, m.enviado_em, m.contato_nome, m.telefone,
+                   l.nome as lead_nome, l.status as lead_status, l.destino
+              FROM crm_mensagens m
+              JOIN crm_leads l ON l.id = m.lead_id
+             WHERE m.lead_id IS NOT NULL
+               AND m.enviado_em = (
+                     SELECT MAX(m2.enviado_em) FROM crm_mensagens m2
+                      WHERE m2.lead_id = m.lead_id
+                   )
+               AND m.direcao = 'entrada'
+               AND l.status NOT IN ('fechado','perdido')
+             ORDER BY m.enviado_em ASC
+             LIMIT 20
+          `).all(),
       ]);
 
     // filtrar aniversários nos próximos 15 dias (no JS para evitar edge case virada de ano)
@@ -195,6 +218,10 @@ export async function onRequestGet(context) {
         total_a_vencer: totParc?.total_a_vencer || 0,
       },
       aniversariantes,
+      whatsapp_sem_resposta: (semResposta.results || []).map(m => ({
+        ...m,
+        horas_esperando: Math.floor((Date.now() / 1000 - (m.enviado_em || 0)) / 3600),
+      })),
     });
   } catch (err) {
     return json({ error: err.message }, 500);

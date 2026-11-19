@@ -206,6 +206,38 @@ by the dashboard's "last synced at" indicator.
 
 **Index**: `idx_sync_log_platform_run_at` on `(platform, run_at DESC)`.
 
+## `crm_mensagens`
+
+Conversa de WhatsApp trocada com o lead, gravada pelo webhook do Kapso
+(`/webhook/kapso/<slug>`) e pelo endpoint de envio
+(`/api/crm/whatsapp/enviar`).
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | TEXT PRIMARY KEY | UUID |
+| `lead_id` | TEXT | → `crm_leads.id`. Nulo quando o evento não traz telefone |
+| `kapso_message_id` | TEXT UNIQUE | wamid da Meta. Segura a idempotência |
+| `kapso_conversation_id` | TEXT | Conversa do Kapso, única pista quando não há telefone |
+| `direcao` | TEXT NOT NULL | `entrada` \| `saida` |
+| `tipo` | TEXT | `text`, `image`, `audio`, `document`, … |
+| `texto` | TEXT | Corpo, ou rótulo (`[áudio]`) para tipo sem texto |
+| `telefone` | TEXT | Só dígitos, como o WhatsApp manda |
+| `contato_nome` | TEXT | Nome do contato no WhatsApp |
+| `status` | TEXT | `received` \| `sent` \| `delivered` \| `read` \| `failed` |
+| `enviado_em` | INTEGER | Unix seconds, vindo do Kapso |
+| `created_at` | INTEGER NOT NULL | Unix seconds |
+
+**Indexes**: `idx_crm_mensagens_lead` em `(lead_id, enviado_em)` para desenhar
+a conversa; `idx_crm_mensagens_telefone` em `(telefone)`.
+
+O `UNIQUE` em `kapso_message_id` é o que impede duplicata: o Kapso reenvia o
+evento quando não recebe 200, e os eventos de status (`delivered`, `read`,
+`failed`) chegam depois da mensagem já gravada — todos precisam encontrar a
+linha existente em vez de criar outra.
+
+`lead_id` é nulável de propósito. Nem todo evento traz telefone, e uma
+mensagem sem dono é melhor que uma mensagem perdida.
+
 ## Things NOT in the schema (deliberate)
 
 - **No `leads` table.** Lead events live in `event_log` and are joined to
@@ -218,3 +250,10 @@ by the dashboard's "last synced at" indicator.
   recipient needs it.
 - **No `migration_history` table beyond what `wrangler d1 migrations
   apply` manages internally.** Don't add one.
+
+- **No normalized phone column on `crm_leads`.** O WhatsApp manda números do
+  Brasil sem o nono dígito, e o lead foi salvo como a pessoa digitou. O
+  casamento é feito em JS (`functions/api/crm/_telefone.js`), varrendo os leads
+  com telefone. Na escala destes CRMs a varredura é instantânea; passando de
+  alguns milhares de leads, o caminho é uma coluna normalizada com índice,
+  preenchida na escrita.
